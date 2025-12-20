@@ -8,8 +8,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Spectre.Console;
+
 using Spectre.Console.Rendering;
+using RPGFramework.Enums;
 
 namespace RPGFramework
 {

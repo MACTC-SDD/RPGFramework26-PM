@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RPGFramework.Enums;
 
-namespace RPGFramework.MapObjects
+namespace RPGFramework.Geography
 {
     public class Room
     {
@@ -84,7 +85,7 @@ namespace RPGFramework.MapObjects
         public static Room CreateRoom(int areaId, string name, string description)
         {
             Room room = new Room();
-            room.Id = Room.GetNextId(areaId);
+            room.Id = GetNextId(areaId);
             room.Name = name;
             room.Description = description;
             GameState.Instance.Areas[areaId].Rooms.Add(room.Id, room);

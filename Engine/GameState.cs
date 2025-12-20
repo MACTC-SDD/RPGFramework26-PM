@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using RPGFramework.MapObjects;
+using RPGFramework.Geography;
 
 namespace RPGFramework
 {

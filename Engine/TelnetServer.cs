@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using RPGFramework.Display;
 using RPGFramework.Command;
+using RPGFramework.Geography;
 
 public class TelnetServer
 {
@@ -75,6 +76,7 @@ public class TelnetServer
 
             await player.Network.Writer.WriteLineAsync("MOTD");
             player.Write(RPGPanel.GetPanel("Welcome to the game!", "Welcome!"));
+            MapRenderer.RenderLocalMap(player);
 
             Console.WriteLine("New client connected!");
 

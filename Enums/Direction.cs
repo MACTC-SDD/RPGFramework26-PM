@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RPGFramework
+namespace RPGFramework.Enums
 {
     public enum Direction
     {
@@ -15,12 +15,5 @@ namespace RPGFramework
         Up,
         Down,
         None
-    }
-
-    public enum PlayerRole
-    {
-        Player,
-        Admin,
-        God
     }
 }

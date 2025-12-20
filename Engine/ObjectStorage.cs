@@ -9,6 +9,13 @@ namespace RPGFramework
 {
     public class ObjectStorage
     {
+        /// <summary>
+        /// Save an object to a specified path and file name as JSON.
+        /// </summary>
+        /// <typeparam name="T">Type of object to save.</typeparam>
+        /// <param name="obj">Object to save</param>
+        /// <param name="path">Path to save file in</param>
+        /// <param name="fileName">Name of file</param>
         public static void SaveObject<T>(T obj, string path, string fileName)
         {
             try
@@ -34,6 +41,14 @@ namespace RPGFramework
             }
         }
 
+        /// <summary>
+        /// Load an object of a given type from a specified path and file name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
         public static T LoadObject<T>(string path, string fileName)
         {
             path = Path.Combine(AppContext.BaseDirectory, path);
@@ -49,7 +64,13 @@ namespace RPGFramework
             return JsonSerializer.Deserialize<T>(jsonString);
         }
 
-        // Load all objects of a given type from a directory
+        /// <summary>
+        /// Load all objects of a given type from a directory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="DirectoryNotFoundException"></exception>
         public static List<T> LoadAllObjects<T>(string path)
         {
             path = Path.Combine(AppContext.BaseDirectory, path);

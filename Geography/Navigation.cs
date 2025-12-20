@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RPGFramework.Enums;
 
-namespace RPGFramework.MapObjects
+namespace RPGFramework.Geography
 {
     /// <summary>
     /// Primarily respoonsible for handling move commands (n, e, s, w, u, d)

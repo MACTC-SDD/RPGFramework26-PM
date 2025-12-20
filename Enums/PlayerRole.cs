@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RPGFramework.MapObjects
+namespace RPGFramework.Enums
 {
-    // We'll use this to create display information for the map.
-    // TODO!
-    public class Map
+    public enum PlayerRole
     {
+        Player,
+        Admin,
+        God
     }
 }

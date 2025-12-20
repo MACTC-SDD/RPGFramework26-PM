@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RPGFramework.MapObjects;
+using RPGFramework.Enums;
+using RPGFramework.Geography;
 
 namespace RPGFramework.Command
 {

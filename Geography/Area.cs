@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RPGFramework.MapObjects
+namespace RPGFramework.Geography
 {
     public class Area
     {

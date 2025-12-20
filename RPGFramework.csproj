@@ -12,6 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="RPGLocalTesting\**" />
+    <EmbeddedResource Remove="RPGLocalTesting\**" />
+    <None Remove="RPGLocalTesting\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
   </ItemGroup>
 
