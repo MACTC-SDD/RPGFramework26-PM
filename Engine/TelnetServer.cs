@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RPGFramework.Display;
-using RPGFramework.Command;
+using RPGFramework.Commands;
 using RPGFramework.Geography;
 
 public class TelnetServer
@@ -90,7 +90,7 @@ public class TelnetServer
                         break;
 
                     Console.WriteLine($"Received command: {command}");
-                    Command.Process(player, command);
+                    CommandManager.Process(player, command);
                 }
             }
             catch (Exception ex)
