@@ -18,6 +18,7 @@ namespace RPGFramework.Commands
         {
             return new List<ICommand>
             {
+                new AFKCommand(),
                 new IpCommand(),
                 new LookCommand(),
                 new QuitCommand(),
@@ -28,6 +29,22 @@ namespace RPGFramework.Commands
         }
 
 
+    }
+
+    internal class AFKCommand : ICommand
+    {
+        public string Name => "afk";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.IsAFK = !player.IsAFK;
+                player.WriteLine($"You are now {(player.IsAFK ? "AFK" : "no longer AFK")}.");
+                return true;
+            }
+            return false;
+        }
     }
 
     internal class IpCommand : ICommand

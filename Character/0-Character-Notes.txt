@@ -5,3 +5,84 @@ NPC Catalog
 NPC Database
 	All instantiated NPCs in the game world
 		Consider loading NPC data on demand based on player proximity or interaction.
+
+Should we break NPCs into Mobs, Shopkeepers, Trainers, Quest Givers, etc.?
+
+Player Notes
+	Need to create prompt like <20hp 100m 100mv> for players.
+		Consider allowing players to customize their prompt format.
+
+Mob behaviors from CoffeeMUD
+"Aggressive" makes the mob attack others.
+"AlignHelper" makes the mob defend same alignments.
+"AntiVagrant" makes the mob wake up stragglers on the street.
+"Bardness" makes the mob fight with bard skills.
+"Beggar" makes the mob beg for money.
+"BribeGateGuard" makes the mob a gate guard who can be bribed.
+"BrotherHelper" makes the mob defend similar mobs.
+"ClanHelper" makes the mob defend clan buddies.
+"Clericness" makes the mob fight with cleric skills appropriate to alignment.
+"CombatAbilities" makes the mob use its abilities in combat.
+"CombatAssister" makes the mob assist specific other mobs in combat.
+"CommonSpeaker" makes the mob speak common, even if it doesn't want to.
+"CorpseEater" makes the mob eat corpses it comes across.
+"CorpseLooter" makes the mob loot corpses it kills.
+"Decay" makes the mob go away after a time.
+"DelayedTransporter" makes a mob that randomly zaps around the place.
+"DoorwayGuardian" makes a mob that won't let anyone pass.
+"Drowness" provides certain drow-like behavior to genmobs.
+"Druidness" makes the mob fight with druid skills.
+"Emoter" makes the mob do the silly things you think of.
+"EvilExecutioner" makes the mob slaughter good folks.
+"FaithHelper" makes the mob defend those of the same faith.
+"FightFlee" makes an annoying mob that runs away.
+"Fighterness" makes a mob that fights with fighter skills.
+"Follower" makes the mob follow folks around.
+"GateGuard" makes a mob that opens, closes, unlocks, and locks a door.
+"GoldLooter" makes a mob that takes the loot from the vanquished.
+"GoodExecutioner" makes a mob that kills evil and thief mobs.
+"GoodGuardian" makes a mob that stops fights and defends the helpless.
+"Guard" always defends the attacked.
+"Healer" makes the mob a random friendly healer.
+"Hireling" puts the mobs abilities up for hire.
+"InstantDeath" kills everyone in the room with the mob, after a time.
+"ItemIdentifier" makes the mob an identifier for hire.
+"ItemGenerator" will create treasure and items for your mobs inventory.
+"ItemMender" makes the mob a mender for hire.
+"ItemRefitter" makes the mob a refitter for hire.
+"MOBEater" makes the mob eat its enemies.
+"MOBHelper" makes the mob assist other mobs.
+"MOBHunter" makes the mob hunt other mobs.
+"MOBReSave" a bizarre behavior that updates a mobs info in the world database.
+"MOBTeacher" makes the mob a teacher of class skills.
+"Mageness" makes the mob use mage skills in combat.
+"Mime" makes the mob mime the socials of other mobs.
+"Mobile" makes the mob mobile.
+"MobileAggressive" makes the mob mobile and aggressive.
+"MobileGoodGuardian" makes the mob mobile and peacemaking.
+"MOBReSave" keeps the mob updated in the database at all times.
+"MoneyChanger" makes the mob exchange coins for notes.
+"MudChat" makes the mob chatty.
+"NastyAbilities" makes the mob a random caster of mean spells.
+"NiceAbilities" makes the mob a random caster of friendly spells.
+"NoCombatAssist" makes the mob never assist group members in combat.
+"ObjectGuardian" makes the mob forbid getting items in its room.
+"Patroller" makes the mob walk a patrol.
+"PlayerHelper" makes the mob assist players.
+"PokerDealer" makes a dealer of player vs player poker games.
+"ProtectedCitizen" makes the mob scream for help!
+"ROMGangMember" makes the mob a gang member.
+"ROMPatrolman" makes the mob a patrolman for gang members.
+"RandomItems" will cause items from a saved file to appear on your mob.
+"RandomTransporter" makes the mob zip around the map.
+"RaceHelper" makes the mob assist those of the same race.
+"Scavenger" makes the mob a scavenger of stuff on the ground.
+"Scriptable" makes the mob run scripts that you write!
+"Sounder" makes the mob emote the silly things you want it to.
+"TargetPlayer" makes the mob fight the weakest player attacking him.
+"TaxCollector" makes the mob a collector of money from players and or mobs.
+"Thiefness" makes the mob use thief skills in combat.
+"Vagrant" makes the mob sleepy.
+"VeryAggressive" makes the mob willing to jump rooms to fight.
+"Wimpy" makes the mob run away.
+"WimpyAggressive" makes the mob only fight sleeping folks.

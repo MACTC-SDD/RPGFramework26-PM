@@ -83,7 +83,7 @@ namespace RPGFramework.Persistence
             foreach (string file in Directory.EnumerateFiles(path))
             {
                 string jsonString = File.ReadAllText(file);
-                Console.WriteLine(jsonString);
+                //Console.WriteLine(jsonString);
                 objects.Add(JsonSerializer.Deserialize<T>(jsonString));
             }
 

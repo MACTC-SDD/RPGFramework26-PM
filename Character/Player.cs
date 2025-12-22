@@ -19,6 +19,9 @@ namespace RPGFramework
         #region --- Properties --- 
         // Properties to NOT save (don't serialize)
         [JsonIgnore]
+        public bool IsAFK { get; set; } = false;
+
+        [JsonIgnore]
         public bool IsOnline { get; set; }
         
         // Properties
@@ -27,6 +30,12 @@ namespace RPGFramework
         public PlayerRole PlayerRole { get; set; } = PlayerRole.Player;
         #endregion
 
+        public string DisplayName()
+        {
+            // We could add colors and other things later, for now, just afk
+            return Name + (IsAFK ? " (AFK)" : "");
+
+        }
         
         /// <summary>
         /// Things that should happen when a player logs in.
