@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace RPGFramework.Commands
 {
     internal interface ICommand

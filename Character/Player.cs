@@ -1,15 +1,7 @@
-﻿using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Numerics;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
+﻿using System.Text.Json.Serialization;
+using Spectre.Console;
 using Spectre.Console.Rendering;
+
 using RPGFramework.Enums;
 
 namespace RPGFramework
