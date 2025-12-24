@@ -32,7 +32,7 @@ namespace RPGFramework.Commands
         {
             if (character is Player)
             {
-                MapRenderer.RenderLocalMap((Player)character, 2);
+                MapRenderer.RenderLocalMap((Player)character, 4);
                 return true;
             }
 

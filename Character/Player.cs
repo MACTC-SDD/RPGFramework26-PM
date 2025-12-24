@@ -17,9 +17,9 @@ namespace RPGFramework
         public bool IsOnline { get; set; }
         
         // Properties
-        public DateTime LastLogin { get; private set; }
-        public TimeSpan PlayTime { get; private set; } = new TimeSpan();
-        public PlayerRole PlayerRole { get; private set; } = PlayerRole.Player;
+        public DateTime LastLogin { get; set; }
+        public TimeSpan PlayTime { get; set; } = new TimeSpan();
+        public PlayerRole PlayerRole { get; set; } = PlayerRole.Player;
         #endregion
 
         public string DisplayName()
