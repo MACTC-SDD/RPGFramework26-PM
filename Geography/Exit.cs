@@ -33,11 +33,4 @@ namespace RPGFramework.Geography
         }
     }
 
-    public enum ExitType
-    {
-        Open,
-        Door,
-        LockedDoor,
-        Impassable
-    }
 }

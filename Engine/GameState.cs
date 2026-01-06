@@ -182,6 +182,9 @@ namespace RPGFramework
 
             IsRunning = true;
 
+            // Initialize game data if it doesn't exist
+            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions());
+
             await LoadAllAreas();
             await LoadAllPlayers();
 

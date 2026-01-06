@@ -18,6 +18,7 @@ namespace RPGFramework
         
         // Properties
         public DateTime LastLogin { get; set; }
+        public int MapRadius { get; set; } = 2; // How far the player can see on the map
         public TimeSpan PlayTime { get; set; } = new TimeSpan();
         public PlayerRole PlayerRole { get; set; } = PlayerRole.Player;
         #endregion
