@@ -39,11 +39,6 @@ internal class TelnetServer
     {
         using (client)
         {
-
-            // TODO: Handle Login (Authentication)
-            // Populate player object and attach to client
-
-            // Loop here until player name is entered
             // Create PlayerNetwork object, once logged in we'll attach it to player
             PlayerNetwork pn = new PlayerNetwork(client);
             pn.Writer.WriteLine("Username: ");
@@ -73,9 +68,8 @@ internal class TelnetServer
 
             player.Network = pn;
             player.Login();
-           
 
-            await player.Network.Writer.WriteLineAsync("MOTD");
+            // MOTD Should Be Settable in Game Settings
             player.Write(RPGPanel.GetPanel("Welcome to the game!", "Welcome!"));
             MapRenderer.RenderLocalMap(player);
 

@@ -37,8 +37,7 @@ namespace RPGFramework
         /// <summary>
         /// All Areas are loaded into this dictionary
         /// </summary>
-        [JsonIgnore]
-        public Dictionary<int, Area> Areas { get; set; } =
+        [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } =
             new Dictionary<int, Area>();
 
         // TODO: Move this to configuration settings class
@@ -54,6 +53,7 @@ namespace RPGFramework
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
 
+        // Move starting area/room to configuration settings
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
 
@@ -191,19 +191,12 @@ namespace RPGFramework
             await LoadAllAreas();
             await LoadAllPlayers();
 
+            // Load Item (Weapon/Armor/Consumable/General) catalogs
+            // Load NPC (Mobs/Shop/Guild/Quest) catalogs
+
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
 
-
-
-            /* We may want to do this to bootstrap a starting area/room if none are available to be loaded.
-            //Area startArea = new Area() { Id = 0, Name = "Void Area", Description = "Start Area" };
-            //new Room()
-            //{ Id = 0, Name = "The Void", Description = "You are in a void. There is nothing here." };
-
-            //startArea.Rooms.Add(StartingRoom.Id, StartingRoom);
-            //GameState.Instance.Areas.Add(startArea.Id, startArea);
-            */
 
             // TODO: Consider moving thread methods to their own class
 
