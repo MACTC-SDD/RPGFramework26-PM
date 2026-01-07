@@ -6,6 +6,7 @@ using RPGFramework;
 using RPGFramework.Display;
 using RPGFramework.Commands;
 using RPGFramework.Geography;
+using RPGFramework.Engine;
 
 internal class TelnetServer
 {
@@ -65,6 +66,7 @@ internal class TelnetServer
             {
                 // TODO: New player creation (class, etc)
                 player = new Player(client, playerName);
+                player.CurrentWorkflow = new WorkflowOnboarding();
                 GameState.Instance.AddPlayer(player);
             }
 
