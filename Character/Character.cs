@@ -1,5 +1,6 @@
 ﻿
 using RPGFramework.Geography;
+using RPGFramework.Enums;
 
 namespace RPGFramework
 {
@@ -41,7 +42,7 @@ namespace RPGFramework
         {
             Health = MaxHealth;
             Weapon w = new Weapon() 
-              { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0 };
+              { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
         }
 
