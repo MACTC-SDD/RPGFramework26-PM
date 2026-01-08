@@ -10,6 +10,7 @@ namespace RPGFramework
         public int cuDurability { get; set; } = 20;
         public int lrDurability { get; set; } = 25;
         public bool ammmoleft { get; set; } = true;
+        public int range { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods

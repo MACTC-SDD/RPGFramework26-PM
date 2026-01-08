@@ -3,6 +3,7 @@ namespace RPGFramework
 {
     internal class Armor : Item
     {
-        // TODO - Implement once we know how combat will work
+        public int protection { get; set; } = 0;
+        public int Durability { get; set; } = 20;
     }
 }

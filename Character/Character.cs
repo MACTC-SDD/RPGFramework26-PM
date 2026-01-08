@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Geography;
 using RPGFramework.Enums;
+using RPGFramework.Items;
 
 namespace RPGFramework
 {
@@ -19,6 +20,7 @@ namespace RPGFramework
         public int AreaId { get; set; } = 0;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
+        public Inventory BackPack { get; protected set; } = new Inventory();
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
