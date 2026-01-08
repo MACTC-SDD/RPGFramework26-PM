@@ -11,6 +11,7 @@ namespace RPGFramework
         public int lrDurability { get; set; } = 25;
         public bool ammmoleft { get; set; } = true;
         public int range { get; set; } = 0;
+        public int maxDurability { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods
