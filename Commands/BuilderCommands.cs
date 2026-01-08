@@ -38,7 +38,37 @@ namespace RPGFramework.Commands
                 return false;
             }
 
+            // Decide what to do based on the second parameter
             switch (parameters[1].ToLower())
+            {
+                case "description":
+                    player.WriteLine("Deprecated: Use /room set description");
+                    break;
+                case "name":
+                    player.WriteLine("Deprecated: Use /room set name");
+                    break;
+                case "create":
+                    RoomCreate(player, parameters);
+                    break;
+                case "set":
+                    // We'll move setting name and description into this
+
+                default:
+                    WriteUsage(player);
+                    break;
+            }
+
+            return true;
+        }
+
+        private static void RoomSet(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+            {
+                WriteUsage(player);
+                return;
+            }
+            switch (parameters[2].ToLower())
             {
                 case "description":
                     RoomSetDescription(player, parameters);
@@ -46,15 +76,11 @@ namespace RPGFramework.Commands
                 case "name":
                     RoomSetName(player, parameters);
                     break;
-                case "create":
-                    RoomCreate(player, parameters);
-                    break;
+                // As we add more settable properties, we can expand this switch
                 default:
                     WriteUsage(player);
                     break;
             }
-
-            return true;
         }
 
         private static void WriteUsage(Player player)
