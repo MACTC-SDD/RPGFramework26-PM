@@ -52,7 +52,8 @@ namespace RPGFramework.Commands
                     break;
                 case "set":
                     // We'll move setting name and description into this
-
+                    RoomSet(player, parameters);
+                    break;
                 default:
                     WriteUsage(player);
                     break;
@@ -93,7 +94,7 @@ namespace RPGFramework.Commands
 
         private static void RoomCreate(Player player, List<string> parameters)
         {
-            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            if (!Utility.CheckPermission(player, PlayerRole.Player))
             {
                 player.WriteLine("You do not have permission to do that.");
                 player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
