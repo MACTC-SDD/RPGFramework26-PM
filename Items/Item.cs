@@ -15,5 +15,8 @@ namespace RPGFramework
         public int UsesRemaining { get; set; } = -1; // -1 means unlimited uses
         public double Value { get; set; } = 0;
         public double Weight { get; set; } = 0;
+        public double SpawnChance { get; set; } = 0;
+        public double UseSpeed { get; set; } = 1;
+
     }
 }
