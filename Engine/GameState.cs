@@ -31,7 +31,11 @@ namespace RPGFramework
         //private bool IsRunning = false;
         private Thread? _saveThread;
         private Thread? _timeOfDayThread;
-
+        private Thread? _tickThread;
+        private Thread? _weatherThread;
+        private Thread? _npcThread;
+        private Thread? _itemDecayThread;
+        private Thread? _anouncmentsThread;
         #region --- Properties ---
 
         /// <summary>
@@ -105,6 +109,19 @@ namespace RPGFramework
                 Areas.Add(kvp.Key, kvp.Value);
                 Console.WriteLine($"Loaded area: {kvp.Value.Name}");
             }
+        }
+
+        private int TickCount = 0;
+        private Task TickTask(int interval)
+        {
+            while (IsRunning)
+            {
+                // Update game state here
+                // For example, process NPC actions, environment changes, etc.
+                TickCount++;
+                Thread.Sleep(interval);
+            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -217,10 +234,25 @@ namespace RPGFramework
             _timeOfDayThread.Start();
 
             // Other threads will go here
+            _tickThread = new Thread(() => TickTask(1000));
+            _tickThread.IsBackground = true;
+            _tickThread.Start();
             // Weather?
+            _weatherThread = new Thread(() => WeatherTask(60000));
+            _weatherThread.IsBackground = true;
+            _weatherThread.Start();
             // Area threads?
             // NPC threads?
+            _npcThread = new Thread(() => NPCTask(10000));
+            _npcThread.IsBackground = true;
+            _npcThread.Start();
             // Room threads?
+            _itemDecayThread = new Thread(() => ItemDecayTask(120000));
+            _itemDecayThread.IsBackground = true;
+            _itemDecayThread.Start();
+            _anouncmentsThread = new Thread(() => AnnouncementsTask(300000));
+            _anouncmentsThread.IsBackground = true;
+            _anouncmentsThread.Start();
 
 
         }
@@ -236,8 +268,8 @@ namespace RPGFramework
         /// will terminate upon completion.</returns>
         /// TODO: Allow user to supply a duration to avoid immediate shutdown
         public async Task Stop()
-        {               
-            await SaveAllPlayers(includeOffline: true);         
+        {
+            await SaveAllPlayers(includeOffline: true);
             await SaveAllAreas();
 
             foreach (var player in Players.Values.Where(p => p.IsOnline))
@@ -293,7 +325,137 @@ namespace RPGFramework
                 Thread.Sleep(interval);
             }
         }
-        #endregion --- Thread Methods ---
 
+        private void AnnouncementsTask(int interval)
+        {
+            while (IsRunning)
+            {
+                // Check for announcements to make
+                // Announce to all players in relevant areas/rooms
+                Thread.Sleep(interval);
+            }
+        }
+
+        private void ItemDecayTask(int interval)
+        {
+            while (IsRunning)
+            {
+                foreach (var item in GameState.Instance.Items.Values){
+
+                    if (item.IsPerishable)
+                    {
+                        item.UsesRemaining--;
+                    }
+                }
+            }
+        }
+
+        private void WeatherTask(int interval)
+        {
+            while (IsRunning)
+            {
+                // Update weather in all areas
+                //choose random from list, apply to area
+                //repeat for every area
+                //await build team for areas/weather types
+                foreach (var area in Areas.Values)
+                {
+                    area.UpdateWeather();
+                }
+                Thread.Sleep(interval);
+            }
+        }
+
+        // / <summary> weather update method, move later
+        // / </summary>
+        public void UpdateWeather()
+        {
+            // choose random from list, apply to area
+            // repeat for every area
+            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
+            string newWeather = weatherStates[randomWeatherIndex];
+            // apply newWeather to area
+            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
+            // figure out how to implement those effects later, probably within combat and npc methods
+        }
+        //placeholder weather states, await build teams final choices
+        List<string> weatherStates = new List<string>()
+        {
+            "Sunny",
+            "Cloudy",
+            "Rainy",
+            "Stormy",
+            "Snowy",
+            "Windy"
+        };
+        // end weather update method
+        private void NPCTask(int interval)
+        {
+            while (IsRunning)
+            {
+                // run command to check for players, then choose NPC actions
+                // hostile/agro prioritize attacking players, then other NPCs, then wandering
+                // friendly prioritize helping players, then other NPCs, then wandering
+                // neutral prioritize wandering, then attacking hostile NPCs
+                // repeat for every NPC
+                // await NPC team for behaviors/actions and NPCs
+                // make sure to include some randomness so NPCs don't all act at once
+                // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
+                foreach (var npc in NPC.Values)
+                {
+                    if (npc.IsEngaged)
+                    {
+                        continue;
+                    }
+                    if (npc is Hostile)
+                    {
+                        
+                        if (npc.GetRoom().Players.Count > 0)
+                        {
+                            // run combat initializtion method(s)
+                            foreach (var player in npc.GetRoom().Players)
+                            {
+                                // notify player of attack
+                                player.WriteLine($"The {npc.Name} attacks you!");
+                            }
+                        }
+                        else if (npc.GetRoom().NPC.Count > 1)
+                        {
+                            // run combat initialization method(s)
+                        }
+
+                    }
+                    else if (npc is Army)
+                    {
+                        if (npc.GetRoom().NPC.Hostile.Count > 0)
+                        {
+                            foreach (var player in npc.GetRoom().Players)
+                            {
+                                // notify player of attack
+                                player.WriteLine($"The {npc.Name} attacks an enemy!");
+                            }
+                            // run combat initialization method(s)
+                        }
+                        else
+                        {
+                            npc.DoGuardAction();
+                        }
+
+                    }
+                    else if (npc is NonHostile)
+                    {
+                        if (npc.GetRoom().Players.Count > 0)
+                        {
+                            npc.DoNPCAction();
+                        }
+                    }
+                        Thread.Sleep(interval);
+                }
+            }
+
+            #endregion --- Thread Methods ---
+
+        }
     }
 }
+

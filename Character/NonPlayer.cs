@@ -8,5 +8,6 @@ namespace RPGFramework
     /// enemies.</remarks>
     internal class NonPlayer : Character
     {
+        
     }
 }
