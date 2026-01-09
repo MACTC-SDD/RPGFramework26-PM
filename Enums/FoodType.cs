@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RPGFramework.Enums
 {
-    internal enum Food
+    internal enum FoodType
     {
         Apple,
         Bread,
@@ -15,8 +15,8 @@ namespace RPGFramework.Enums
         Boar_Meat,
         Pie,
         Berries,
-        Water,
-        Milk,
+        Water_Bottle,
+        Milk_Bottle,
         Wine
     }
 }
