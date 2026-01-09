@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RPGFramework.Enums
 {
-    internal enum Armor
+    internal enum ArmorType
     {
         Rags,
         Hide,
