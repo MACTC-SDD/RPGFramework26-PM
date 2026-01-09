@@ -7,9 +7,7 @@ namespace RPGFramework
     {
         public double Damage { get; set; } = 0;
         public WeaponType WeaponType { get; set; }
-        public bool longRange { get; set; } = false;
-        public int cuDurability { get; set; } = 20;
-        public int lrDurability { get; set; } = 25;
+        public int Durability { get; set; } = 0;
         public bool ammmoleft { get; set; } = true;
         public int range { get; set; } = 0;
         public double Speed { get; set; } = 0;
@@ -19,6 +17,134 @@ namespace RPGFramework
         // Maybe some kind of Weapon generator (random stats, etc.)
 
 
+        public void WeaponDamage()
+        {
+            switch (this.WeaponType)
+            {
+                case WeaponType.Bow:
+                    Damage = 30;
+                    break;
+                case WeaponType.Flail:
+                    Damage = 25;
+                    break;
+                case WeaponType.Hands:
+                    Damage = 10;
+                    break;
+                case WeaponType.Crossbow:
+                    Damage = 35;
+                    break;
+                case WeaponType.Knife:
+                    Damage = 20;
+                    break;
+                case WeaponType.LongSword:
+                    Damage = 35;
+                    break;
+                case WeaponType.Sword:
+                    Damage = 30;
+                    break;
+                case WeaponType.Mace:
+                    Damage = 20;
+                    break;
+                case WeaponType.Musket:
+                    Damage = 50;
+                    break;
+                case WeaponType.Rock:
+                    Damage = 15;
+                    break;
+                case WeaponType.ShortSword:
+                    Damage= 20;
+                    break;
+                case WeaponType.Spear:
+                    Damage = 25;
+                    break;
+                case WeaponType.WarAxe:
+                    Damage = 35;
+                    break;
+            }
+        }
+
+        public void WeaponDurability()
+        {
+            switch (this.WeaponType)
+            {
+                case WeaponType.Spear:
+                   Durability = 25;
+                    break;
+                case WeaponType.Bow:
+                    Durability = 25;
+                    break;
+                case WeaponType.Hands:
+                    Durability = 100;
+                    break;
+                case WeaponType.Musket:
+                    Durability = 10;
+                    break;
+                case WeaponType.Knife:
+                    Durability = 15;
+                    break;
+                case WeaponType.LongSword:
+                    Durability = 25;
+                    break;
+                case WeaponType.ShortSword:
+                    Durability = 25;
+                    break;
+                case WeaponType.Mace:
+                    Durability = 25;
+                    break;
+                case WeaponType.Sword:
+                    Durability = 25;
+                    break;
+                case WeaponType.Rock:
+                    Durability = 35;
+                    break;
+                case WeaponType.WarAxe:
+                    Durability = 25;
+                    break;
+            }
+        }
+
+        public void WeaponRange()
+        {
+            switch (this.WeaponType)
+            {
+                case WeaponType.Hands:
+                    range = 2;
+                    break;
+                case WeaponType.Bow:
+                    range = 15;
+                    break;
+                case WeaponType.Crossbow:
+                    range = 20;
+                    break;
+                case WeaponType.Flail:
+                    range = 5;
+                    break;
+                case WeaponType.Knife:
+                    range = 2;
+                    break;
+                case WeaponType.LongSword:
+                    range = 7;
+                    break;
+                case WeaponType.ShortSword:
+                    range = 4;
+                    break;
+                case WeaponType.Sword:
+                    range = 5;
+                    break;
+                case WeaponType.Mace:
+                    range = 4;
+                    break;
+                case WeaponType.Musket:
+                    range = 35;
+                    break;
+                case WeaponType.Rock:
+                    range = 10;
+                    break;
+                case WeaponType.Spear:
+                    range = 15;
+                    break;
+            }
+        }
 
 
         public void SetWeaponsSpeed()
