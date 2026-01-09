@@ -50,15 +50,18 @@ internal class TelnetServer
                 playerName = pn.Reader.ReadLine();
             }
             
+            Console.WriteLine($"Player '{playerName}' is attempting to connect...");
             Player player;
 
             // If existing player
             if (GameState.Instance.Players.ContainsKey(playerName))
             {
+                Console.WriteLine($"Existing player '{playerName}' found, loading data...");
                 player = GameState.Instance.Players[playerName];                
             }
             else
             {
+                Console.WriteLine($"No existing player '{playerName}' found, creating new player...");
                 // New player creation (class, etc)
                 player = new Player(client, playerName);
                 player.CurrentWorkflow = new WorkflowOnboarding();
