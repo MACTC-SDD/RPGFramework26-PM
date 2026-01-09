@@ -6,7 +6,9 @@ namespace RPGFramework.Items
 {
     internal class Currency : Item
     {
-        public int Amount { get; set; } = 1;
+        public int StartAmount { get; set; } = 1;
+        public int MaxAmount { get; set; } = 500;
+        
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using RPGFramework.Enums;
+using Spectre.Console;
 
 namespace RPGFramework
 {
@@ -11,11 +12,23 @@ namespace RPGFramework
         public int lrDurability { get; set; } = 25;
         public bool ammmoleft { get; set; } = true;
         public int range { get; set; } = 0;
-        public int maxDurability { get; set; } = 0;
+        public double Speed { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
+
+        public void SetWeaponsSpeed()
+        {
+            switch (this.WeaponType)
+            {
+                case WeaponType.Hands:
+                    Speed = 1;
+                    break;
+
+
+            }
+        }
 
         
 
