@@ -1,4 +1,6 @@
 ﻿
+using RPGFramework.Core;
+
 namespace RPGFramework.Commands
 {
     /// <summary>
@@ -18,6 +20,7 @@ namespace RPGFramework.Commands
                 new QuitCommand(),
                 new SayCommand(),
                 new TimeCommand(),
+                new HelpCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -125,5 +128,23 @@ namespace RPGFramework.Commands
         }
     }
 
+    internal class HelpCommand : ICommand
+    {
+        public string Name => "help";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {   
+                foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                {
+                    player.WriteLine($"{he.Name}");
+                }
+                return true;
+            }
+
+            return false;
+        }
+    }
 
 }
