@@ -18,6 +18,9 @@ namespace RPGFramework
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
 
+
+
+
         public void SetWeaponsSpeed()
         {
             switch (this.WeaponType)
@@ -25,8 +28,42 @@ namespace RPGFramework
                 case WeaponType.Hands:
                     Speed = 1;
                     break;
-
-
+                case WeaponType.Bow:
+                    Speed = 1;
+                    break;
+                case WeaponType.Sword:
+                    Speed = 1;
+                    break;
+                case WeaponType.Musket:
+                    Speed = 1;
+                    break;
+                case WeaponType.Crossbow:
+                    Speed = 1;
+                    break;
+                case WeaponType.Flail:
+                    Speed = 1;
+                    break;
+                case WeaponType.Knife:
+                    Speed = 1;
+                    break;
+                case WeaponType.LongSword:
+                    Speed = 1;
+                    break;
+                case WeaponType.Mace:
+                    Speed = 1;
+                    break;
+                case WeaponType.Rock:
+                    Speed = 1;
+                    break;
+                case WeaponType.ShortSword:
+                    Speed = 1; 
+                    break;
+                case WeaponType.Spear:
+                    Speed = 1;
+                    break;
+                case WeaponType.WarAxe:
+                    Speed = 1;
+                    break;
             }
         }
 

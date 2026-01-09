@@ -9,7 +9,7 @@ namespace RPGFramework.Enums
         Sword,
         Hands,
         Rock,
-        Kinfe,
+        Knife,
         ShortSword,
         LongSword,
         Mace,
