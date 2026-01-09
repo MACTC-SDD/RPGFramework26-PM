@@ -41,7 +41,7 @@ namespace RPGFramework
             new Dictionary<int, Area>();
 
         // TODO: Move this to configuration settings class
-        public DebugLevel DebugLevel { get; set; } = DebugLevel.Verbose;
+        public DebugLevel DebugLevel { get; set; } = DebugLevel.Debug;
 
         /// <summary>
         /// The date of the game world. This is used for time of day, etc.
