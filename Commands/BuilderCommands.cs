@@ -41,12 +41,6 @@ namespace RPGFramework.Commands
             // Decide what to do based on the second parameter
             switch (parameters[1].ToLower())
             {
-                case "description":
-                    player.WriteLine("Deprecated: Use /room set description");
-                    break;
-                case "name":
-                    player.WriteLine("Deprecated: Use /room set name");
-                    break;
                 case "create":
                     RoomCreate(player, parameters);
                     break;
@@ -147,20 +141,20 @@ namespace RPGFramework.Commands
             }
             else
             {
-                player.GetRoom().Description = parameters[2];
+                player.GetRoom().Description = parameters[3];
                 player.WriteLine("Room description set.");
             }
         }
 
         private static void RoomSetName(Player player, List<string> parameters)
         {
-            if (parameters.Count < 3)
+            if (parameters.Count < 4)
             {
                 player.WriteLine(player.GetRoom().Name);
             }
             else
             {
-                player.GetRoom().Name = parameters[2];
+                player.GetRoom().Name = parameters[3];
                 player.WriteLine("Room name set.");
             }
         }
