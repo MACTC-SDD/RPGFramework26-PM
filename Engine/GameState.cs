@@ -53,7 +53,7 @@ namespace RPGFramework
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
 
-        // Move starting area/room to configuration settings
+        [JsonIgnore] public Random Random { get; } = new Random();
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
 
