@@ -40,6 +40,16 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+    // attack command, move to combat commands later
+    internal class StartCombatCommand : ICommand
+    {
+        public string Name => "attack";
+        public IEnumerable<string> Aliases => new List<string> { "atk" };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character.GetRoom().GetPlayers())
+        }
+    }
 
     internal class IpCommand : ICommand
     {
