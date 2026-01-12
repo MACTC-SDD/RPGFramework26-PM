@@ -18,5 +18,13 @@ namespace RPGFramework
         public double SpawnChance { get; set; } = 0;
         public double UseSpeed { get; set; } = 1;
 
+        Dictionary<int, string> Inventory = new();
+
+            var Weapons = new Dictionary<int, string>();
+            {
+                {"Sword", "Mace}
+            };
+
+
     }
 }

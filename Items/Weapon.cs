@@ -17,6 +17,8 @@ namespace RPGFramework
         // Maybe some kind of Weapon generator (random stats, etc.)
 
 
+
+
         public void WeaponDamage()
         {
             switch (this.WeaponType)
