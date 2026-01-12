@@ -30,6 +30,8 @@
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>
+	
+  <ProjectExtensions><VisualStudio><UserProperties data_3seed_4players_4thor_1json__JsonSchema="https://acp-protocol.dev/schemas/v1/primer.schema.json" /></VisualStudio></ProjectExtensions>
 
 
 </Project>
