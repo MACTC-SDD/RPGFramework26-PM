@@ -71,6 +71,9 @@ namespace RPGFramework.Commands
                 case "name":
                     RoomSetName(player, parameters);
                     break;
+                case "color":
+                    RoomMapColor (player, parameters);
+                    break;
                 // As we add more settable properties, we can expand this switch
                 default:
                     WriteUsage(player);
@@ -143,6 +146,24 @@ namespace RPGFramework.Commands
             {
                 player.GetRoom().Description = parameters[3];
                 player.WriteLine("Room description set.");
+            }
+        }
+        private static void RoomMapColor(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                player.WriteLine("You need to the color of your map.");
+                return;
+            }
+
+            if (parameters.Count < 3)
+            {
+                player.WriteLine(player.GetRoom().MapColor); 
+            }
+            else
+            {
+                player.GetRoom().MapColor = $"[{parameters[3]}]";
+                player.WriteLine("Set Room Map Color.");
             }
         }
 
