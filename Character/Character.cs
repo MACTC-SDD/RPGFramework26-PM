@@ -1,4 +1,5 @@
 ﻿
+using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Enums;
 using RPGFramework.Items;
@@ -27,18 +28,18 @@ namespace RPGFramework
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
-        public CharacterClass Class { get; set; } = new CharacterClass();
+        public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
         #endregion
 
         #region --- Skill Attributes --- (0-20)
-        public int Strength { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
-        public int Dexterity { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
-        public int Constitution { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
-        public int Intelligence { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
-        public int Wisdom { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
-        public int Charisma { get; private set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Strength { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Dexterity { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Constitution { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Intelligence { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Wisdom { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
+        public int Charisma { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
         #endregion
 
 

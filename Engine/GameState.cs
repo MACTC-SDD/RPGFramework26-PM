@@ -1,6 +1,7 @@
 ﻿
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
+using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 
@@ -48,13 +49,14 @@ namespace RPGFramework
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
 
+        public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
         [JsonIgnore] public Dictionary<string, Item> ItemsCatalog { get; set; } = new Dictionary<string, Item>();
 
-        // Move starting area/room to configuration settings
+        [JsonIgnore] public Random Random { get; } = new Random();
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
 
