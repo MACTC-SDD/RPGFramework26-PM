@@ -1,5 +1,6 @@
 ﻿
 using RPGFramework.Core;
+using System.ComponentModel;
 
 namespace RPGFramework.Commands
 {
@@ -136,11 +137,27 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {   
-                foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                // if no help topic given
+                if (parameters.Count < 2)
                 {
-                    player.WriteLine($"{he.Name}");
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    {
+                       player.WriteLine($"{he.Name}");
+                    }
                 }
-                return true;
+                else
+                {
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    {
+                        if (he.Name.ToLower() == parameters[1].ToLower())
+                        {
+                            player.WriteLine($"{he.Name}");
+                            player.WriteLine($"{he.Content}");
+
+                        }
+                    }
+                }
+                    return true;
             }
 
             return false;
