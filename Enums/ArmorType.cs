@@ -15,6 +15,6 @@ namespace RPGFramework.Enums
         Gold,
         Fur,
         Scale,
-        Shield
+        Shield,
     }
 }
