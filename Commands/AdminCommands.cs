@@ -163,7 +163,7 @@ namespace RPGFramework.Commands
             {
                 if (CheckPermission(PlayerRole.Admin) == true)
                 {
-                    Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
+                    Player target = GameState.Instance.GetPlayerByName(parameters[1]);
                     player.WriteLine("That Player is in " + target.GetRoom());
                 }
                 return false;
@@ -194,8 +194,8 @@ namespace RPGFramework.Commands
                     }
                     // GameState.Instance.Players.Keys.Contains(parameters[1]);
 
-                    Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
-                    Player playerc = GameState.Instance.GetPlayerByDisplayName(parameters[2]);
+                    Player target = GameState.Instance.GetPlayerByName(parameters[1]);
+                    Player playerc = GameState.Instance.GetPlayerByName(parameters[2]);
                     playerc.AreaId = target.AreaId;
 
                     player.WriteLine($"You have been teleported to {target.DisplayName()}.");
@@ -231,8 +231,8 @@ namespace RPGFramework.Commands
                     }
                     // GameState.Instance.Players.Keys.Contains(parameters[1]);
 
-                    Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
-                    Player playerc = GameState.Instance.GetPlayerByDisplayName(parameters[2]);
+                    Player target = GameState.Instance.GetPlayerByName(parameters[1]);
+                    Player playerc = GameState.Instance.GetPlayerByName(parameters[2]);
                     target.AreaId = playerc.AreaId;
 
                     player.WriteLine($"You have teleported {target.DisplayName()} to you.");
@@ -266,7 +266,7 @@ namespace RPGFramework.Commands
                     }
                     // GameState.Instance.Players.Keys.Contains(parameters[1]);
 
-                    Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
+                    Player target = GameState.Instance.GetPlayerByName(parameters[1]);
                     if (target.IsOnline == true)
                         target.Logout();
 
@@ -308,7 +308,7 @@ namespace RPGFramework.Commands
                     // GameState.Instance.Players.Keys.Contains(parameters[1]);
                     if (!Enum.TryParse(parameters[2], true, out PlayerRole pr))
                     {
-                        Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
+                        Player target = GameState.Instance.GetPlayerByName(parameters[1]);
                         target.PlayerRole = pr;
                         player.WriteLine($"You have changed {target.Name}'s role to {target.PlayerRole}.");
                         return true;
@@ -346,7 +346,7 @@ namespace RPGFramework.Commands
                     }
                     // GameState.Instance.Players.Keys.Contains(parameters[1]);
 
-                    Player target = GameState.Instance.GetPlayerByDisplayName(parameters[1]);
+                    Player target = GameState.Instance.GetPlayerByName(parameters[1]);
                     if (target.IsOnline == true)
                     {
                         target.Name = parameters[2];

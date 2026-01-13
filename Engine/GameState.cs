@@ -81,9 +81,19 @@ namespace RPGFramework
         {
             return Players.Values.Where(o => o.IsOnline).ToList();
         }
-        public Player GetPlayerByDisplayName(string displayName)
+
+        // CODE REVIEW: Aiden (PR #13)
+        // I moved Trim around a little for readability and renamed to 
+        // GetPlayerByName since DisplayName means something different.
+        // It would probably be more efficient to use GetPlayersOnline as a starting point.
+        // That way you wouldn't have to check for online and you could automatically skip over
+        // all offline players. Once you read this and update (or not) you can feel free to
+        // remove these notes.
+        public Player? GetPlayerByName(string name)
         {
-            if (string.IsNullOrWhiteSpace(displayName))
+            name = name.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
                 return null;
 
             foreach (var player in Players.Values)
@@ -91,8 +101,8 @@ namespace RPGFramework
                 if (!player.IsOnline)
                     continue;
 
-                if (string.Equals(player.Name?.Trim(),
-                                  displayName.Trim(),
+                if (string.Equals(player.Name,
+                                  name,
                                   StringComparison.OrdinalIgnoreCase))
                 {
                     return player;
