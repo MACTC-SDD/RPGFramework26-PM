@@ -191,7 +191,7 @@ namespace RPGFramework.Commands
                 player.WriteLine("Room name set.");
             }
         }
-            private static void RoomDelete(Player player, List<string> parameters)
+        private static void RoomDelete(Player player, List<string> parameters)
 
         {
             if (!Utility.CheckPermission(player, PlayerRole.Admin))
@@ -232,10 +232,10 @@ namespace RPGFramework.Commands
                 player.WriteLine($"Error deleting room: {ex.Message}");
             }
         }
-    }
-    }
+
+
         private static void RoomSetTags(Player player, List<string> parameters)
-{
+        {
             Room room = player.GetRoom();
 
             if (parameters.Count < 4)
