@@ -84,9 +84,12 @@ namespace RPGFramework.Commands
         private static void WriteUsage(Player player)
         {
             player.WriteLine("Usage: ");
-            player.WriteLine("/room description '<set room desc to this>'");
-            player.WriteLine("/room name '<set room name to this>'");
+            player.WriteLine("/room set description '<set room desc to this>'");
+            player.WriteLine("/room set name '<set room name to this>'");
             player.WriteLine("/room create '<name>' '<description>' <exit direction> '<exit description>'");
+            player.WriteLine("/room delete");
+            player.WriteLine("/room set icon '<Icon>'");
+            player.WriteLine("/room set color '<color>'");
         }
 
         private static void RoomCreate(Player player, List<string> parameters)
