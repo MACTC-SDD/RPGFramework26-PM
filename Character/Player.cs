@@ -3,7 +3,6 @@ using Spectre.Console;
 using Spectre.Console.Rendering;
 
 using RPGFramework.Enums;
-using RPGFramework.Engine;
 
 namespace RPGFramework
 {
@@ -22,7 +21,7 @@ namespace RPGFramework
         public int MapRadius { get; set; } = 2; // How far the player can see on the map
         public string Password { get; private set; } = "SomeGarbage";
         public TimeSpan PlayTime { get; set; } = new TimeSpan();
-        public PlayerRole PlayerRole { get; set; } = PlayerRole.Player;
+        public PlayerRole PlayerRole { get; set; }
         #endregion
 
         public string DisplayName()
@@ -77,12 +76,16 @@ namespace RPGFramework
         }
         public void Write(string message)
         {
+            WriteNewLineIfNeeded();
             Console.Write(message);
+            Console.Write(Network.TelnetConnection.CurrentLineText); // Re-write current input line
         }
 
         public void Write(IRenderable renderable)
         {
+            WriteNewLineIfNeeded();
             Console.Write(renderable);
+            Console.Write(Network.TelnetConnection.CurrentLineText); // Re-write current input line
         }
 
         
@@ -93,8 +96,21 @@ namespace RPGFramework
         /// p formatting supported by the output system.</param>
         public void WriteLine(string message)
         {
+            WriteNewLineIfNeeded();
             Console.MarkupLine(message);
-            //Network?.Writer.WriteLine(message);
+            Console.Write(Network.TelnetConnection.CurrentLineText); // Re-write current input line
+        }
+
+        private void WriteNewLineIfNeeded()
+        {
+            if (Network == null)
+                return;
+            if (Network.TelnetConnection == null)
+                return;
+            if (Network.NeedsOutputNewline)
+            {
+                Console.Write("\r\n");
+            }
         }
 
     }

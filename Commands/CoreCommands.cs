@@ -1,4 +1,9 @@
 ﻿
+using RPGFramework.Core;
+using RPGFramework.Display;
+using Spectre.Console;
+using System.ComponentModel;
+
 namespace RPGFramework.Commands
 {
     /// <summary>
@@ -18,6 +23,7 @@ namespace RPGFramework.Commands
                 new QuitCommand(),
                 new SayCommand(),
                 new TimeCommand(),
+                new HelpCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -65,12 +71,14 @@ namespace RPGFramework.Commands
             if (character is Player player)
             {
                 // For now, we'll ignore the command and just show the room description
-                player.WriteLine($"{player.GetRoom().Description}");
-                player.WriteLine("Exits:");
+                string content = $"{player.GetRoom().Description}\n";
+                content += "[red]Exits:[/]\n";
                 foreach (var exit in player.GetRoom().GetExits())
                 {
-                    player.WriteLine($"{exit.Description} to the {exit.ExitDirection}");
+                    content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
+                Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
+                player.Write(panel);
                 return true;
             }
             return false;
@@ -125,5 +133,39 @@ namespace RPGFramework.Commands
         }
     }
 
+    internal class HelpCommand : ICommand
+    {
+        public string Name => "help";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {   
+                // if no help topic given
+                if (parameters.Count < 2)
+                {
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    {
+                       player.WriteLine($"{he.Name}");
+                    }
+                }
+                else
+                {
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    {
+                        if (he.Name.ToLower() == parameters[1].ToLower())
+                        {
+                            player.WriteLine($"{he.Name}");
+                            player.WriteLine($"{he.Content}");
+
+                        }
+                    }
+                }
+                    return true;
+            }
+
+            return false;
+        }
+    }
 
 }
