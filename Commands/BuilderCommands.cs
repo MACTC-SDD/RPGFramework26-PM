@@ -48,6 +48,9 @@ namespace RPGFramework.Commands
                     // We'll move setting name and description into this
                     RoomSet(player, parameters);
                     break;
+                case "show":
+                    ShowCommand(player, parameters);
+                    break;
                 default:
                     WriteUsage(player);
                     break;
@@ -179,6 +182,19 @@ namespace RPGFramework.Commands
                 player.GetRoom().Name = parameters[3];
                 player.WriteLine("Room name set.");
             }
+        }
+             private static void ShowCommand(Player player, List<string> parameters)
+        {
+            
+            
+                Room r = player.GetRoom(); 
+                player.WriteLine($"Name: {r.Name}");
+                player.WriteLine($"Id: {r.Id.ToString()}");
+                player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+                player.WriteLine($"Description: {r.Description}"); 
+                
+
+            
         }
     }
 }
