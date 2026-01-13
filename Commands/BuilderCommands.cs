@@ -228,18 +228,19 @@ namespace RPGFramework.Commands
                                 .ToList();
 
             player.WriteLine("Room tags set: " + string.Join(", ", room.Tags));
-             private static void ShowCommand(Player player, List<string> parameters)
+        }
+        private static void ShowCommand(Player player, List<string> parameters)
         {
-            
-            
-                Room r = player.GetRoom(); 
-                player.WriteLine($"Name: {r.Name}");
-                player.WriteLine($"Id: {r.Id.ToString()}");
-                player.WriteLine($"Area Id: {r.AreaId.ToString()}");
-                player.WriteLine($"Description: {r.Description}"); 
-                
 
-            
+
+            Room r = player.GetRoom();
+            player.WriteLine($"Name: {r.Name}");
+            player.WriteLine($"Id: {r.Id.ToString()}");
+            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+            player.WriteLine($"Description: {r.Description}");
+
+
+
         }
     }
 }
