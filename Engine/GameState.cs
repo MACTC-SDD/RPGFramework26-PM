@@ -72,6 +72,31 @@ namespace RPGFramework
             Players.Add(player.Name, player);
         }
 
+        public List <Player> GetPlayersOnline()
+        {
+            return Players.Values.Where(o => o.IsOnline).ToList();
+        }
+        public Player GetPlayerByDisplayName(string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
+                return null;
+
+            foreach (var player in Players.Values)
+            {
+                if (!player.IsOnline)
+                    continue;
+
+                if (string.Equals(player.Name?.Trim(),
+                                  displayName.Trim(),
+                                  StringComparison.OrdinalIgnoreCase))
+                {
+                    return player;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// This would be used by an admin command to load an area on demand. 
         /// For now useful primarily for reloading externally crearted changes
@@ -146,7 +171,7 @@ namespace RPGFramework
         /// <param name="includeOffline"><see langword="true"/> to include offline 
         /// players in the save operation; otherwise, only online players are saved.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
-        private Task SaveAllPlayers(bool includeOffline = false)
+        public Task SaveAllPlayers(bool includeOffline = false)
         {
             var toSave = includeOffline
                 ? Players.Values
