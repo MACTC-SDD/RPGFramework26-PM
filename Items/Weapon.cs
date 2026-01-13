@@ -11,6 +11,7 @@ namespace RPGFramework
         public bool ammmoleft { get; set; } = true;
         public int range { get; set; } = 0;
         public double Speed { get; set; } = 0;
+        public double weight { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods
@@ -54,7 +55,7 @@ namespace RPGFramework
                     Damage = 15;
                     break;
                 case WeaponType.ShortSword:
-                    Damage= 20;
+                    Damage = 20;
                     break;
                 case WeaponType.Spear:
                     Damage = 25;
@@ -70,7 +71,7 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Spear:
-                   Durability = 25;
+                    Durability = 25;
                     break;
                 case WeaponType.Bow:
                     Durability = 25;
@@ -145,6 +146,9 @@ namespace RPGFramework
                 case WeaponType.Spear:
                     range = 15;
                     break;
+                case WeaponType.WarAxe:
+                    range = 5;
+                    break;
             }
         }
 
@@ -184,7 +188,7 @@ namespace RPGFramework
                     Speed = 1;
                     break;
                 case WeaponType.ShortSword:
-                    Speed = 1; 
+                    Speed = 1;
                     break;
                 case WeaponType.Spear:
                     Speed = 1;
@@ -195,7 +199,54 @@ namespace RPGFramework
             }
         }
 
-        
 
+        public void WeaponWeight()
+        {
+            switch (this.WeaponType)
+            {
+                case WeaponType.Hands:
+                    Weight = 0;
+                    break;
+                case WeaponType.Bow:
+                    Weight = 5;
+                    break;
+                case WeaponType.Sword:
+                    Weight = 5;
+                    break;
+                case WeaponType.Musket:
+                    Weight = 25;
+                    break;
+                case WeaponType.Crossbow:
+                    Weight = 15;
+                    break;
+                case WeaponType.Flail:
+                    Weight = 8;
+                    break;
+                case WeaponType.Knife:
+                    Weight = 2;
+                    break;
+                case WeaponType.LongSword:
+                    Weight = 10;
+                    break;
+                case WeaponType.Mace:
+                    Weight = 6;
+                    break;
+                case WeaponType.Rock:
+                    Weight = 1;
+                    break;
+                case WeaponType.ShortSword:
+                    Weight = 1;
+                    break;
+                case WeaponType.Spear:
+                    Weight = 8;
+                    break;
+                case WeaponType.WarAxe:
+                    Weight = 10;
+                    break;
+            }
+        }
     }
 }
+
+
+
