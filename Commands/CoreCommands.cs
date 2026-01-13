@@ -2,6 +2,7 @@
 using RPGFramework.Core;
 using RPGFramework.Display;
 using Spectre.Console;
+using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace RPGFramework.Commands
@@ -146,14 +147,14 @@ namespace RPGFramework.Commands
                 // if no help topic given
                 if (parameters.Count < 2)
                 {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
                     {
                        player.WriteLine($"{he.Name}");
                     }
                 }
                 else
                 {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
                     {
                         if (he.Name.ToLower() == parameters[1].ToLower())
                         {

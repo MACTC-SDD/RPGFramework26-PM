@@ -402,7 +402,7 @@ namespace RPGFramework.Commands
                 Content = parameters[4]
             };
 
-            GameState.Instance.HelpEntries.Add(h);
+            GameState.Instance.HelpEntries.Add(h.Name, h);
         }
     }
 }

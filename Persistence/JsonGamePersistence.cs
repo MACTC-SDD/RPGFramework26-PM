@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using RPGFramework.Core;
 using RPGFramework.Geography;
 
 namespace RPGFramework.Persistence
@@ -126,10 +126,16 @@ namespace RPGFramework.Persistence
             return Task.FromResult((IReadOnlyDictionary<string, Player>)dict);
         }
 
+        public Task<Dictionary<string, HelpEntry>> LoadHelpCatalogAsync()
+        {
+            var helpEntries = ObjectStorage.LoadObject<Dictionary<string, HelpEntry>>("data/catalogs/", "help_entries.json");
+            return Task.FromResult(helpEntries);            
+        }
+
         /* Example loading catalog dictionary
         public Task<IReadOnlyDictionary<string, HelpEntry>> LoadHelpAsync(IEnumerable<string> playerNames)
         {
-            var helpEntries = ObjectStorage.LoadObject<Dictionary<string, HelpEntry>>("data/catalog/", "help_entries.json");
+            var helpEntries = ObjectStorage.LoadObject<Dictionary<string, HelpEntry>>("data/catalogs/", "help_entries.json");
             return Task.FromResult((IReadOnlyDictionary<string, HelpEntry>)helpEntries);            
         }
         */
@@ -162,10 +168,17 @@ namespace RPGFramework.Persistence
             return Task.CompletedTask;
         }
 
+        public Task SaveHelpCatalog(Dictionary<string, HelpEntry> helpEntries)
+        {
+            var dict = new Dictionary<string, HelpEntry>(helpEntries);
+            ObjectStorage.SaveObject(dict, "data/catalogs/", "help_entries.json");
+            return Task.CompletedTask;
+        }
+
         /* Example saving catalog dictionary
         public Task SaveHelpAsync(Dictionary<string, HelpEntry> helpEntries)
         {
-            ObjectStorage.SaveObject(helpEntries, "data/catalog/", "help_entries.json");
+            ObjectStorage.SaveObject(helpEntries, "data/catalogs/", "help_entries.json");
             return Task.CompletedTask;
         }
         */

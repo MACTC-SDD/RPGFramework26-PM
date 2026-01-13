@@ -52,7 +52,7 @@ namespace RPGFramework
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
 
-        public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
+        public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
@@ -160,6 +160,20 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, $"{Players.Count} players loaded.");
         }
 
+        private async Task LoadCatalogs()
+        {
+            HelpEntries.Clear();
+            try
+            {
+                HelpEntries = await Persistence.LoadHelpCatalogAsync();
+                GameState.Log(DebugLevel.Alert, $"Help catalog loaded with {HelpEntries.Count} entries.");
+            }
+            catch ( FileNotFoundException fex)
+            {
+                GameState.Log(DebugLevel.Warning, $"Help catalog file not found. Loading blank.");
+            }
+        }
+
         /// <summary>
         /// Saves all area entities asynchronously to the persistent storage.
         /// </summary>
@@ -185,6 +199,11 @@ namespace RPGFramework
                 : Players.Values.Where(p => p.IsOnline);
 
             return Persistence.SavePlayersAsync(toSave);
+        }
+
+        public Task SaveCatalogs()
+        {
+            return Persistence.SaveHelpCatalog(HelpEntries);
         }
 
         /// <summary>
@@ -222,6 +241,7 @@ namespace RPGFramework
 
             await LoadAllAreas();
             await LoadAllPlayers();
+            await LoadCatalogs();
 
             // Load Item (Weapon/Armor/Consumable/General) catalogs
             // Load NPC (Mobs/Shop/Guild/Quest) catalogs
@@ -309,6 +329,7 @@ namespace RPGFramework
                 {
                     await SaveAllPlayers();
                     await SaveAllAreas();
+                    await SaveCatalogs();
 
                     GameState.Log(DebugLevel.Info, "Autosave complete.");
                 }
