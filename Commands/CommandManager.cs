@@ -14,6 +14,7 @@ namespace RPGFramework.Commands
             AdminCommands.GetAllCommands().ForEach(o => Register(o));
             BuilderCommands.GetAllCommands().ForEach(o => Register(o));
             CoreCommands.GetAllCommands().ForEach(o => Register(o));
+            ItemCommands.GetAllCommands().ForEach(o => Register(o));
             NavigationCommands.GetAllCommands().ForEach(o => Register(o));
             TestCommands.GetAllCommands().ForEach(o => Register(o));
             UXCommands.GetAllCommands().ForEach(o => Register(o));
