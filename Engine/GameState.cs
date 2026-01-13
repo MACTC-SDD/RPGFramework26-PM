@@ -66,6 +66,14 @@ namespace RPGFramework
 
         #endregion --- Properties ---
 
+        #region --- Fields ---
+        private CancellationTokenSource? _saveCts;
+        private Task? _saveTask;
+        private CancellationTokenSource? _timeOfDayCts;
+        private Task? _timeOfDayTask;
+
+        #endregion
+
         #region --- Methods ---
         private GameState()
         {
@@ -200,6 +208,7 @@ namespace RPGFramework
 
             // Load Item (Weapon/Armor/Consumable/General) catalogs
             // Load NPC (Mobs/Shop/Guild/Quest) catalogs
+
 
 
             // TODO: Consider moving thread methods to their own class
