@@ -66,14 +66,6 @@ namespace RPGFramework
 
         #endregion --- Properties ---
 
-        #region --- Fields ---
-        private CancellationTokenSource? _saveCts;
-        private Task? _saveTask;
-        private CancellationTokenSource? _timeOfDayCts;
-        private Task? _timeOfDayTask;
-
-        #endregion
-
         #region --- Methods ---
         private GameState()
         {
