@@ -138,7 +138,7 @@ namespace RPGFramework.Commands
                 return;
             }
 
-            if (parameters.Count < 3)
+            if (parameters.Count < 4)
             {
                 player.WriteLine(player.GetRoom().Description);
             }
