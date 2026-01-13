@@ -54,6 +54,9 @@ namespace RPGFramework.Commands
                 default:
                     WriteUsage(player);
                     break;
+                case "delete":
+                    RoomDelete(player, parameters);
+                    break;
             }
 
             return true;
@@ -188,8 +191,8 @@ namespace RPGFramework.Commands
                 player.WriteLine("Room name set.");
             }
         }
+            private static void RoomDelete(Player player, List<string> parameters)
 
-        private static void RoomSetTags(Player player, List<string> parameters)
         {
             if (!Utility.CheckPermission(player, PlayerRole.Admin))
             {
@@ -197,6 +200,42 @@ namespace RPGFramework.Commands
                 return;
             }
 
+            Room currentRoom = player.GetRoom();
+
+            // Prevent deletion of the current room if it's the only one or critical (optional safety)
+            if (currentRoom == null)
+            {
+                player.WriteLine("No room to delete.");
+                return;
+            }
+
+            // Optional: Confirm deletion (if your system supports confirmation)
+            if (parameters.Count < 3 || parameters[2] != "confirm")
+            {
+                player.WriteLine("To delete this room, use: /room delete confirm");
+                return;
+            }
+
+            try
+            {
+                // Teleport player to safe location (LocationId = 0)
+                player.LocationId = 0;
+                player.WriteLine("You have been moved to the safe room.");
+
+                // Delete the room from storage (adjust based on your Room management)
+                Room.DeleteRoom(currentRoom); // Assuming you have such a method
+
+                player.WriteLine("Room deleted.");
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Error deleting room: {ex.Message}");
+            }
+        }
+    }
+    }
+        private static void RoomSetTags(Player player, List<string> parameters)
+{
             Room room = player.GetRoom();
 
             if (parameters.Count < 4)
