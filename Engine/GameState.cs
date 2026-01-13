@@ -42,7 +42,7 @@ namespace RPGFramework
 
         // TODO: Move this to configuration settings class
         public DebugLevel DebugLevel { get; set; } = DebugLevel.Debug;
-
+        public Dictionary<string, NonPlayer> NPCs { get; set; } = new Dictionary<string, NonPlayer>();
         /// <summary>
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
