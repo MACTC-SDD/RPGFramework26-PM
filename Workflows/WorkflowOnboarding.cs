@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using RPGFramework.Enums;
 namespace RPGFramework.Workflows
 {
     internal class WorkflowOnboarding : IWorkflow
@@ -25,6 +25,8 @@ namespace RPGFramework.Workflows
             //   Or, should we Serialize Workflow with Player, at least for onboarding. Might be confusing.
 
             // The action we take will depend on the CurrentStep, we will store progress in WorkflowData
+            player.WriteLine($"Workflow: {Name}, Step: {CurrentStep}");
+
             switch (CurrentStep)
             {
                 case 0:
@@ -42,7 +44,7 @@ namespace RPGFramework.Workflows
                     {
                         player.SetPassword(parameters[0]);
                         player.WriteLine(Name + ": Welcome to the game! Let's start by choosing your character class.");
-                        player.WriteLine("Available classes: Warrior, Mage, Rogue.");
+                        player.WriteLine("Available classes: Warrior, Mage, Rogue,Paladin,Bard,Druid,Necromancer.");
                         CurrentStep++;
                     }
                     break;
@@ -50,9 +52,24 @@ namespace RPGFramework.Workflows
                 case 2:
                     // Step 2: Gather player class and validate
                     string chosenClass = parameters.Count > 0 ? parameters[0].ToLower() : string.Empty;
-                    if (chosenClass == "warrior" || chosenClass == "mage" || chosenClass == "rogue")
+                    if (chosenClass == "warrior" || chosenClass == "mage" || chosenClass == "rogue" || chosenClass == "paladin" ||
+                        chosenClass == "bard" || chosenClass == "druid" || chosenClass == "necromancer")
                     {
-                        WorkflowData["ChosenClass"] = chosenClass;
+                        if (chosenClass == "warrior")
+                            player.Class = CharacterClass.Warrior;
+                        else if (chosenClass == "mage")
+                            player.Class = CharacterClass.Mage;
+                        else if (chosenClass == "rogue")
+                            player.Class = CharacterClass.Rogue;
+                        else if (chosenClass == "paladin")
+                            player.Class = CharacterClass.Paladin;
+                        else if (chosenClass == "bard")
+                            player.Class = CharacterClass.Bard;
+                        else if (chosenClass == "druid")
+                            player.Class = CharacterClass.Druid;
+                        else if (chosenClass == "necromancer")
+                            player.Class = CharacterClass.Necromancer;
+
                         player.WriteLine($"You have chosen the {chosenClass} class.");
                         // If class is valid, proceed, otherwise print message and stay on this step
                         // Placeholder logic
@@ -60,24 +77,44 @@ namespace RPGFramework.Workflows
                     }
                     else
                     {
-                        player.WriteLine("Invalid class chosen. Please choose from: Warrior, Mage, Rogue.");
+                        player.WriteLine("Invalid class chosen. Please choose from: Warrior, Mage, Rogue,Paladin,Bard,Druid,Necromancer.");
                     }
                     break;
                 case 3:
                     // Step 2: Roll stats and loop until accepted
                     // Placeholder logic
+                    player.Strength = GameState.Instance.Random.Next(1, 20);
+                    player.Dexterity = GameState.Instance.Random.Next(1, 20);
+                    player.Intelligence = GameState.Instance.Random.Next(1, 20);
+                    player.Wisdom = GameState.Instance.Random.Next(1, 20);
+                    player.Constitution = GameState.Instance.Random.Next(1, 20);
+                    player.Charisma = GameState.Instance.Random.Next(1, 20);
+                    player.WriteLine($"{player.Name}'s rolled stats: S:{player.Strength},D:{player.Dexterity},I:{player.Intelligence},W:{player.Wisdom},Co:{player.Constitution},Ch:{player.Charisma}");
+                    player.WriteLine($"Do you accept these stats?  (y/n)");
+
                     CurrentStep++;
                     break;
                 case 4:
                     // Step 3: Introduce basic commands
-                    // Placeholder logic
-                    CurrentStep++;
+                    // accept if "y" or "yes", re-roll if "n" or "no"
+                    if (parameters[0].ToLower() == "y" || parameters[0].ToLower() == "yes")
+                    {
+                        player.WriteLine("Stats accepted.");
+                        CurrentStep++;
+                    }
+                    else 
+                    {
+                        player.WriteLine("Re-rolling stats...");
+                        CurrentStep--;
+                        // Stay on this step to re-roll
+                    }
+                    
                     break;
                 default:
                     // Onboarding complete
                     // TODO: Set PlayerClass (or maybe do that in step above) and save Player
                     player.WriteLine(Name + ": Onboarding complete! You are now ready to explore the game world.");
-                    player.WriteLine("Your class is: " + WorkflowData["ChosenClass"]);
+                    player.WriteLine("Your class is: " + player.Class);
                     player.WriteLine("Type 'help' to see a list of available commands.");
                     player.CurrentWorkflow = null;
                     break;

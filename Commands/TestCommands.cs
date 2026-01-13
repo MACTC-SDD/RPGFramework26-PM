@@ -7,6 +7,7 @@
             return new List<ICommand>
             {
                 new TestItemSizeCommand(),
+                new ExampleCommand()
                 // Add more test commands here as needed
             };
         }
@@ -30,7 +31,7 @@
 
         // What will happen when the command is executed
         public bool Execute(Character character, List<string> parameters)
-        {
+        { 
             // A lot of times we want to make sure it's a Player issuing the command, but not always
             if (character is Player player)
             {

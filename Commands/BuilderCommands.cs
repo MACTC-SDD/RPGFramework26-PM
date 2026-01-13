@@ -38,16 +38,18 @@ namespace RPGFramework.Commands
                 return false;
             }
 
+            // Decide what to do based on the second parameter
             switch (parameters[1].ToLower())
             {
-                case "description":
-                    RoomSetDescription(player, parameters);
-                    break;
-                case "name":
-                    RoomSetName(player, parameters);
-                    break;
                 case "create":
                     RoomCreate(player, parameters);
+                    break;
+                case "set":
+                    // We'll move setting name and description into this
+                    RoomSet(player, parameters);
+                    break;
+                case "show":
+                    ShowCommand(player, parameters);
                     break;
                 default:
                     WriteUsage(player);
@@ -55,6 +57,31 @@ namespace RPGFramework.Commands
             }
 
             return true;
+        }
+
+        private static void RoomSet(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+            {
+                WriteUsage(player);
+                return;
+            }
+            switch (parameters[2].ToLower())
+            {
+                case "description":
+                    RoomSetDescription(player, parameters);
+                    break;
+                case "name":
+                    RoomSetName(player, parameters);
+                    break;
+                // As we add more settable properties, we can expand this switch
+                default:
+                    WriteUsage(player);
+                    break;
+                case "icon":
+                    RoomSetIcon(player, parameters);
+                    break;
+            }
         }
 
         private static void WriteUsage(Player player)
@@ -67,7 +94,7 @@ namespace RPGFramework.Commands
 
         private static void RoomCreate(Player player, List<string> parameters)
         {
-            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            if (!Utility.CheckPermission(player, PlayerRole.Player))
             {
                 player.WriteLine("You do not have permission to do that.");
                 player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
@@ -114,28 +141,60 @@ namespace RPGFramework.Commands
                 return;
             }
 
-            if (parameters.Count < 3)
+            if (parameters.Count < 4)
             {
                 player.WriteLine(player.GetRoom().Description);
             }
             else
             {
-                player.GetRoom().Description = parameters[2];
+                player.GetRoom().Description = parameters[3];
                 player.WriteLine("Room description set.");
             }
         }
 
+        private static void RoomSetIcon(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return;
+            }
+
+            if (parameters.Count < 4)
+            {
+                player.WriteLine($"Current room icon: {player.GetRoom().MapIcon}");
+            }
+            else
+            
+                player.GetRoom().MapIcon = parameters[3];
+                player.WriteLine($"Room icon set to: {player.GetRoom().MapIcon}");
+            return;
+        }
+
         private static void RoomSetName(Player player, List<string> parameters)
         {
-            if (parameters.Count < 3)
+            if (parameters.Count < 4)
             {
                 player.WriteLine(player.GetRoom().Name);
             }
             else
             {
-                player.GetRoom().Name = parameters[2];
+                player.GetRoom().Name = parameters[3];
                 player.WriteLine("Room name set.");
             }
+        }
+             private static void ShowCommand(Player player, List<string> parameters)
+        {
+            
+            
+                Room r = player.GetRoom(); 
+                player.WriteLine($"Name: {r.Name}");
+                player.WriteLine($"Id: {r.Id.ToString()}");
+                player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+                player.WriteLine($"Description: {r.Description}"); 
+                
+
+            
         }
     }
 }
