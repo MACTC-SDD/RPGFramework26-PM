@@ -4,10 +4,9 @@ using System.Text;
 
 namespace RPGFramework.Items
 {
-    internal class Consumable: Item
+    internal class Crafting
     {
-        public int usesLeft { get; set; } = 1;
     }
 }
 
-//POTIONS here?
+//ADD CRAFTING STUFF

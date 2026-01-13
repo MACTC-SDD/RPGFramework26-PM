@@ -16,7 +16,7 @@ namespace RPGFramework
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
 
-
+        //ADD THE STAFFS AND GLASS BOTTLES
 
 
         public void WeaponDamage()

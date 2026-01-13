@@ -18,6 +18,13 @@ namespace RPGFramework.Enums
         WarAxe,
         Bow,
         Crossbow,
-        Musket
+        Musket,
+        Fire_Staff,
+        Light_Staff,
+        Ice_Staff,
+        Glass_Bottle,
+        Dark_Staff,
+        Air_Staff,
+        Earth_Staff
     }
 }
