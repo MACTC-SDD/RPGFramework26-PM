@@ -75,6 +75,9 @@ namespace RPGFramework.Commands
                 default:
                     WriteUsage(player);
                     break;
+                case "icon":
+                    RoomSetIcon(player, parameters);
+                    break;
             }
         }
 
@@ -144,6 +147,25 @@ namespace RPGFramework.Commands
                 player.GetRoom().Description = parameters[3];
                 player.WriteLine("Room description set.");
             }
+        }
+
+        private static void RoomSetIcon(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return;
+            }
+
+            if (parameters.Count < 4)
+            {
+                player.WriteLine($"Current room icon: {player.GetRoom().MapIcon}");
+            }
+            else
+            
+                player.GetRoom().MapIcon = parameters[3];
+                player.WriteLine($"Room icon set to: {player.GetRoom().MapIcon}");
+            return;
         }
 
         private static void RoomSetName(Player player, List<string> parameters)
