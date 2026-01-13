@@ -1,6 +1,7 @@
 ﻿
 using System.Text.Json.Serialization;
-
+using RPGFramework.Enums;
+using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 
@@ -37,21 +38,26 @@ namespace RPGFramework
         /// <summary>
         /// All Areas are loaded into this dictionary
         /// </summary>
-        [JsonIgnore]
-        public Dictionary<int, Area> Areas { get; set; } =
+        [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } =
             new Dictionary<int, Area>();
+
+        // TODO: Move this to configuration settings class
+        public DebugLevel DebugLevel { get; set; } = DebugLevel.Debug;
 
         /// <summary>
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
 
+        public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
         [JsonIgnore] public Dictionary<string, Item> ItemsCatalog { get; set; } = new Dictionary<string, Item>();
+        
 
+        [JsonIgnore] public Random Random { get; } = new Random();
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
 
@@ -85,7 +91,7 @@ namespace RPGFramework
                 else
                     Areas.Add(area.Id, area);
 
-                Console.WriteLine($"Loaded area: {area.Name}");
+                GameState.Log(DebugLevel.Alert, $"Area '{area.Name}' loaded successfully.");
             }
 
             return Task.CompletedTask;
@@ -101,7 +107,7 @@ namespace RPGFramework
             foreach (var kvp in loaded)
             {
                 Areas.Add(kvp.Key, kvp.Value);
-                Console.WriteLine($"Loaded area: {kvp.Value.Name}");
+                GameState.Log(DebugLevel.Alert, $"Area '{kvp.Value.Name}' loaded successfully.");
             }
         }
 
@@ -122,8 +128,10 @@ namespace RPGFramework
             foreach (var kvp in loaded)
             {
                 Players.Add(kvp.Key, kvp.Value);
-                Console.WriteLine($"Loaded player: {kvp.Value.Name}");
+                GameState.Log(DebugLevel.Debug, $"Player '{kvp.Value.Name}' loaded successfully.");
             }
+
+            GameState.Log(DebugLevel.Alert, $"{Players.Count} players loaded.");
         }
 
         /// <summary>
@@ -189,19 +197,12 @@ namespace RPGFramework
             await LoadAllAreas();
             await LoadAllPlayers();
 
+            // Load Item (Weapon/Armor/Consumable/General) catalogs
+            // Load NPC (Mobs/Shop/Guild/Quest) catalogs
+
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
 
-
-
-            /* We may want to do this to bootstrap a starting area/room if none are available to be loaded.
-            //Area startArea = new Area() { Id = 0, Name = "Void Area", Description = "Start Area" };
-            //new Room()
-            //{ Id = 0, Name = "The Void", Description = "You are in a void. There is nothing here." };
-
-            //startArea.Rooms.Add(StartingRoom.Id, StartingRoom);
-            //GameState.Instance.Areas.Add(startArea.Id, startArea);
-            */
 
             // TODO: Consider moving thread methods to their own class
 
@@ -258,6 +259,17 @@ namespace RPGFramework
 
         #endregion --- Methods ---
 
+        #region --- Static Methods ---
+        internal static void Log(DebugLevel level, string message)
+        {
+            if (level <= GameState.Instance.DebugLevel)
+            {
+                Console.WriteLine($"[{level}] {message}");
+            }
+        }
+
+        #endregion
+
         #region --- Thread Methods ---
         /// <summary>
         /// Things that need to be saved periodically
@@ -271,7 +283,7 @@ namespace RPGFramework
                 await SaveAllAreas();
 
                 Thread.Sleep(interval);
-                Console.WriteLine("Autosave complete.");
+                GameState.Log(DebugLevel.Alert, "Autosave complete.");
             }
         }
 
@@ -285,7 +297,7 @@ namespace RPGFramework
         {
             while (IsRunning)
             {
-                Console.WriteLine("Updated time.");
+                GameState.Log(DebugLevel.Debug, "Updating time...");
                 double hours = (double)interval / 60000;
                 GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
                 Thread.Sleep(interval);

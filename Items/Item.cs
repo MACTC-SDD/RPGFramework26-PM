@@ -20,10 +20,10 @@ namespace RPGFramework
 
         Dictionary<int, string> Inventory = new();
 
-            var Weapons = new Dictionary<int, string>();
-            {
-                {"Sword", "Mace}
-            };
+            //var Weapons = new Dictionary<int, string>();
+            //{
+            //    {"Sword", "Mace}
+            //};
 
 
     }

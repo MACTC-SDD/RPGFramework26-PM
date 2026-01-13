@@ -125,6 +125,14 @@ namespace RPGFramework.Persistence
             var dict = players.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
             return Task.FromResult((IReadOnlyDictionary<string, Player>)dict);
         }
+
+        /* Example loading catalog dictionary
+        public Task<IReadOnlyDictionary<string, HelpEntry>> LoadHelpAsync(IEnumerable<string> playerNames)
+        {
+            var helpEntries = ObjectStorage.LoadObject<Dictionary<string, HelpEntry>>("data/catalog/", "help_entries.json");
+            return Task.FromResult((IReadOnlyDictionary<string, HelpEntry>)helpEntries);            
+        }
+        */
         #endregion
 
         #region Save Methods
@@ -153,6 +161,14 @@ namespace RPGFramework.Persistence
             ObjectStorage.SaveObject(player, "data/players/", $"{player.Name}.json");
             return Task.CompletedTask;
         }
+
+        /* Example saving catalog dictionary
+        public Task SaveHelpAsync(Dictionary<string, HelpEntry> helpEntries)
+        {
+            ObjectStorage.SaveObject(helpEntries, "data/catalog/", "help_entries.json");
+            return Task.CompletedTask;
+        }
+        */
         #endregion
     }
 }
