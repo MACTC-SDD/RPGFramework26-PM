@@ -89,7 +89,7 @@ namespace RPGFramework.Workflows
                     player.Wisdom = GameState.Instance.Random.Next(1, 20);
                     player.Constitution = GameState.Instance.Random.Next(1, 20);
                     player.Charisma = GameState.Instance.Random.Next(1, 20);
-                    player.WriteLine($"{player.Name}'s rolled stats:{player.Strength},{player.Dexterity},{player.Intelligence},{player.Wisdom},{player.Constitution},{player.Charisma}");
+                    player.WriteLine($"{player.Name}'s rolled stats: S:{player.Strength},D:{player.Dexterity},I:{player.Intelligence},W:{player.Wisdom},Co:{player.Constitution},Ch:{player.Charisma}");
                     player.WriteLine($"Do you accept these stats?  (y/n)");
 
                     CurrentStep++;
