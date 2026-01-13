@@ -22,5 +22,6 @@ namespace RPGFramework.Commands
         /// The parsed parameters, including the command word at index 0.
         /// </param>
         bool Execute(Character character, List<string> parameters);
+        
     }
 }

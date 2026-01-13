@@ -47,10 +47,11 @@ namespace RPGFramework.Commands
             var table = new Table();
             table.AddColumn("Command");
             table.AddColumn("Description");
-            table.AddRow("/ux", "This command");
+            table.AddRow("[dim][red]/ux[/][/]\n\n", "[bold]This command[/]\n");
+            table.AddRow("[red]/ux[/]\n", "[bold]This command[/]\n");
             table.AddRow("/uxpanel 'title' 'the content'", "Use RPGPanel to create a panel");
             table.AddRow("/uxcolor", "Test different colors");
-            table.AddRow("/uxdecoration", "Test different text decorations");
+            table.AddRow("/uxdecoration", "[slowblink]Test different text decorations[/]\n");
 
             string title = "UX Testing Commands";
 
@@ -118,7 +119,7 @@ namespace RPGFramework.Commands
 
             string content = "[red]This text is red![/]\n";
             content += "[blue]This text is blue![/]\n";
-            content += "[blue on red]This text is blue on red![/]";
+            content += "[blue on green]This text is NOT blue on red![/]\n";
             // Try out some more!
 
             string title = "Color Testing";
@@ -148,9 +149,13 @@ namespace RPGFramework.Commands
             if (character is not Player player)
                 return false;
 
-            string content = "[bold]This text is bold![/]\n";
+            string content = "[bold red]This text is bold![/]\n";
+            content += "[red]This text is bold![/]\n";
             content += "[italic]This text is italic![/]\n";
             content += "[bold italic]This text is bold italic![/]\n";
+            content += "[underline]This text is underlined![/]\n";
+            content += "[strike]This text is strikethrough![/]\n";
+            content += "[invert]Inverted?[/]\n";
             // Try out some more!
 
             string title = "Decoration Testing";
