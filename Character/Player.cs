@@ -42,6 +42,8 @@ namespace RPGFramework
             Console = CreateAnsiConsole();
         }
 
+        
+
         /// <summary>
         /// Things that should happen when a player logs out. 
         /// </summary>

@@ -163,6 +163,14 @@ namespace RPGFramework.Geography
         {
             return GetPlayersInRoom(this);
         }
+        public List<NonPlayer> GetNonPlayers()
+        {
+            return GetCharactersInRoom(this);
+        }
+        public List<Character> GetCharacters()
+        {
+            return GetPlayers().Cast<Character>().Concat(GetNonPlayers().Cast<Character>()).ToList();
+        }
 
         /// <summary>
         /// Return a list of player objects that are in the specified room
@@ -185,10 +193,22 @@ namespace RPGFramework.Geography
 
             return playersInRoom;
         }
+        public static List<NonPlayer> GetCharactersInRoom(Room room){ 
+            List<NonPlayer> charactersInRoom = new List<NonPlayer>();
+            foreach (NonPlayer npc in NPCList)
+            {
+                if (npc.AreaId == room.AreaId 
+                    && npc.LocationId == room.Id)
+                {
+                    charactersInRoom.Add(npc);
+                }
+            }
+            return charactersInRoom;
+        }
         #endregion --- Methods ---
 
         #region --- Methods (Events) ---
-        
+
         /// <summary>
         /// When a character enters a room, do this.
         /// </summary>

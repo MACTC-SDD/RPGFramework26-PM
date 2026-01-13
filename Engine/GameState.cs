@@ -1,8 +1,9 @@
 ﻿
-using System.Text.Json.Serialization;
+using RPGFramework.Combat;
 using RPGFramework.Engine;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -64,7 +65,8 @@ namespace RPGFramework
         public TelnetServer? TelnetServer { get; private set; }
 
         #endregion --- Properties ---
-
+        // Relocate later
+        public List<CombatObject> Combats = new List<CombatObject>();
         #region --- Methods ---
         private GameState()
         {
@@ -401,7 +403,7 @@ namespace RPGFramework
                 // await NPC team for behaviors/actions and NPCs
                 // make sure to include some randomness so NPCs don't all act at once
                 // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
-                foreach (var npc in NPC.Values)
+                foreach (var npc in NonPlayer.Values)
                 {
                     if (npc.IsEngaged)
                     {

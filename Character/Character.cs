@@ -1,5 +1,6 @@
 ﻿
 using RPGFramework.Geography;
+using RPGFramework.Combat;
 
 namespace RPGFramework
 {
@@ -27,6 +28,7 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = new CharacterClass();
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
+        public int Initiative { get; set; }
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -55,6 +57,8 @@ namespace RPGFramework
         {
             return GameState.Instance.Areas[AreaId].Rooms[LocationId];
         }
+
+
 
         // Set Health to a specific value
         public void SetHealth(int health)
@@ -92,5 +96,7 @@ namespace RPGFramework
         {
             SetHealth(Health + heal);
         }
+
+        
     }
 }
