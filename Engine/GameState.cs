@@ -28,6 +28,14 @@ namespace RPGFramework
 
         public bool IsRunning { get; private set; } = false;
 
+        #region --- Fields ---
+        private CancellationTokenSource? _saveCts;
+        private Task? _saveTask;
+        private CancellationTokenSource? _timeOfDayCts;
+        private Task? _timeOfDayTask;
+
+        #endregion
+
         #region --- Properties ---
 
         /// <summary>
@@ -218,6 +226,7 @@ namespace RPGFramework
             // NPC threads?
             // Room threads?
 
+            // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
 
