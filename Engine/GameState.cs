@@ -52,7 +52,11 @@ namespace RPGFramework
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
 
-        public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
+        /// <summary>
+        /// Gets or sets the collection of help entries, indexed by their name (must be unique).
+        /// </summary>
+        [JsonIgnore] public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
+
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
