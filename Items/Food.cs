@@ -33,9 +33,10 @@ namespace RPGFramework.Items
                     HealAmount = 100;
                     break;
 
-                case FoodType.Potion_Of_Healing:
+               /* case FoodType.Potion_Of_Healing:
                     HealAmount = 100;
-                    break;
+                    break; 
+               */
 
 
 
@@ -93,9 +94,11 @@ namespace RPGFramework.Items
                     StackAmount = 1;
                     break;
 
+                    /*
                 case FoodType.Potion_Of_Healing:
                     StackAmount = 10;
                     break;
+                    */
 
                 case FoodType.Chicken_Leg:
                     StackAmount = 10;
