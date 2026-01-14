@@ -14,9 +14,9 @@ namespace RPGFramework
         /// <param name="player"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        public static bool CheckPermission(PlayerRole role)
+        public static bool CheckPermission(Player player, PlayerRole role)
         {
-            return PlayerRole.Player >= role;
+            return player.PlayerRole >= role;
         }
     }
 }

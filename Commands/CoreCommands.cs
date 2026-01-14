@@ -1,4 +1,10 @@
 ﻿
+using RPGFramework.Core;
+using RPGFramework.Display;
+using Spectre.Console;
+using System.Collections.Immutable;
+using System.ComponentModel;
+
 namespace RPGFramework.Commands
 {
     /// <summary>
@@ -19,6 +25,7 @@ namespace RPGFramework.Commands
                 new SayCommand(),
                 new TimeCommand(),
                 new StatusCommand(),
+                new HelpCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -66,12 +73,16 @@ namespace RPGFramework.Commands
             if (character is Player player)
             {
                 // For now, we'll ignore the command and just show the room description
-                player.WriteLine($"{player.GetRoom().Description}");
-                player.WriteLine("Exits:");
+                string content = $"{player.GetRoom().Description}\n";
+                content += "[red]Exits:[/]\n";
                 foreach (var exit in player.GetRoom().GetExits())
                 {
-                    player.WriteLine($"{exit.Description} to the {exit.ExitDirection}");
+                    content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
+                content += "[Green]Players Here:[/]\n";
+                content += $"{player.DisplayName()}\n";
+                Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
+                player.Write(panel);
                 return true;
             }
             return false;
@@ -125,6 +136,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+
     internal class StatusCommand : ICommand
     {
         public string Name => "status";
@@ -132,6 +144,7 @@ namespace RPGFramework.Commands
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
+
             {
                 int onlineCount = 0;
                 long memory = GC.GetTotalMemory(true);
@@ -147,8 +160,38 @@ namespace RPGFramework.Commands
                 player.WriteLine($"There is currently {onlineCount} players online.");
                 player.WriteLine($"It is currently {GameState.Instance.GameDate}.");
             }
+      }
+    }
+    
+    internal class HelpCommand : ICommand
+    {
+        public string Name => "help";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+            {   
+                // if no help topic given
+                if (parameters.Count < 2)
+                {
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                    {
+                       player.WriteLine($"{he.Name}");
+                    }
+                }
+                else
+                {
+                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                    {
+                        if (he.Name.ToLower() == parameters[1].ToLower())
+                        {
+                            player.WriteLine($"{he.Name}");
+                            player.WriteLine($"{he.Content}");
+
+                        }
+                    }
+                }
+                    return true;
+            }
             return false;
         }
     }
-
 }
