@@ -4,26 +4,9 @@ using System.Text;
 
 namespace RPGFramework.Commands
 {
-    internal class ItemCommands
+    internal class ArmorBuilderCommand : ICommand
     {
-        public static List<ICommand> GetAllCommands()
-        {
-            return new List<ICommand>
-            {
-                new ItemBuilderCommand(),
-                new WeaponBuilderCommand(),
-                // Add more builder commands here as needed
-            };
-        }
-    }
-
-    #region --- Item Code ---
-    /// <summary>
-    /// /room command for building and editing rooms.
-    /// </summary>
-    internal class ItemBuilderCommand : ICommand
-    {
-        public string Name => "/item";
+        public string Name => "/Armor";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
 
@@ -44,7 +27,7 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    ItemCreate(player, parameters);
+                    ArmorCreate(player, parameters);
                     break;
                 case "set":
                     // We'll move setting name and description into this
@@ -62,25 +45,24 @@ namespace RPGFramework.Commands
             player.WriteLine("help message");
         }
 
-        private void ItemCreate(Player player, List<string> parameters)
+        private void ArmorCreate(Player player, List<string> parameters)
         {
             // Make sure not < 4
 
-            Item i = new Item();
-            i.Name = parameters[2];
-            i.Description = parameters[3];
+            Armor a = new Armor();
+            a.Name = parameters[2];
+            a.Description = parameters[3];
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(i.Name))
+
+
+            if (GameState.Instance.ItemsCatalog.ContainsKey(a.Name))
             {
-                player.WriteLine($"There is already an object named {i.Name}");
+                player.WriteLine($"There is already an object named {a.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(i.Name, i);
+                GameState.Instance.ItemsCatalog.Add(a.Name, a);
             }
         }
-        #endregion ---
-
     }
-
 }
