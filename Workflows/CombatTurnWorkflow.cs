@@ -81,7 +81,7 @@ namespace RPGFramework.Workflows
                                 break;
                             case "flee":
                                 player.WriteLine("You attempt to flee from combat!");
-                                bool flee = CombatObject.FleeCombat(player, currentCombat);
+                                CombatObject.FleeCombat(player, currentCombat);
                                 player.CurrentWorkflow = null;
                                 break;
                         }
@@ -103,7 +103,7 @@ namespace RPGFramework.Workflows
                     else
                     {
                         string weaponName = parameters[0].ToLower();
-                        if (weaponName == "back")
+                        if (weaponName == "back" || weaponName == "exit")
                         {
                             CurrentStep = 1; // go back to action selection
                             break;
@@ -158,7 +158,7 @@ namespace RPGFramework.Workflows
                     else
                     {
                         string spellName = parameters[0].ToLower();
-                        if (spellName == "back")
+                        if (spellName == "back" || spellName == "exit")
                             {
                             CurrentStep = 1; // go back to action selection
                             break;
@@ -207,7 +207,7 @@ namespace RPGFramework.Workflows
                         consumables.Add(item);
                     }
                     string itemName = parameters[0].ToLower();
-                    if (itemName == "back")
+                    if (itemName == "back" || itemName == "exit")
                     {
                         CurrentStep = 1; // go back to action selection
                         break;
@@ -237,7 +237,7 @@ namespace RPGFramework.Workflows
                     player.CurrentWorkflow = null;
                     break;
                 case 5:
-                    // targeting phase for attack or spell
+                    // targeting phase for attack
                     
                     if (parameters.Count == 0)
                     {
@@ -265,7 +265,8 @@ namespace RPGFramework.Workflows
                         {
                             player.WriteLine($"You target {chosenTarget.Name}!");
                             // Here you would add logic to apply the attack or spell effects to the chosen target
-                            chosenTarget.TakeDamage(selectedWeapon.Damage);
+                            CombatObject.RollToHit(player, selectedWeapon, chosenTarget);
+                            
                             CurrentStep = 0;
                             // CurrentStep = 0; // End turn
                         }
@@ -276,7 +277,46 @@ namespace RPGFramework.Workflows
                     }
                     player.CurrentWorkflow = null;
                     break; 
-                
+                    case 6:
+                    // targeting phase for spell
+                    if (parameters.Count == 0)
+                    {
+                        player.WriteLine("You must choose a target!");
+                    }
+                    else
+                    {
+                        string targetName = parameters[0].ToLower();
+                        Character? chosenTarget = null;
+                        foreach (CombatObject combat in GameState.Instance.Combats)
+                        {
+                            if (combat.combatants.Contains(player))
+                            {
+                                foreach (Character target in combat.combatants)
+                                {
+                                    if (target.Name.ToLower() == targetName && target != player)
+                                    {
+                                        chosenTarget = target;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (chosenTarget != null)
+                        {
+                            player.WriteLine($"You target {chosenTarget.Name}!");
+                            // Here you would add logic to apply the attack or spell effects to the chosen target
+                            CombatObject.RollToHitS(player, selectedSpell, chosenTarget);
+
+                            CurrentStep = 0;
+                            // CurrentStep = 0; // End turn
+                        }
+                        else
+                        {
+                            player.WriteLine("Invalid target selected!");
+                        }
+                    }
+                    player.CurrentWorkflow = null;
+                    break;
                 default:
                     player.WriteLine("Invalid step in combat turn workflow.");
                     break;

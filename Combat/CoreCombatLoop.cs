@@ -68,7 +68,16 @@ namespace RPGFramework.Combat
             foreach (Character c in combatants)
             {
                 //each character takes their turn here
-                
+                if (c is Player player)
+                {
+                    player.CurrentWorkflow = new CombatTurnWorkflow();
+                    //handle player turn
+                }
+                else if (c is NonPlayer npc)
+                {
+                    //handle npc turn
+                    NonPlayer.TakeTurn(npc, this);
+                }
             }
 
         }
@@ -89,6 +98,85 @@ namespace RPGFramework.Combat
                 if (character is Player player)
                     player.WriteLine("You failed to flee the combat!");
                 return false;
+            }
+        }
+
+        // 
+
+        public static void RollToHitS(Character attacker, Spell weapon, Character target)
+        {
+            Random rand = new Random();
+            int attackRoll = rand.Next(1, 20);
+            int attackModifier = (attacker.Intelligence - 10) / 2;
+            int totalAttack = attackRoll + attackModifier;
+            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            double damageModifier = (attacker.Intelligence - 10) / 2;
+            double totalDamage = weapon.Damage + damageModifier;
+            if (attackRoll == 20)
+            { 
+                target.TakeDamage(totalDamage * 2);
+            }
+            else if (attackRoll == 1)
+            {
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
+                totalAttack = 0;
+                attacker.TakeDamage(1.0);
+            }
+            else if (totalAttack >= targetAC)
+            { 
+                target.TakeDamage(totalDamage);
+                if (attacker is Player player)
+                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
+                if (target is Player targetPlayer)
+                {
+                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
+                }
+            }
+            else
+            {
+                //miss
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
+            }
+        }
+
+        
+        public static void RollToHit(Character attacker, Weapon weapon, Character target)
+        {
+            Random rand = new Random();
+            int attackRoll = rand.Next(1, 20);
+            int attackModifier = (attacker.Strength - 10) / 2;
+            int totalAttack = attackRoll + attackModifier;
+            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            double damageModifier = (attacker.Strength - 10) / 2;
+            double totalDamage = weapon.Damage + damageModifier;
+            if (attackRoll == 20)
+            {
+                target.TakeDamage(totalDamage * 2);
+            }
+            else if (attackRoll == 1)
+            {
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
+                totalAttack = 0;
+                attacker.TakeDamage(1.0);
+            }
+            else if (totalAttack >= targetAC)
+            {
+                target.TakeDamage(totalDamage);
+                if (attacker is Player player)
+                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
+                if (target is Player targetPlayer)
+                {
+                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
+                }
+            }
+            else
+            {
+                //miss
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
             }
         }
 
