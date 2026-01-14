@@ -16,7 +16,17 @@ namespace RPGFramework.Workflows
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
         public void Execute(Player player, List<string> parameters)
         {
-            // Placeholder for combat turn logic
+            Weapon? selectedWeapon = null;
+            Spell? selectedSpell = null;
+            CombatObject? currentCombat = null;
+            foreach (CombatObject combat in GameState.Instance.Combats)
+            {
+                if (combat.combatants.Contains(player))
+                {
+                    currentCombat = combat;
+                    break;
+                }
+            }
             switch (CurrentStep)
             {
                 case 0:
@@ -34,7 +44,7 @@ namespace RPGFramework.Workflows
                         // Process the chosen action
                         player.WriteLine($"You chose to {action}.");
                         // After processing, end the turn
-                        CombatObject playerCombat;
+                        
 
 
                         switch (action)
@@ -45,52 +55,228 @@ namespace RPGFramework.Workflows
                                 {
                                     player.WriteLine($"- {weapon.Name}");
                                 }
+                                CurrentStep = 2;
                                 break;
+
                             case "cast spell":
                                 player.WriteLine($"Which spell do you want to cast?");
                                 foreach (Spell spell in player.Spellbook)
                                 {
                                     player.WriteLine($"- {spell.Name}");
                                 }
+                                CurrentStep = 3;
                                 break;
                             case "inventory":
                                 player.WriteLine("You open your inventory:");
-                                List<Consumable> consumables = new List<Consumable>();
                                 foreach (Consumable item in player.Inventory)
                                 {
                                     player.WriteLine($"- {item.Name}");
-                                    consumables.Add(item);
                                 }
+                                player.WriteLine("Which item do you want to use?");
+                                foreach (Consumable item in consumables)
+                                {
+                                    player.WriteLine($"- {item.Name}");
+                                }
+                                CurrentStep = 4;
                                 break;
                             case "flee":
                                 player.WriteLine("You attempt to flee from combat!");
-                                foreach (CombatObject combat in GameState.Instance.Combats)
+                                bool flee = CombatObject.FleeCombat(player, currentCombat);
+                                player.CurrentWorkflow = null;
+                                break;
+                        }
+                        
+                    }
+                    break;
+                case 2:
+                    // second step of attack action
+
+                    List<Weapon> weapons = new List<Weapon>();
+                    foreach (Weapon weapon in player.Inventory)
+                    {
+                        weapons.Add(weapon);
+                    }
+                    if (parameters.Count == 0)
+                    {
+                        player.WriteLine("You must choose a weapon to attack with!");
+                    }
+                    else
+                    {
+                        string weaponName = parameters[0].ToLower();
+                        if (weaponName == "back")
+                        {
+                            CurrentStep = 1; // go back to action selection
+                            break;
+                        }
+                        
+                        foreach (Weapon weapon in weapons)
+                        {
+                            if (weapon.Name.ToLower() == weaponName)
+                            {
+                                selectedWeapon = weapon;
+                                break;
+                            }
+                        }
+                        if (selectedWeapon != null)
+                        {
+                            player.WriteLine($"You attack with your {selectedWeapon.Name}!");
+                            
+                            player.WriteLine("Select your target:");
+                            foreach (CombatObject combat in GameState.Instance.Combats)
+                            {
+                                if (combat.combatants.Contains(player))
                                 {
-                                    if (combat.combatants.Contains(player))
+                                    foreach (Character target in combat.combatants)
                                     {
-                                        Random rand = new Random();
-                                        int fleeRoll = rand.Next(1, 100);
-                                        if (fleeRoll >= 80)
+                                        if (target != player)
                                         {
-                                            combat.combatants.Remove(player);
-
-                                            player.WriteLine("You successfully fled the combat!");
-
-                                        }
-                                        else
-                                        {
-
-                                            player.WriteLine("You failed to flee the combat!");
-
+                                            player.WriteLine($"- {target.Name}");
                                         }
                                     }
                                 }
-                                
-                                break;
+                            }
+                            CurrentStep = 5; // targeting phase next
                         }
-                        CurrentStep = 0; // Reset for next turn
+                        else
+                        {
+                            player.WriteLine("You don't have that weapon!");
+                            CurrentStep = 2; // stay in weapon selection
+                        }
                     }
                     break;
+                case 3:
+                // second step of cast spell action
+                    List<Spell> spells = new List<Spell>();
+                    foreach (Spell spell in player.Spellbook)
+                    {
+                        spells.Add(spell);
+                    }
+                    if (parameters.Count == 0)
+                    {
+                        player.WriteLine("You must choose a spell to cast!");
+                    }
+                    else
+                    {
+                        string spellName = parameters[0].ToLower();
+                        if (spellName == "back")
+                            {
+                            CurrentStep = 1; // go back to action selection
+                            break;
+                            }
+                        
+                        foreach (Spell spell in spells)
+                        {
+                            if (spell.Name.ToLower() == spellName)
+                            {
+                                selectedSpell = spell;
+                                break;
+                            }
+                        }
+                        if (selectedSpell != null)
+                        {
+                            player.WriteLine($"You cast {selectedSpell.Name}!");
+                            
+                            player.WriteLine("Select your target:");
+                            foreach (CombatObject combat in GameState.Instance.Combats)
+                            {
+                                if (combat.combatants.Contains(player))
+                                {
+                                    foreach (Character target in combat.combatants)
+                                    {
+                                        if (target != player)
+                                        {
+                                            player.WriteLine($"- {target.Name}");
+                                        }
+                                    }
+                                }
+                            }
+                            CurrentStep = 5; // targeting phase next
+                        }
+                        else
+                        {
+                            player.WriteLine("You don't know that spell!");
+                            CurrentStep = 3; // stay in spell selection
+                        }
+                    }
+                    break;
+                case 4:
+                    // second step of inventory action
+                    List<Consumable> consumables = new List<Consumable>();
+                    foreach (Consumable item in player.Inventory)
+                    {
+                        consumables.Add(item);
+                    }
+                    string itemName = parameters[0].ToLower();
+                    if (itemName == "back")
+                    {
+                        CurrentStep = 1; // go back to action selection
+                        break;
+                    }
+                    Consumable? chosenItem = null;
+                    foreach (Consumable item in consumables)
+                    {
+                        if (item.Name.ToLower() == itemName)
+                        {
+                            chosenItem = item;
+                            break;
+                        }
+                    }
+                    if (chosenItem != null)
+                    {
+                        player.WriteLine($"You use the {chosenItem.Name}!");
+                        // Here you would add logic to apply the item's effects
+                        player.Heal(chosenItem.HealAmount);
+                        player.Inventory.Remove(chosenItem); // Remove used item from inventory
+                        CurrentStep = 0; // End turn
+                    }
+                    else
+                    {
+                        player.WriteLine("You don't have that item!");
+                        CurrentStep = 4; // stay in item selection
+                    }
+                    player.CurrentWorkflow = null;
+                    break;
+                case 5:
+                    // targeting phase for attack or spell
+                    
+                    if (parameters.Count == 0)
+                    {
+                        player.WriteLine("You must choose a target!");
+                    }
+                    else
+                    {
+                        string targetName = parameters[0].ToLower();
+                        Character? chosenTarget = null;
+                        foreach (CombatObject combat in GameState.Instance.Combats)
+                        {
+                            if (combat.combatants.Contains(player))
+                            {
+                                foreach (Character target in combat.combatants)
+                                {
+                                    if (target.Name.ToLower() == targetName && target != player)
+                                    {
+                                        chosenTarget = target;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (chosenTarget != null)
+                        {
+                            player.WriteLine($"You target {chosenTarget.Name}!");
+                            // Here you would add logic to apply the attack or spell effects to the chosen target
+                            chosenTarget.TakeDamage(selectedWeapon.Damage);
+                            CurrentStep = 0;
+                            // CurrentStep = 0; // End turn
+                        }
+                        else
+                        {
+                            player.WriteLine("Invalid target selected!");
+                        }
+                    }
+                    player.CurrentWorkflow = null;
+                    break; 
+                
                 default:
                     player.WriteLine("Invalid step in combat turn workflow.");
                     break;

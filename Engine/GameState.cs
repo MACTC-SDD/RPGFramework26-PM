@@ -403,7 +403,7 @@ namespace RPGFramework
                 // await NPC team for behaviors/actions and NPCs
                 // make sure to include some randomness so NPCs don't all act at once
                 // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
-                foreach (var npc in NonPlayer.Values)
+                foreach (var npc in GameState.Instance.NonPlayers)
                 {
                     if (npc.IsEngaged)
                     {
@@ -414,17 +414,47 @@ namespace RPGFramework
                         
                         if (npc.GetRoom().Players.Count > 0)
                         {
+                            List<Player> potentialTargets = new List<Player>();
                             // run combat initializtion method(s)
                             foreach (var player in npc.GetRoom().Players)
                             {
                                 // notify player of attack
-                                player.WriteLine($"The {npc.Name} attacks you!");
+                                if (player.IsEngaged)
+                                {
+                                    continue;
+                                }
+                                potentialTargets.Add(player);
                             }
-                        }
-                        else if (npc.GetRoom().NPC.Count > 1)
+                            if (potentialTargets.Count > 0)
+                            {
+                                var target = potentialTargets[new Random().Next(0, potentialTargets.Count-1)];
+                                // notify player of attack
+                                target.WriteLine($"The {npc.Name} attacks you!");
+                                // run combat initialization method(s)
+                                CombatObject combat = new CombatObject();
+                                Combats.Add(combat);
+                                combat.CombatInitialization(npc, target, combat);
+                            }
+                            else if (npc.GetRoom().NPC.Count > 1)
                         {
-                            // run combat initialization method(s)
-                        }
+                                List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
+                                
+                                foreach (var otherNpc in npc.GetRoom().GetCharacters())
+                                {
+                                if (otherNpc == npc || otherNpc.IsEngaged)
+                                {
+                                    continue;
+                                }
+                                    else
+                                    {
+                                        potentialNpcTargets.Add(otherNpc);
+                                    }
+                                }
+                                var target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
+                                CombatObject combat = new CombatObject();
+                                Combats.Add(combat);
+                                combat.CombatInitialization(npc, target, combat);
+                            }
 
                     }
                     else if (npc is Army)

@@ -19,7 +19,7 @@ namespace RPGFramework
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
         public int Gold { get; set; } = 0;
-        public int Health { get; protected set; } = 0;
+        public double Health { get; protected set; } = 0;
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
@@ -61,7 +61,7 @@ namespace RPGFramework
 
 
         // Set Health to a specific value
-        public void SetHealth(int health)
+        public void SetHealth(double health)
         {
             // Doesn't make sense if player is dead
             if (Alive == false)
@@ -86,13 +86,13 @@ namespace RPGFramework
         }
 
         // Remove some amount from health
-        public void TakeDamage(int damage)
+        public void TakeDamage(double damage)
         {
             SetHealth(Health - damage);
         }
 
         // Add some amount to health
-        public void Heal(int heal)
+        public void Heal(double heal)
         {
             SetHealth(Health + heal);
         }
