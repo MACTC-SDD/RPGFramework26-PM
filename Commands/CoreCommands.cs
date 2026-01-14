@@ -80,7 +80,7 @@ namespace RPGFramework.Commands
                     content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
                 content += "[Green]Players Here:[/]\n";
-                content += $"{player.DisplayName()}\n";
+                content += $"{player.DisplayName()}";
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
                 return true;

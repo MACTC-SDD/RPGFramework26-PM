@@ -55,10 +55,10 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                if (CheckPermission(PlayerRole.Admin) == true)
+                if (CheckPermission(PlayerRole.Player) == true)
                 {
-                    Comm.Broadcast($"{DisplaySettings.AnnouncementColor}[[Announcement]]: [/][white]" +
-                    $"{string.Join(' ', parameters.Skip(1))}[/]");
+                    Comm.Broadcast(Messaging.CreateAnnouncementMessage(string.Join(' ', parameters.Skip(1))));
+                    
                     return true;
                 }
                 return false;
