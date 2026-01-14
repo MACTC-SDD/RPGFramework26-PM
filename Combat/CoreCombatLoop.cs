@@ -1,5 +1,4 @@
-﻿using RPGFramework.Characters;
-using RPGFramework.Engine;
+﻿using RPGFramework.Engine;
 using RPGFramework.Workflows;
 using System;
 using System.Collections;
@@ -110,8 +109,8 @@ namespace RPGFramework.Combat
             int attackModifier = (attacker.Intelligence - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
             int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
-            double damageModifier = (attacker.Intelligence - 10) / 2;
-            double totalDamage = weapon.Damage + damageModifier;
+            int damageModifier = (attacker.Intelligence - 10) / 2;
+            int totalDamage = weapon.Damage + damageModifier;
             if (attackRoll == 20)
             { 
                 target.TakeDamage(totalDamage * 2);
@@ -121,7 +120,7 @@ namespace RPGFramework.Combat
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name}!");
                 totalAttack = 0;
-                attacker.TakeDamage(1.0);
+                attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             { 
@@ -149,8 +148,8 @@ namespace RPGFramework.Combat
             int attackModifier = (attacker.Strength - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
             int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
-            double damageModifier = (attacker.Strength - 10) / 2;
-            double totalDamage = weapon.Damage + damageModifier;
+            int damageModifier = (attacker.Strength - 10) / 2;
+            int totalDamage = weapon.Damage + damageModifier;
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
@@ -160,7 +159,7 @@ namespace RPGFramework.Combat
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                attacker.TakeDamage(1.0);
+                attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             {
@@ -214,11 +213,14 @@ namespace RPGFramework.Combat
             }
         }
 
+        // CODE REVIEW: Rylan (PR #16)
+        // Added IsEngaged property to Character class to track combat status.
+        // Added stub EngageCombat method to set IsEngaged to true for combatants.
         public static void EndCombat(CombatObject combat)
         {
             foreach (Character c in combat.combatants)
             {
-                c.IsEngaged = false;
+                c.EngageCombat(false);
                 if (c is Player player)
                 {
                     player.WriteLine("Combat has ended!");

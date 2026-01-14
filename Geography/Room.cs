@@ -214,6 +214,11 @@ namespace RPGFramework.Geography
         }
         public static List<NonPlayer> GetCharactersInRoom(Room room){ 
             List<NonPlayer> charactersInRoom = new List<NonPlayer>();
+
+            // CODE REVIEW: Rylan (PR #16)
+            // Since NPCs will be stored with the room, there will probably
+            // just be a loop through room.NPCs instead of GameState.
+            /*
             foreach (NonPlayer npc in NPCList)
             {
                 if (npc.AreaId == room.AreaId 
@@ -222,6 +227,7 @@ namespace RPGFramework.Geography
                     charactersInRoom.Add(npc);
                 }
             }
+            */
             return charactersInRoom;
         }
         #endregion --- Methods ---

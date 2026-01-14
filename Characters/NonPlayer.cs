@@ -15,6 +15,13 @@ namespace RPGFramework
         // contact combat team for help if needed, we know the combat system structure
         // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
+        // CODE REVIEW: Rylan (PR #16)
+        // I'm adding HasElement and AttackPower properties so this will compile, but
+        // I don't think they necessarily belong here. Please review and adjust as needed.
+        public bool HasElement { get; set; } = false;
+        public int AttackPower { get; set; } = 0;
+
+
         public static void TakeTurn(NonPlayer npc, CombatObject combat)
         {
             // NPC turn logic to be implemented
