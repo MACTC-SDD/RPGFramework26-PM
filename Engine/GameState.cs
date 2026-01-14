@@ -5,6 +5,7 @@ using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 
+
 namespace RPGFramework
 {
     /// <summary>
@@ -51,8 +52,13 @@ namespace RPGFramework
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
+        public DateTime ServerStartTime { get; init; } 
 
-        public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
+        /// <summary>
+        /// Gets or sets the collection of help entries, indexed by their name (must be unique).
+        /// </summary>
+        [JsonIgnore] public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
+
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
@@ -69,12 +75,47 @@ namespace RPGFramework
         #region --- Methods ---
         private GameState()
         {
-
+            ServerStartTime = DateTime.Now;
         }
 
         public void AddPlayer(Player player)
         {
             Players.Add(player.Name, player);
+        }
+
+        public List <Player> GetPlayersOnline()
+        {
+            return Players.Values.Where(o => o.IsOnline).ToList();
+        }
+
+        // CODE REVIEW: Aiden (PR #13)
+        // I moved Trim around a little for readability and renamed to 
+        // GetPlayerByName since DisplayName means something different.
+        // It would probably be more efficient to use GetPlayersOnline as a starting point.
+        // That way you wouldn't have to check for online and you could automatically skip over
+        // all offline players. Once you read this and update (or not) you can feel free to
+        // remove these notes.
+        public Player? GetPlayerByName(string name)
+        {
+            name = name.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            foreach (var player in Players.Values)
+            {
+                if (!player.IsOnline)
+                    continue;
+
+                if (string.Equals(player.Name,
+                                  name,
+                                  StringComparison.OrdinalIgnoreCase))
+                {
+                    return player;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -135,6 +176,20 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, $"{Players.Count} players loaded.");
         }
 
+        private async Task LoadCatalogs()
+        {
+            HelpEntries.Clear();
+            try
+            {
+                HelpEntries = await Persistence.LoadHelpCatalogAsync();
+                GameState.Log(DebugLevel.Alert, $"Help catalog loaded with {HelpEntries.Count} entries.");
+            }
+            catch ( FileNotFoundException fex)
+            {
+                GameState.Log(DebugLevel.Warning, $"Help catalog file not found. Loading blank.");
+            }
+        }
+
         /// <summary>
         /// Saves all area entities asynchronously to the persistent storage.
         /// </summary>
@@ -153,13 +208,18 @@ namespace RPGFramework
         /// <param name="includeOffline"><see langword="true"/> to include offline 
         /// players in the save operation; otherwise, only online players are saved.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
-        private Task SaveAllPlayers(bool includeOffline = false)
+        public Task SaveAllPlayers(bool includeOffline = false)
         {
             var toSave = includeOffline
                 ? Players.Values
                 : Players.Values.Where(p => p.IsOnline);
 
             return Persistence.SavePlayersAsync(toSave);
+        }
+
+        public Task SaveCatalogs()
+        {
+            return Persistence.SaveHelpCatalog(HelpEntries);
         }
 
         /// <summary>
@@ -197,6 +257,7 @@ namespace RPGFramework
 
             await LoadAllAreas();
             await LoadAllPlayers();
+            await LoadCatalogs();
 
             // Load Item (Weapon/Armor/Consumable/General) catalogs
             // Load NPC (Mobs/Shop/Guild/Quest) catalogs
@@ -284,6 +345,7 @@ namespace RPGFramework
                 {
                     await SaveAllPlayers();
                     await SaveAllAreas();
+                    await SaveCatalogs();
 
                     GameState.Log(DebugLevel.Info, "Autosave complete.");
                 }

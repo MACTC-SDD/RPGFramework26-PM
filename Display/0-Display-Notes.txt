@@ -17,17 +17,17 @@ https://spectreconsole.net/console/reference/markup-reference
 You can also format text with decorators like bold, italic, etc.
 
 [bold]This text is bold[/]
-[bold red]This text is bold and red[/]
+[bold red]This text is bold and red[/] <-- Bold and color does not work together
 
 The full list is:
 [bold] - Bold text
 [dim] - Dimmed/faint text
-[italic] - Italic text
+[italic] - Italic text <-- Doesnt work
 [underline] - Underlined text
 [strikethrough] - Strikethrough text
 [invert] - Inverted colors
-[conceal] - Concealed text (hidden)
-[slowblink] - Slow blinking text
-[rapidblink] - Rapid blinking text
+[conceal] - Concealed text (hidden) <-- Doesnt work
+[slowblink] - Slow blinking text <-- Doesnt work
+[rapidblink] - Rapid blinking text <-- Doesnt work
 
 
