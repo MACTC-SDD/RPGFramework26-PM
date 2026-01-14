@@ -18,6 +18,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
         public int Level { get; protected set; } = 1;
@@ -28,6 +29,7 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
+
         #endregion
 
         #region --- Skill Attributes --- (0-20)
