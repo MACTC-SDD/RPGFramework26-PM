@@ -55,7 +55,7 @@ namespace RPGFramework
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
         [JsonIgnore] public Dictionary<string, Item> ItemsCatalog { get; set; } = new Dictionary<string, Item>();
-        
+        [JsonIgnore] public Dictionary<string, Weapon> WeaponsCatalog { get; set; } = new Dictionary<string, Weapon>();
 
         [JsonIgnore] public Random Random { get; } = new Random();
         public int StartAreaId { get; set; } = 0;

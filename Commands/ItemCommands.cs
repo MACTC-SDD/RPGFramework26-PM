@@ -130,10 +130,13 @@ namespace RPGFramework.Commands
             {
                 // Make sure not < 4
 
-                Item w = new Item();
+                Weapon w = new Weapon();
                 w.Name = parameters[2];
                 w.Description = parameters[3];
-                //w.Damage = parameters[4];
+                w.Damage = Convert.ToDouble(parameters[4]);
+                //w.Durability = Convert.To;
+
+
 
                 if (GameState.Instance.ItemsCatalog.ContainsKey(w.Name))
                 {
