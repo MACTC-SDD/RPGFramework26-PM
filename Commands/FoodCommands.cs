@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RPGFramework.Items;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -50,12 +51,9 @@ namespace RPGFramework.Commands
         {
             // Make sure not < 4
 
-           Food f = new Food();
+            Food f = new Food();
             f.Name = parameters[2];
             f.Description = parameters[3];
-            f.protection = Convert.ToInt32(parameters[4]);
-            f.Durability = Convert.ToInt32(parameters[5]);
-            f.weight = Convert.ToInt32(parameters[6]);
 
 
 
