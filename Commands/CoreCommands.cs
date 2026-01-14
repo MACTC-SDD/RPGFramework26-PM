@@ -144,7 +144,6 @@ namespace RPGFramework.Commands
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
-
             {
                 int onlineCount = 0;
                 long memory = GC.GetTotalMemory(true);
@@ -159,39 +158,46 @@ namespace RPGFramework.Commands
                 }
                 player.WriteLine($"There is currently {onlineCount} players online.");
                 player.WriteLine($"It is currently {GameState.Instance.GameDate}.");
+
+                return true;
             }
-      }
+
+            return false;
+        }
     }
-    
+
     internal class HelpCommand : ICommand
     {
         public string Name => "help";
         public IEnumerable<string> Aliases => new List<string> { };
         public bool Execute(Character character, List<string> parameters)
-            {   
-                // if no help topic given
-                if (parameters.Count < 2)
-                {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
-                    {
-                       player.WriteLine($"{he.Name}");
-                    }
-                }
-                else
-                {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
-                    {
-                        if (he.Name.ToLower() == parameters[1].ToLower())
-                        {
-                            player.WriteLine($"{he.Name}");
-                            player.WriteLine($"{he.Content}");
+        {
+            if (character is not Player player)
+                return false;
 
-                        }
+            // if no help topic given
+            if (parameters.Count < 2)
+            {
+                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                {
+                    player.WriteLine($"{he.Name}");
+                }
+            }
+            else
+            {
+                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                {
+                    if (he.Name.ToLower() == parameters[1].ToLower())
+                    {
+                        player.WriteLine($"{he.Name}");
+                        player.WriteLine($"{he.Content}");
+
                     }
                 }
-                    return true;
             }
-            return false;
+            return true;
         }
+
     }
 }
+
