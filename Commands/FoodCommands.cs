@@ -1,12 +1,14 @@
-﻿using System;
+﻿using RPGFramework.Items;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RPGFramework.Commands
 {
-    internal class ArmorBuilderCommand : ICommand
+
+    internal class FoodBuilderCommand : ICommand
     {
-        public string Name => "/Armor";
+        public string Name => "/Food";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
 
@@ -27,7 +29,7 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    ArmorCreate(player, parameters);
+                    FoodCreate(player, parameters);
                     break;
                 case "set":
                     // We'll move setting name and description into this
@@ -45,27 +47,29 @@ namespace RPGFramework.Commands
             player.WriteLine("help message");
         }
 
-        private void ArmorCreate(Player player, List<string> parameters)
+        private void FoodCreate(Player player, List<string> parameters)
         {
             // Make sure not < 4
 
-            Armor a = new Armor();
-            a.Name = parameters[2];
-            a.Description = parameters[3];
-            a.protection = Convert.ToInt32(parameters[4]);
-            a.Durability = Convert.ToInt32(parameters[5]);
-            a.weight = Convert.ToInt32(parameters[6]);
+            Food f = new Food();
+            f.Name = parameters[2];
+            f.Description = parameters[3];
+            f.HealAmount = Convert.ToInt32(parameters[4]);
+            f.StackAmount = Convert.ToInt32(parameters[5]);
+            f.StackMax = Convert.ToInt32(parameters[6]);
+            
 
 
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(a.Name))
+            if (GameState.Instance.ItemsCatalog.ContainsKey(f.Name))
             {
-                player.WriteLine($"There is already an object named {a.Name}");
+                player.WriteLine($"There is already an object named {f.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(a.Name, a);
+                GameState.Instance.ItemsCatalog.Add(f.Name, f);
             }
         }
+
     }
 }

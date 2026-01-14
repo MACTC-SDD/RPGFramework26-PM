@@ -12,6 +12,7 @@ namespace RPGFramework.Commands
             {
                 new ItemBuilderCommand(),
                 new WeaponBuilderCommand(),
+            
                 // Add more builder commands here as needed
             };
         }
