@@ -68,7 +68,25 @@ namespace RPGFramework.Commands
 
             Item i = new Item();
             i.Name = parameters[2];
-            i.Description = parameters[3];
+            i.Id = Convert.ToInt32(parameters[3]);
+            i.Description = parameters[4];
+            i.DisplayText = parameters[5];
+            i.IsDroppable = Convert.ToBoolean(parameters[6]);
+            i.IsDroppable = Convert.ToBoolean(parameters[7]);
+            i.Level = Convert.ToInt32(parameters[8]);
+            i.Name = parameters[9];
+            i.Tags = parameters[10].Split(",").ToList();
+            i.UsesRemaining = Convert.ToInt32(parameters[11]);
+            i.Value = Convert.ToDouble(parameters[12]);
+            i.Weight = Convert.ToDouble(parameters[13]);
+            i.SpawnChance = Convert.ToDouble(parameters[14]);
+            i.UseSpeed = Convert.ToDouble(parameters[15]);
+
+
+            //int = Convert.ToInt32(parameters[+]);
+            //bool = Convert.ToBoolean(parameters[+]);
+            //double =  Convert.ToDouble(parameters[+]);
+
 
             if (GameState.Instance.ItemsCatalog.ContainsKey(i.Name))
             {
