@@ -24,6 +24,7 @@ namespace RPGFramework.Commands
                 new QuitCommand(),
                 new SayCommand(),
                 new TimeCommand(),
+                new StatusCommand(),
                 new HelpCommand(),
                 // Add other core commands here as they are implemented
             };
@@ -136,13 +137,37 @@ namespace RPGFramework.Commands
         }
     }
 
+    internal class StatusCommand : ICommand
+    {
+        public string Name => "status";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+
+            {
+                int onlineCount = 0;
+                long memory = GC.GetTotalMemory(true);
+                player.WriteLine($"The Server started at {GameState.Instance.ServerStartTime}.");
+                player.WriteLine($"There are currently {System.Diagnostics.Process.GetCurrentProcess().Threads} running.");
+                player.WriteLine($"The system is currently using {memory}.");
+                foreach (Player playerc in GameState.Instance.GetPlayersOnline())
+                {
+                    string name = playerc.DisplayName();
+                    onlineCount++;
+                    return true;
+                }
+                player.WriteLine($"There is currently {onlineCount} players online.");
+                player.WriteLine($"It is currently {GameState.Instance.GameDate}.");
+            }
+      }
+    }
+    
     internal class HelpCommand : ICommand
     {
         public string Name => "help";
         public IEnumerable<string> Aliases => new List<string> { };
         public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is Player player)
             {   
                 // if no help topic given
                 if (parameters.Count < 2)
@@ -166,9 +191,7 @@ namespace RPGFramework.Commands
                 }
                     return true;
             }
-
             return false;
         }
     }
-
 }

@@ -1,9 +1,12 @@
 ﻿
+using RPGFramework.Engine;
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -51,6 +54,7 @@ namespace RPGFramework
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
+        public DateTime ServerStartTime { get; init; } 
 
         /// <summary>
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
@@ -73,7 +77,7 @@ namespace RPGFramework
         #region --- Methods ---
         private GameState()
         {
-
+            ServerStartTime = DateTime.Now;
         }
 
         public void AddPlayer(Player player)
