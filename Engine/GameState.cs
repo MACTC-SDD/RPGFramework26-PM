@@ -1,8 +1,9 @@
 ﻿
-using System.Text.Json.Serialization;
 using RPGFramework.Engine;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -48,6 +49,7 @@ namespace RPGFramework
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
+        public DateTime ServerStartTime { get; init; } 
 
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
@@ -64,7 +66,7 @@ namespace RPGFramework
         #region --- Methods ---
         private GameState()
         {
-
+            ServerStartTime = DateTime.Now;
         }
 
         public void AddPlayer(Player player)
