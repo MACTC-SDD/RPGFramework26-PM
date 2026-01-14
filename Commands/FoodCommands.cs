@@ -2,29 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RPGFramework.Commands
+/*namespace RPGFramework.Commands
 {
-    internal class ItemCommands
-    {
-        public static List<ICommand> GetAllCommands()
-        {
-            return new List<ICommand>
-            {
-                new ItemBuilderCommand(),
-                new WeaponBuilderCommand(),
-            
-                // Add more builder commands here as needed
-            };
-        }
-    }
 
-    #region --- Item Code ---
-    /// <summary>
-    /// /room command for building and editing rooms.
-    /// </summary>
-    internal class ItemBuilderCommand : ICommand
+    internal class FoodBuilderCommand : ICommand
     {
-        public string Name => "/item";
+        public string Name => "/Food";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
 
@@ -45,7 +28,7 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    ItemCreate(player, parameters);
+                    FoodCreate(player, parameters);
                     break;
                 case "set":
                     // We'll move setting name and description into this
@@ -63,25 +46,28 @@ namespace RPGFramework.Commands
             player.WriteLine("help message");
         }
 
-        private void ItemCreate(Player player, List<string> parameters)
+        private void FoodCreate(Player player, List<string> parameters)
         {
             // Make sure not < 4
 
-            Item i = new Item();
-            i.Name = parameters[2];
-            i.Description = parameters[3];
+           Food f = new Food();
+            f.Name = parameters[2];
+            f.Description = parameters[3];
+            f.protection = Convert.ToInt32(parameters[4]);
+            f.Durability = Convert.ToInt32(parameters[5]);
+            f.weight = Convert.ToInt32(parameters[6]);
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(i.Name))
+
+
+            if (GameState.Instance.ItemsCatalog.ContainsKey(f.Name))
             {
-                player.WriteLine($"There is already an object named {i.Name}");
+                player.WriteLine($"There is already an object named {f.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(i.Name, i);
+                GameState.Instance.ItemsCatalog.Add(f.Name, f);
             }
         }
-        #endregion ---
 
     }
-
 }

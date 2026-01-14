@@ -52,6 +52,9 @@ namespace RPGFramework.Commands
             Armor a = new Armor();
             a.Name = parameters[2];
             a.Description = parameters[3];
+            a.protection = Convert.ToInt32(parameters[4]);
+            a.Durability = Convert.ToInt32(parameters[5]);
+            a.weight = Convert.ToInt32(parameters[6]);
 
 
 
