@@ -54,6 +54,10 @@ namespace RPGFramework.Commands
             Food f = new Food();
             f.Name = parameters[2];
             f.Description = parameters[3];
+            f.HealAmount = Convert.ToInt32(parameters[4]);
+            f.StackAmount = Convert.ToInt32(parameters[5]);
+            f.StackMax = Convert.ToInt32(parameters[6]);
+            
 
 
 
