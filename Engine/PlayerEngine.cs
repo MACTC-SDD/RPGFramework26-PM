@@ -72,5 +72,6 @@ namespace RPGFramework
 
             return ((System.Net.IPEndPoint)Network.Client.Client.RemoteEndPoint).Address.ToString();
         }
+
     }
 }

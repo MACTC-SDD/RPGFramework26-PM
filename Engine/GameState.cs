@@ -1,8 +1,10 @@
 ﻿
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
+using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+
 
 namespace RPGFramework
 {
@@ -27,10 +29,13 @@ namespace RPGFramework
 
         public bool IsRunning { get; private set; } = false;
 
-        // Fields
-        //private bool IsRunning = false;
-        private Thread? _saveThread;
-        private Thread? _timeOfDayThread;
+        #region --- Fields ---
+        private CancellationTokenSource? _saveCts;
+        private Task? _saveTask;
+        private CancellationTokenSource? _timeOfDayCts;
+        private Task? _timeOfDayTask;
+
+        #endregion
 
         #region --- Properties ---
 
@@ -47,11 +52,19 @@ namespace RPGFramework
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
+        public DateTime ServerStartTime { get; init; } 
+
+        /// <summary>
+        /// Gets or sets the collection of help entries, indexed by their name (must be unique).
+        /// </summary>
+        [JsonIgnore] public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
 
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
+
+        [JsonIgnore] public Random Random { get; } = new Random();
         [JsonIgnore] public Dictionary<string, CharacterClass> CharacterClasses { get; set; } = new Dictionary<string, CharacterClass>();
         // Move starting area/room to configuration settings
         public int StartAreaId { get; set; } = 0;
@@ -64,12 +77,47 @@ namespace RPGFramework
         #region --- Methods ---
         private GameState()
         {
-
+            ServerStartTime = DateTime.Now;
         }
 
         public void AddPlayer(Player player)
         {
             Players.Add(player.Name, player);
+        }
+
+        public List <Player> GetPlayersOnline()
+        {
+            return Players.Values.Where(o => o.IsOnline).ToList();
+        }
+
+        // CODE REVIEW: Aiden (PR #13)
+        // I moved Trim around a little for readability and renamed to 
+        // GetPlayerByName since DisplayName means something different.
+        // It would probably be more efficient to use GetPlayersOnline as a starting point.
+        // That way you wouldn't have to check for online and you could automatically skip over
+        // all offline players. Once you read this and update (or not) you can feel free to
+        // remove these notes.
+        public Player? GetPlayerByName(string name)
+        {
+            name = name.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            foreach (var player in Players.Values)
+            {
+                if (!player.IsOnline)
+                    continue;
+
+                if (string.Equals(player.Name,
+                                  name,
+                                  StringComparison.OrdinalIgnoreCase))
+                {
+                    return player;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -130,6 +178,20 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, $"{Players.Count} players loaded.");
         }
 
+        private async Task LoadCatalogs()
+        {
+            HelpEntries.Clear();
+            try
+            {
+                HelpEntries = await Persistence.LoadHelpCatalogAsync();
+                GameState.Log(DebugLevel.Alert, $"Help catalog loaded with {HelpEntries.Count} entries.");
+            }
+            catch ( FileNotFoundException fex)
+            {
+                GameState.Log(DebugLevel.Warning, $"Help catalog file not found. Loading blank.");
+            }
+        }
+
         /// <summary>
         /// Saves all area entities asynchronously to the persistent storage.
         /// </summary>
@@ -148,13 +210,18 @@ namespace RPGFramework
         /// <param name="includeOffline"><see langword="true"/> to include offline 
         /// players in the save operation; otherwise, only online players are saved.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
-        private Task SaveAllPlayers(bool includeOffline = false)
+        public Task SaveAllPlayers(bool includeOffline = false)
         {
             var toSave = includeOffline
                 ? Players.Values
                 : Players.Values.Where(p => p.IsOnline);
 
             return Persistence.SavePlayersAsync(toSave);
+        }
+
+        public Task SaveCatalogs()
+        {
+            return Persistence.SaveHelpCatalog(HelpEntries);
         }
 
         /// <summary>
@@ -192,24 +259,21 @@ namespace RPGFramework
 
             await LoadAllAreas();
             await LoadAllPlayers();
+            await LoadCatalogs();
 
             // Load Item (Weapon/Armor/Consumable/General) catalogs
             // Load NPC (Mobs/Shop/Guild/Quest) catalogs
 
-            this.TelnetServer = new TelnetServer(5555);
-            await this.TelnetServer.StartAsync();
 
 
             // TODO: Consider moving thread methods to their own class
 
             // Start threads that run periodically
-            _saveThread = new Thread(() => SaveTask(10000));
-            _saveThread.IsBackground = true;
-            _saveThread.Start();
+            _saveCts = new CancellationTokenSource();
+            _saveTask = RunAutosaveLoopAsync(TimeSpan.FromMilliseconds(10000), _saveCts.Token);
 
-            _timeOfDayThread = new Thread(() => TimeOfDayTask(15000));
-            _timeOfDayThread.IsBackground = true;
-            _timeOfDayThread.Start();
+            _timeOfDayCts = new CancellationTokenSource();
+            _timeOfDayTask = RunTimeOfDayLoopAsync(TimeSpan.FromMilliseconds(15000), _timeOfDayCts.Token);
 
             // Other threads will go here
             // Weather?
@@ -217,6 +281,9 @@ namespace RPGFramework
             // NPC threads?
             // Room threads?
 
+            // This needs to be last
+            this.TelnetServer = new TelnetServer(5555);
+            await this.TelnetServer.StartAsync();
 
         }
 
@@ -246,8 +313,8 @@ namespace RPGFramework
             IsRunning = false;
 
             // Wait for threads to finish
-            _saveThread?.Join();
-            _timeOfDayThread?.Join();
+            _saveCts?.Cancel();
+            _timeOfDayCts?.Cancel();
 
             // Exit program
             Environment.Exit(0);
@@ -271,16 +338,28 @@ namespace RPGFramework
         /// Things that need to be saved periodically
         /// </summary>
         /// <param name="interval"></param>
-        private async void SaveTask(int interval)
+        private async Task RunAutosaveLoopAsync(TimeSpan interval, CancellationToken ct)
         {
-            while (IsRunning)
+            GameState.Log(DebugLevel.Alert, "Autosave thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
             {
-                await SaveAllPlayers();
-                await SaveAllAreas();
+                try
+                {
+                    await SaveAllPlayers();
+                    await SaveAllAreas();
+                    await SaveCatalogs();
 
-                Thread.Sleep(interval);
-                GameState.Log(DebugLevel.Alert, "Autosave complete.");
+                    GameState.Log(DebugLevel.Info, "Autosave complete.");
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during autosave: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
             }
+
+            GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
         }
 
         /// <summary>
@@ -289,15 +368,25 @@ namespace RPGFramework
         /// and how much time should pass each time. For now it adds 1 hour / minute.
         /// </summary>
         /// <param name="interval"></param>
-        private void TimeOfDayTask(int interval)
+        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
-            while (IsRunning)
+            GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
             {
-                GameState.Log(DebugLevel.Debug, "Updating time...");
-                double hours = (double)interval / 60000;
-                GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
-                Thread.Sleep(interval);
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Updating time...");
+                    double hours = interval.TotalMinutes * 60;
+                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during time update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
             }
+            GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
         }
         #endregion --- Thread Methods ---
 
