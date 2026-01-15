@@ -133,7 +133,7 @@ namespace RPGFramework.Commands
                 CombatObject currentCombat = null;
                 foreach (CombatObject combat in GameState.Instance.Combats)
                 {
-                    if (combat.combatants.Contains(p))
+                    if (combat.Combatants.Contains(p))
                     {
                         currentCombat = combat;
                         break;
@@ -142,7 +142,7 @@ namespace RPGFramework.Commands
                 if (currentCombat != null)
                 {
                     p.WriteLine("Combatants:");
-                    foreach (Character c in currentCombat.combatants)
+                    foreach (Character c in currentCombat.Combatants)
                     {
                         p.WriteLine($"{c.Name} - HP: {c.Health}/{c.MaxHealth}");
                     }

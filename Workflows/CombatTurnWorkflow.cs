@@ -21,7 +21,7 @@ namespace RPGFramework.Workflows
             CombatObject? currentCombat = null;
             foreach (CombatObject combat in GameState.Instance.Combats)
             {
-                if (combat.combatants.Contains(player))
+                if (combat.Combatants.Contains(player))
                 {
                     currentCombat = combat;
                     break;
@@ -124,9 +124,9 @@ namespace RPGFramework.Workflows
                             player.WriteLine("Select your target:");
                             foreach (CombatObject combat in GameState.Instance.Combats)
                             {
-                                if (combat.combatants.Contains(player))
+                                if (combat.Combatants.Contains(player))
                                 {
-                                    foreach (Character target in combat.combatants)
+                                    foreach (Character target in combat.Combatants)
                                     {
                                         if (target != player)
                                         {
@@ -179,9 +179,9 @@ namespace RPGFramework.Workflows
                             player.WriteLine("Select your target:");
                             foreach (CombatObject combat in GameState.Instance.Combats)
                             {
-                                if (combat.combatants.Contains(player))
+                                if (combat.Combatants.Contains(player))
                                 {
-                                    foreach (Character target in combat.combatants)
+                                    foreach (Character target in combat.Combatants)
                                     {
                                         if (target != player)
                                         {
@@ -249,9 +249,9 @@ namespace RPGFramework.Workflows
                         Character? chosenTarget = null;
                         foreach (CombatObject combat in GameState.Instance.Combats)
                         {
-                            if (combat.combatants.Contains(player))
+                            if (combat.Combatants.Contains(player))
                             {
-                                foreach (Character target in combat.combatants)
+                                foreach (Character target in combat.Combatants)
                                 {
                                     if (target.Name.ToLower() == targetName && target != player)
                                     {
@@ -289,9 +289,9 @@ namespace RPGFramework.Workflows
                         Character? chosenTarget = null;
                         foreach (CombatObject combat in GameState.Instance.Combats)
                         {
-                            if (combat.combatants.Contains(player))
+                            if (combat.Combatants.Contains(player))
                             {
-                                foreach (Character target in combat.combatants)
+                                foreach (Character target in combat.Combatants)
                                 {
                                     if (target.Name.ToLower() == targetName && target != player)
                                     {

@@ -33,7 +33,7 @@ namespace RPGFramework.Combat
                 }
             }
         }
-        public List<Character> combatants = new List<Character>();
+        public List<Character> Combatants = new List<Character>();
 
         private int roundCounter { get; set; } = 0;
 
@@ -41,23 +41,23 @@ namespace RPGFramework.Combat
 
         public async Task CombatInitialization(Character attacker, Character enemy, CombatObject combat)
         {
-            combatants.Add(attacker);
-            combatants.Add(enemy);
+            Combatants.Add(attacker);
+            Combatants.Add(enemy);
             foreach (NonPlayer npc in attacker.GetRoom().GetNonPlayers())
             {
                 //if (npc.Hostile == true || npc.Army == true)
                 { 
-                    combatants.Add(npc);
+                    Combatants.Add(npc);
                 }
             }
-            foreach (Character c in combatants)
+            foreach (Character c in Combatants)
             {
                 Random rand = new Random();
                 int initiativeRoll = rand.Next(1, 20);
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
-            combat.InitiativeOrder(combatants);
+            combat.InitiativeOrder(Combatants);
             RunCombat(combat);
         }
 
@@ -69,7 +69,7 @@ namespace RPGFramework.Combat
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
             {
-                combat.combatants.Remove(character);
+                combat.Combatants.Remove(character);
                 if (character is Player player)
                     player.WriteLine("You successfully fled the combat!");
                 return true;
@@ -164,21 +164,21 @@ namespace RPGFramework.Combat
         public static async Task RunCombat(CombatObject combat)
         {
             //main combat loop
-            while (combat.combatants.Count >= 1)
+            while (combat.Combatants.Count >= 1)
             {
                 combat.roundCounter++;
-                if (combat.combatants.Count <= 1)
+                if (combat.Combatants.Count <= 1)
                 {
                     //combat ends
                     CombatObject.EndCombat(combat);
                     return;
                 }
-                foreach (Character c in combat.combatants)
+                foreach (Character c in combat.Combatants)
                 {
                     //each character takes their turn here
                     if (c.Alive == false)
                     {
-                        combat.combatants.Remove(c);
+                        combat.Combatants.Remove(c);
                         continue;
                     }
                     if (c is Player player)
@@ -206,7 +206,7 @@ namespace RPGFramework.Combat
         // Added stub EngageCombat method to set IsEngaged to true for combatants.
         public static void EndCombat(CombatObject combat)
         {
-            foreach (Character c in combat.combatants)
+            foreach (Character c in combat.Combatants)
             {
                 c.EngageCombat(false);
                 if (c is Player player)

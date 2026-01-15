@@ -41,8 +41,8 @@ namespace RPGFramework
                 case 0:
                         // Attack
                         Random rand = new Random();
-                        int targetIndex = rand.Next(0, combat.combatants.Count-1);
-                        Character target = combat.combatants[targetIndex];
+                        int targetIndex = rand.Next(0, combat.Combatants.Count-1);
+                        Character target = combat.Combatants[targetIndex];
                         if (target != null)
                         {
                             target.TakeDamage(npc.AttackPower);
