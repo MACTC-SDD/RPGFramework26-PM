@@ -351,9 +351,30 @@ namespace RPGFramework.Commands
                     {
                         target.Name = parameters[2];
 
-                        player.WriteLine($"You have changed their name to {target.Name}");
-                        return true;
+                            player.WriteLine($"You have changed their name to {target.Name}");
+                            return true;
+                        }
                     }
+                    return false;
+                }
+                return false;
+            }
+        }
+    internal class Status : ICommand
+    {
+        public static bool CheckPermission(PlayerRole role)
+        {
+            return PlayerRole.Player >= role;
+        }
+        public string Name => "status";
+        public IEnumerable<string> Aliases => new List<string>() { "ann" };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (CheckPermission(PlayerRole.Admin) == true)
+                {
+                    
                 }
                 return false;
             }
