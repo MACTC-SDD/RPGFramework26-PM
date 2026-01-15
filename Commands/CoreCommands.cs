@@ -1,5 +1,6 @@
 ﻿
 using RPGFramework.Core;
+using RPGFramework.Items;
 using System.ComponentModel;
 
 namespace RPGFramework.Commands
@@ -22,10 +23,34 @@ namespace RPGFramework.Commands
                 new SayCommand(),
                 new TimeCommand(),
                 new HelpCommand(),
+                new EquipmentCommand(),
                 // Add other core commands here as they are implemented
             };
         }
 
+
+    }
+
+    internal class EquipmentCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            List<Armor> armorItems = new List<Armor>();
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Armor a)
+                { armorItems.Add(a); }
+            }
+            
+
+
+            return false;
+        }
 
     }
 

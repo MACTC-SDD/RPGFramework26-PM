@@ -15,6 +15,9 @@ namespace RPGFramework.Geography
         // Description of the room
         public string Description { get; set; } = "";
 
+        // items
+        public List<string> Items { get; set; } = new List<string>();
+
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
@@ -26,6 +29,7 @@ namespace RPGFramework.Geography
 
         // List of exits from the room
         public List<int> ExitIds { get; set; } = new List<int>();
+
         #endregion --- Properties ---
 
         #region --- Methods ---

@@ -59,7 +59,10 @@ namespace RPGFramework.Commands
             w.Description = parameters[3];
             w.Damage = Convert.ToDouble(parameters[4]);
             w.Durability = Convert.ToInt32(parameters[5]);
-            //w.
+            w.range = Convert.ToInt32(parameters[6]);
+            w.Speed = Convert.ToDouble(parameters[7]);
+            w.weight = Convert.ToDouble(parameters[8]);
+
 
 
 
