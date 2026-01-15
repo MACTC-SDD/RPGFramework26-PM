@@ -73,7 +73,7 @@ namespace RPGFramework.Workflows
                                     player.WriteLine($"- {item.Name}");
                                 }
                                 player.WriteLine("Which item do you want to use?");
-                                foreach (Consumable item in consumables)
+                                foreach (Consumable item in player.GetConsumables())
                                 {
                                     player.WriteLine($"- {item.Name}");
                                 }

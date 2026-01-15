@@ -5,6 +5,10 @@ using System.Text;
 
 namespace RPGFramework.Engine
 {
+    // CODE REVIEW: Rylan (PR #16)
+    // I think this is all work that you re-did in GameState threads, right?
+    // I'm commenting out for compiling purposes since it looks unused. If so, we can just remove it.
+    /*
     internal class TimedSystemFramework
     {
 
@@ -105,6 +109,7 @@ namespace RPGFramework.Engine
         
         
         
-    }
+    }*/
     
     }
+

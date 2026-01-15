@@ -54,8 +54,8 @@ namespace RPGFramework.Commands
                         Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
                         CombatObject combat = new CombatObject();
                         GameState.Instance.Combats.Add(combat);
-                        character.IsEngaged = true;
-                        enemy.IsEngaged = true;
+                        character.EngageCombat(true);
+                        enemy.EngageCombat(true);
                         combat.CombatInitialization(character, enemy, combat);
                         CombatObject.RunCombat(combat);
                         return true;
