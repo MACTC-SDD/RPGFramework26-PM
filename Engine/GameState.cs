@@ -52,7 +52,7 @@ namespace RPGFramework
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
         [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
-
+        [JsonIgnore] public Dictionary<string, CharacterClass> CharacterClasses { get; set; } = new Dictionary<string, CharacterClass>();
         // Move starting area/room to configuration settings
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;

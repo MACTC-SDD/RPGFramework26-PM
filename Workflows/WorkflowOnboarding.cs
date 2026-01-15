@@ -53,6 +53,10 @@ namespace RPGFramework.Workflows
                     if (chosenClass == "warrior" || chosenClass == "mage" || chosenClass == "rogue")
                     {
                         WorkflowData["ChosenClass"] = chosenClass;
+                        if (chosenClass == "warrior")
+                        {
+                            player.Class = 
+                        }
                         player.WriteLine($"You have chosen the {chosenClass} class.");
                         // If class is valid, proceed, otherwise print message and stay on this step
                         // Placeholder logic
