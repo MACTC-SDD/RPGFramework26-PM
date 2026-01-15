@@ -58,7 +58,7 @@ namespace RPGFramework.Combat
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
             combat.InitiativeOrder(combatants);
-            await RunCombat(combat);
+            RunCombat(combat);
         }
 
         
