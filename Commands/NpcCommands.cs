@@ -55,6 +55,13 @@ namespace RPGFramework.Commands
             ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
             return false;
         }
+
+        // NpcList.Add(NonPlayer, Nonplayer.Name)
+
+        private static void Roomset(Player player, List<string> parameters)
+        {
+            mob.RoomID = player.GetRoom();
+        }
         private static void WriteUsage(Player player)
         {
             player.WriteLine("Usage: ");
