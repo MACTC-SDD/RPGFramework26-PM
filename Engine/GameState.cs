@@ -1,10 +1,10 @@
 ﻿
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
+using RPGFramework.Combat;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
-
 
 namespace RPGFramework
 {
@@ -34,7 +34,18 @@ namespace RPGFramework
         private Task? _saveTask;
         private CancellationTokenSource? _timeOfDayCts;
         private Task? _timeOfDayTask;
+        private CancellationTokenSource? _tickCts;
+        private Task? _tickTask;
+        private CancellationTokenSource? _weatherCts;
+        private Task? _weatherTask;
+        private CancellationTokenSource? _npcCts;
+        private Task? _npcTask;
+        private CancellationTokenSource? _itemDecayCts;
+        private Task? _itemDecayTask;
+        private CancellationTokenSource? _announcementsCts;
+        private Task? _announcementsTask;
 
+        private int _tickCount = 0;
         #endregion
 
         #region --- Properties ---
@@ -42,7 +53,8 @@ namespace RPGFramework
         /// <summary>
         /// All Areas are loaded into this dictionary
         /// </summary>
-        [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } =
+        [JsonIgnore]
+        public Dictionary<int, Area> Areas { get; set; } =
             new Dictionary<int, Area>();
 
         // TODO: Move this to configuration settings class
@@ -52,7 +64,7 @@ namespace RPGFramework
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
-        public DateTime ServerStartTime { get; init; } 
+        public DateTime ServerStartTime { get; init; }
 
         /// <summary>
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
@@ -71,7 +83,8 @@ namespace RPGFramework
         public TelnetServer? TelnetServer { get; private set; }
 
         #endregion --- Properties ---
-
+        // Relocate later
+        public List<CombatObject> Combats = new List<CombatObject>();
         #region --- Methods ---
         private GameState()
         {
@@ -83,7 +96,7 @@ namespace RPGFramework
             Players.Add(player.Name, player);
         }
 
-        public List <Player> GetPlayersOnline()
+        public List<Player> GetPlayersOnline()
         {
             return Players.Values.Where(o => o.IsOnline).ToList();
         }
@@ -153,6 +166,7 @@ namespace RPGFramework
             }
         }
 
+
         /// <summary>
         /// Loads all player data from persistent storage and adds each player 
         /// to the <see cref="Players"/> collection.
@@ -184,7 +198,7 @@ namespace RPGFramework
                 HelpEntries = await Persistence.LoadHelpCatalogAsync();
                 GameState.Log(DebugLevel.Alert, $"Help catalog loaded with {HelpEntries.Count} entries.");
             }
-            catch ( FileNotFoundException fex)
+            catch (FileNotFoundException fex)
             {
                 GameState.Log(DebugLevel.Warning, $"Help catalog file not found. Loading blank.");
             }
@@ -267,6 +281,16 @@ namespace RPGFramework
             // TODO: Consider moving thread methods to their own class
 
             // Start threads that run periodically
+            _announcementsCts = new CancellationTokenSource();
+            _announcementsTask = RunAnnouncementsLoopAsync(TimeSpan.FromSeconds(30), _announcementsCts.Token);
+
+
+            _itemDecayCts = new CancellationTokenSource();
+            _itemDecayTask = RunItemDecayLoopAsync(TimeSpan.FromMinutes(2), _itemDecayCts.Token);
+
+            _npcCts = new CancellationTokenSource();
+            _npcTask = RunNPCLoopAsync(TimeSpan.FromSeconds(10), _npcCts.Token);
+
             _saveCts = new CancellationTokenSource();
             _saveTask = RunAutosaveLoopAsync(TimeSpan.FromMilliseconds(10000), _saveCts.Token);
 
@@ -274,9 +298,17 @@ namespace RPGFramework
             _timeOfDayTask = RunTimeOfDayLoopAsync(TimeSpan.FromMilliseconds(15000), _timeOfDayCts.Token);
 
             // Other threads will go here
-            // Weather?
-            // Area threads?
-            // NPC threads?
+            _tickCts = new CancellationTokenSource();
+            _tickTask = RunTickLoopAsync(TimeSpan.FromSeconds(1), _tickCts.Token);
+
+            _weatherCts = new CancellationTokenSource();
+            _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
+
+
+            
+
+
+
             // Room threads?
 
             // This needs to be last
@@ -296,8 +328,8 @@ namespace RPGFramework
         /// will terminate upon completion.</returns>
         /// TODO: Allow user to supply a duration to avoid immediate shutdown
         public async Task Stop()
-        {               
-            await SaveAllPlayers(includeOffline: true);         
+        {
+            await SaveAllPlayers(includeOffline: true);
             await SaveAllAreas();
 
             foreach (var player in Players.Values.Where(p => p.IsOnline))
@@ -313,6 +345,11 @@ namespace RPGFramework
             // Wait for threads to finish
             _saveCts?.Cancel();
             _timeOfDayCts?.Cancel();
+            _tickCts?.Cancel();
+            _weatherCts?.Cancel();
+            _npcCts?.Cancel();
+            _itemDecayCts?.Cancel();
+            _announcementsCts?.Cancel();
 
             // Exit program
             Environment.Exit(0);
@@ -386,7 +423,254 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
         }
+
+        private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Announcements thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Announcing things...");
+                    // Do the actual work
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during announcements: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
+        }
+
+        private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Item Decay thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Decaying items...");
+                    /* CODE REVIEW: Rylan (PR #16)
+                     * This doesn't exist yet, and isn't where instances of items will be stored anyway
+                     * 
+                    foreach (var item in GameState.Instance.Items.Values)
+                    {
+
+                        if (item.IsPerishable)
+                        {
+                            item.UsesRemaining--;
+                        }
+                    }
+                    */
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during Item Decay: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
+        }
+
+        // CODE REVIEW: Rylan (PR #16)
+        // We should consider whether this is necessary.
+        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Tick thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
+                    _tickCount++;
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
+        }
+
+        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Weather thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Predicting the weather...");
+                    // Update weather in all areas
+                    //choose random from list, apply to area
+                    //repeat for every area
+                    //await build team for areas/weather types
+                    foreach (var area in Areas.Values)
+                    {
+                        UpdateWeather();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
+        }
+
+        // CODE REVIEW: Rylan (PR #16)
+        // All of the weather code (UpdateWeather, weatherStates)
+        // needs to be moved to its own class.
+        // An enum for WeatherState would be better than a list of strings.
+        //   It should go in the enums folder.
+        // / <summary> weather update method, move later
+        // / </summary>
+        public void UpdateWeather()
+        {
+            // choose random from list, apply to area
+            // repeat for every area
+            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
+            string newWeather = weatherStates[randomWeatherIndex];
+            // apply newWeather to area
+            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
+            // figure out how to implement those effects later, probably within combat and npc methods
+        }
+        //placeholder weather states, await build teams final choices
+        List<string> weatherStates = new List<string>()
+        {
+            "Sunny",
+            "Cloudy",
+            "Rainy",
+            "Stormy",
+            "Snowy",
+            "Windy"
+        };
+        // end weather update method
+
+        // CODE REVIEW: Rylan (PR #16)
+        // I think this section needs to be heavily refactored. The functionality itself
+        // probably should live in the NonPlayer, Mob, etc. classes. 
+        // See me to discuss a better design for this.
+        private async Task RunNPCLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "NPC thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Playing NPCs...");
+                    // run command to check for players, then choose NPC actions
+                    // hostile/agro prioritize attacking players, then other NPCs, then wandering
+                    // friendly prioritize helping players, then other NPCs, then wandering
+                    // neutral prioritize wandering, then attacking hostile NPCs
+                    // repeat for every NPC
+                    // await NPC team for behaviors/actions and NPCs
+                    // make sure to include some randomness so NPCs don't all act at once
+                    // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
+
+                    /* CODE REVIEW: Rylan (PR #16)
+                     * We don't have NonPlayers in GameState.
+
+                    foreach (var npc in GameState.Instance.NonPlayers)
+                    {
+                        if (npc.IsEngaged)
+                        {
+                            continue;
+                        }
+                        if (npc is Hostile)
+                        {
+
+                            if (npc.GetRoom().Players.Count > 0)
+                            {
+                                List<Player> potentialTargets = new List<Player>();
+                                // run combat initializtion method(s)
+                                foreach (var player in npc.GetRoom().Players)
+                                {
+                                    // notify player of attack
+                                    if (player.IsEngaged)
+                                    {
+                                        continue;
+                                    }
+                                    potentialTargets.Add(player);
+                                }
+                                if (potentialTargets.Count > 0)
+                                {
+                                    var target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
+                                    // notify player of attack
+                                    target.WriteLine($"The {npc.Name} attacks you!");
+                                    // run combat initialization method(s)
+                                    CombatObject combat = new CombatObject();
+                                    Combats.Add(combat);
+                                    combat.CombatInitialization(npc, target, combat);
+                                }
+                                else if (npc.GetRoom().NPC.Count > 1)
+                                {
+                                    List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
+
+                                    foreach (var otherNpc in npc.GetRoom().GetCharacters())
+                                    {
+                                        if (otherNpc == npc || otherNpc.IsEngaged)
+                                        {
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            potentialNpcTargets.Add(otherNpc);
+                                        }
+                                    }
+                                    var target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
+                                    CombatObject combat = new CombatObject();
+                                    Combats.Add(combat);
+                                    combat.CombatInitialization(npc, target, combat);
+                                }
+
+                            }
+                            else if (npc is Army)
+                            {
+                                if (npc.GetRoom().NPC.Hostile.Count > 0)
+                                {
+                                    foreach (var player in npc.GetRoom().Players)
+                                    {
+                                        // notify player of attack
+                                        player.WriteLine($"The {npc.Name} attacks an enemy!");
+                                    }
+                                    // run combat initialization method(s)
+                                }
+                                else
+                                {
+                                    npc.DoGuardAction();
+                                }
+
+                            }
+                            else if (npc is NonHostile)
+                            {
+                                if (npc.GetRoom().Players.Count > 0)
+                                {
+                                    npc.DoNPCAction();
+                                }
+                            }
+                        }
+                    }
+                    */
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during NPC update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
+        }
+
         #endregion --- Thread Methods ---
 
     }
 }
+    

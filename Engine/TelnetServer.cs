@@ -38,6 +38,10 @@ internal class TelnetServer
         _listener.Stop();
     }
 
+    
+
+    
+
     private async Task HandleClientAsync(TcpClient client)
     {
         using (client)

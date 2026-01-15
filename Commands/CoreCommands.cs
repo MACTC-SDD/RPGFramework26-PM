@@ -48,6 +48,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+    
 
     internal class IpCommand : ICommand
     {

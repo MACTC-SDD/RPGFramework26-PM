@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Enums;
 using RPGFramework.Geography;
+using RPGFramework.Combat;
 
 namespace RPGFramework
 {
@@ -20,6 +21,7 @@ namespace RPGFramework
         public int AreaId { get; set; } = 0;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
+        public bool IsEngaged { get; protected set; } = false;
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
@@ -28,6 +30,7 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
+        public int Initiative { get; set; }
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -48,6 +51,13 @@ namespace RPGFramework
             PrimaryWeapon = w;
         }
 
+        // Things to do when a character engages in combat. This may be overridden by subclasses.
+        public void EngageCombat(bool inCombat)
+        {
+            IsEngaged = inCombat;
+
+        }
+
         /// <summary>
         /// Get Room object of current location.
         /// </summary>
@@ -56,6 +66,8 @@ namespace RPGFramework
         {
             return GameState.Instance.Areas[AreaId].Rooms[LocationId];
         }
+
+
 
         // Set Health to a specific value
         public void SetHealth(int health)
@@ -93,5 +105,7 @@ namespace RPGFramework
         {
             SetHealth(Health + heal);
         }
+
+        
     }
 }
