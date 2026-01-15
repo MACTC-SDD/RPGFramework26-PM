@@ -67,7 +67,10 @@ namespace RPGFramework
             return GameState.Instance.Areas[AreaId].Rooms[LocationId];
         }
 
-
+        public Area GetArea()
+        {
+            return GameState.Instance.Areas[AreaId];
+        }
 
         // Set Health to a specific value
         public void SetHealth(int health)

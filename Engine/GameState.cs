@@ -590,7 +590,7 @@ namespace RPGFramework
                             {
                                 List<Player> potentialTargets = new List<Player>();
                                 // run combat initializtion method(s)
-                                foreach (var player in npc.GetRoom().Players)
+                                foreach (Player player in npc.GetRoom().Players)
                                 {
                                     // notify player of attack
                                     if (player.IsEngaged)
@@ -601,7 +601,7 @@ namespace RPGFramework
                                 }
                                 if (potentialTargets.Count > 0)
                                 {
-                                    var target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
+                                    Player target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
                                     // notify player of attack
                                     target.WriteLine($"The {npc.Name} attacks you!");
                                     // run combat initialization method(s)
