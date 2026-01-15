@@ -22,6 +22,8 @@ namespace RPGFramework.Commands
                 new SayCommand(),
                 new TimeCommand(),
                 new HelpCommand(),
+                new XPCommand(),
+                new LevelCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -162,6 +164,36 @@ namespace RPGFramework.Commands
 
             return false;
         }
+    }
+    internal class XPCommand : ICommand
+    {
+        public string Name => "xp";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if ( character is Player player)
+            {
+                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                return true;
+            }
+            return false;
+        }
+
+    }
+    internal class LevelCommand : ICommand
+    {
+        public string Name => "level";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute( Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"You are level {player.Level} you have gained an additional {player.Levels[player.Level].Health} health and you have {player.Levels[player.Level].StatPoints} points.");
+                return true;
+            }
+            return false;
+        }
+
     }
 
 }

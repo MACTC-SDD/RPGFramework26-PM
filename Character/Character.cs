@@ -28,6 +28,7 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
+        public int StatPoints { get; set; } = 0;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
