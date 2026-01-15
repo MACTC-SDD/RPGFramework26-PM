@@ -40,7 +40,7 @@ namespace RPGFramework.Combat
 
 
 
-        public void CombatInitialization(Character attacker, Character enemy, CombatObject combat)
+        public async Task CombatInitialization(Character attacker, Character enemy, CombatObject combat)
         {
             combatants.Add(attacker);
             combatants.Add(enemy);
@@ -59,28 +59,10 @@ namespace RPGFramework.Combat
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
             combat.InitiativeOrder(combatants);
-            CombatObject.RunCombat(combat);
+            await RunCombat(combat);
         }
 
-        public async Task CombatRound()
-        {
-            roundCounter++;
-            foreach (Character c in combatants)
-            {
-                //each character takes their turn here
-                if (c is Player player)
-                {
-                    player.CurrentWorkflow = new CombatTurnWorkflow();
-                    //handle player turn
-                }
-                else if (c is NonPlayer npc)
-                {
-                    //handle npc turn
-                    NonPlayer.TakeTurn(npc, this);
-                }
-            }
-
-        }
+        
         
         public static bool FleeCombat(Character character, CombatObject combat)
         {
@@ -180,10 +162,10 @@ namespace RPGFramework.Combat
             }
         }
 
-        public static void RunCombat(CombatObject combat)
+        public static async Task RunCombat(CombatObject combat)
         {
             //main combat loop
-            while (true)
+            while (combat.combatants.Count >= 1)
             {
                 combat.roundCounter++;
                 if (combat.combatants.Count <= 1)
@@ -204,6 +186,11 @@ namespace RPGFramework.Combat
                     {
                         player.CurrentWorkflow = new CombatTurnWorkflow();
                         //handle player turn
+                        while (player.CurrentWorkflow != null)
+                        {
+                            await Task.Delay(100); 
+                            // waits for player to finish their turn
+                        }
                     }
                     else if (c is NonPlayer npc)
                     {
@@ -212,6 +199,7 @@ namespace RPGFramework.Combat
                     }
                 }
             }
+            return;
         }
 
         public static void EndCombat(CombatObject combat)
