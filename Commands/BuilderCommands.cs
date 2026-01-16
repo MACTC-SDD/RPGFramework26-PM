@@ -115,6 +115,7 @@ namespace RPGFramework.Commands
             player.WriteLine("/room set exit dir <exitId> <direction>   - Changes direction (validates duplicates, updates return exit)");
             player.WriteLine("/room set exit dest <exitId> <roomId>     - Change destination (use <areaId>:<roomId> to specify area)");
             player.WriteLine("/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type");
+            player.WriteLine("/room set exit open <exitId> <open|close> - Open or close this exit (doors only)");
             //to see tags and desc and name etc, just do /room <name of thing> and nothing after
         }
 
@@ -525,10 +526,13 @@ namespace RPGFramework.Commands
                     destRoom = GameState.Instance.Areas[r.AreaId].Rooms[e.DestinationRoomId];
                 }
 
-               string destName = destRoom != null ? destRoom.Name : "Unknown";
-               string destId = e.DestinationRoomId.ToString();
+                string destName = destRoom != null ? destRoom.Name : "Unknown";
+                string destId = e.DestinationRoomId.ToString();
 
-                player.WriteLine($"{e.ExitDirection} -> {destName} (Id: {destId}) [[{e.ExitType}]] : {e.Description}");
+                // Include open/closed info
+                string openState = e.IsOpen ? "Open" : "Closed";
+
+                player.WriteLine($"{e.ExitDirection} -> {destName} (Id: {destId}) [[{e.ExitType}]] [[{openState}]] : {e.Description}");
             }//this code above very specifically needs [[ ]] instead of [ ]
         }
 
@@ -538,6 +542,7 @@ namespace RPGFramework.Commands
         ///   /room set exit dir <exitId> <direction>
         ///   /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)
         ///   /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>
+        ///   /room set exit open <exitId> <open|close>
         /// All require Builder permission.
         /// </summary>
         private static void RoomSetExit(Player player, List<string> parameters)
@@ -566,24 +571,26 @@ namespace RPGFramework.Commands
             // Expect exit id for all subcommands
             if (parameters.Count < 5 || !int.TryParse(parameters[4], out int exitId))
             {
-                player.WriteLine("Usage: /room set exit <dir|dest|type> <exitId> <...>");
+                player.WriteLine("Usage: /room set exit <dir|dest|type|open> <exitId> <...>");
                 return;
             }
 
-            if (!GameState.Instance.Areas.ContainsKey(current.AreaId)
-                || !GameState.Instance.Areas[current.AreaId].Exits.ContainsKey(exitId))
+            // Find the exit across all areas (allow builders to operate on exits outside current room)
+            Exit? exit = null;
+            int exitAreaId = -1;
+            foreach (var kvp in GameState.Instance.Areas)
             {
-                player.WriteLine($"Exit id {exitId} not found in this area.");
-                return;
+                if (kvp.Value.Exits.ContainsKey(exitId))
+                {
+                    exit = kvp.Value.Exits[exitId];
+                    exitAreaId = kvp.Key;
+                    break;
+                }
             }
 
-            var area = GameState.Instance.Areas[current.AreaId];
-            var exit = area.Exits[exitId];
-
-            // Make sure this exit belongs to this room (source)
-            if (exit.SourceRoomId != current.Id)
+            if (exit == null)
             {
-                player.WriteLine("That exit is not in the current room.");
+                player.WriteLine($"Exit id {exitId} not found.");
                 return;
             }
 
@@ -607,6 +614,13 @@ namespace RPGFramework.Commands
                 {
                     case "dir":
                         {
+                            // dir requires the exit to be in the current room (we only allow changing direction for exits in your current room)
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the direction of exits that belong to the current room.");
+                                return;
+                            }
+
                             if (parameters.Count < 6)
                             {
                                 player.WriteLine("Usage: /room set exit dir <exitId> <direction>");
@@ -657,14 +671,15 @@ namespace RPGFramework.Commands
                             exit.ExitDirection = newDir;
 
                             // Update return exit direction if present
-                            if (returnExit != null)
+                            var ret = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (ret != null)
                             {
-                                returnExit.ExitDirection = opposite;
+                                ret.ExitDirection = opposite;
 
                                 // Try to keep description consistent (replace old direction name with new one if present)
-                                if (!string.IsNullOrEmpty(returnExit.Description))
+                                if (!string.IsNullOrEmpty(ret.Description))
                                 {
-                                    returnExit.Description = returnExit.Description.Replace(oldDir.ToString(), opposite.ToString());
+                                    ret.Description = ret.Description.Replace(oldDir.ToString(), opposite.ToString());
                                 }
                             }
 
@@ -678,6 +693,13 @@ namespace RPGFramework.Commands
                         }
                     case "dest":
                         {
+                            // dest requires the exit to be in the current room
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the destination of exits that belong to the current room.");
+                                return;
+                            }
+
                             if (parameters.Count < 6)
                             {
                                 player.WriteLine("Usage: /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)");
@@ -749,8 +771,11 @@ namespace RPGFramework.Commands
                             newReturn.SourceRoomId = newRoomId;
                             newReturn.DestinationRoomId = exit.SourceRoomId;
                             newReturn.ExitDirection = opposite;
-                            // Try to set a reasonable description
+                            // Mirror type and defaults
+                            newReturn.ExitType = exit.ExitType;
                             newReturn.Description = exit.Description?.Replace(exit.ExitDirection.ToString(), opposite.ToString()) ?? "";
+                            newReturn.ApplyDefaultsForType();
+
                             GameState.Instance.Areas[newAreaId].Exits.Add(newReturn.Id, newReturn);
                             GameState.Instance.Areas[newAreaId].Rooms[newRoomId].ExitIds.Add(newReturn.Id);
 
@@ -759,6 +784,13 @@ namespace RPGFramework.Commands
                         }
                     case "type":
                         {
+                            // type requires the exit to be in the current room
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the type of exits that belong to the current room.");
+                                return;
+                            }
+
                             if (parameters.Count < 6)
                             {
                                 player.WriteLine("Usage: /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>");
@@ -772,20 +804,62 @@ namespace RPGFramework.Commands
                             }
 
                             exit.ExitType = newType;
+                            exit.ApplyDefaultsForType();
 
                             // Update mirrored return exit type if present
                             var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
                             if (returnExit != null)
                             {
                                 returnExit.ExitType = newType;
+                                returnExit.ApplyDefaultsForType();
                             }
 
                             player.WriteLine($"Exit {exitId} type set to {newType}.");
                             break;
                         }
-                    default:
-                        player.WriteLine("Unknown subcommand for /room set exit. Supported: dir, dest, type.");
-                        break;
+                    case "open":
+                        {
+                            if (parameters.Count < 6)
+                            {
+                                player.WriteLine("Usage: /room set exit open <exitId> <open|close>");
+                                return;
+                            }
+
+                            string action = parameters[5].ToLower();
+                            bool? setOpen = action switch
+                            {
+                                "open" => true,
+                                "close" => false,
+                                "true" => true,
+                                "false" => false,
+                                _ => null
+                            };
+
+                            if (!setOpen.HasValue)
+                            {
+                                player.WriteLine("Invalid value. Use 'open' or 'close'.");
+                                return;
+                            }
+
+                            // Allow toggling doors even if they are not in the current room
+                            if (exit.ExitType != ExitType.Door && exit.ExitType != ExitType.LockedDoor)
+                            {
+                                player.WriteLine("This exit cannot be opened or closed (only doors can be toggled).");
+                                return;
+                            }
+
+                            exit.IsOpen = setOpen.Value;
+
+                            // Update return exit state if present and if its type supports toggling
+                            var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (returnExit != null && (returnExit.ExitType == ExitType.Door || returnExit.ExitType == ExitType.LockedDoor))
+                            {
+                                returnExit.IsOpen = setOpen.Value;
+                            }
+
+                            player.WriteLine($"Exit {exitId} {(setOpen.Value ? "opened" : "closed")}.");
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -795,4 +869,3 @@ namespace RPGFramework.Commands
         }
     }
 }
-

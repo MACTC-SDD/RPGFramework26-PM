@@ -12,7 +12,37 @@ namespace RPGFramework.Geography
         public string Description { get; set; } = "";
         public int SourceRoomId { get; set; }
         public int DestinationRoomId { get; set; }
+
+        // whether the exit is currently open (can be traversed)
+        public bool IsOpen { get; set; } = true;
         #endregion
+
+        /// <summary>
+        /// Applies sensible default open/close state based on ExitType.
+        /// Open      -> IsOpen = true
+        /// Door      -> IsOpen = true
+        /// LockedDoor-> IsOpen = false
+        /// Impassable-> IsOpen = false
+        /// </summary>
+        public void ApplyDefaultsForType()
+        {
+            switch (ExitType)
+            {
+                case ExitType.Open:
+                    IsOpen = true;
+                    break;
+                case ExitType.Door:
+                    IsOpen = true;
+                    break;
+                case ExitType.LockedDoor:
+                    IsOpen = false;
+                    break;
+                case ExitType.Impassable:
+                default:
+                    IsOpen = false;
+                    break;
+            }
+        }
 
         /// <summary>
         /// Finds the highest Exit ID for the current area in GameState and returns one higher
