@@ -18,6 +18,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public string Description { get; set; }
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;

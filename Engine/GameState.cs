@@ -53,6 +53,9 @@ namespace RPGFramework
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
 
         public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
+
+        public Dictionary<string, Mob> MobCatalog { get; set; } = new Dictionary<string, Mob>();
+
         /// <summary>
         /// All Players are loaded into this dictionary, with the player's name as the key 
         /// </summary>
