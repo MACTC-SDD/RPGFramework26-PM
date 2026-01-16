@@ -22,6 +22,7 @@ namespace RPGFramework
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
+        public bool InCombat { get; set; } = false;
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
@@ -54,8 +55,8 @@ namespace RPGFramework
         // Things to do when a character engages in combat. This may be overridden by subclasses.
         public void EngageCombat(bool inCombat)
         {
+            InCombat = inCombat;
             IsEngaged = inCombat;
-
         }
 
         /// <summary>

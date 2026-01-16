@@ -19,7 +19,7 @@ namespace RPGFramework.Combat
         
         public void InitiativeOrder(List<Character> combatants)
         {
-            int n = combatants.Count;
+            /*int n = combatants.Count;
             for (int i = 0; i < n - 1; i++)
             {
                 for (int j = 0; j < n - i - 1; j++)
@@ -31,7 +31,8 @@ namespace RPGFramework.Combat
                         combatants[j + 1] = temp;
                     }
                 }
-            }
+            }*/
+            combatants.Sort((x, y) => y.Initiative.CompareTo(x.Initiative));
         }
         public List<Character> combatants = new List<Character>();
 
@@ -83,7 +84,13 @@ namespace RPGFramework.Combat
         }
 
         // 
-
+        public static void RollInitiative(Character c)
+        {
+            Random rand = new Random();
+            int initiativeRoll = rand.Next(1, 20);
+            int dexterityModifier = (c.Dexterity - 10) / 2;
+            c.Initiative = initiativeRoll + dexterityModifier;
+        }
         public static void RollToHitS(Character attacker, Spell weapon, Character target)
         {
             Random rand = new Random();
@@ -216,6 +223,46 @@ namespace RPGFramework.Combat
                 }
             }
             GameState.Instance.Combats.Remove(combat);
+        }
+
+        // alt sytem for combat loop
+        public async Task StartCombat(Player a, NonPlayer e, CombatObject combat)
+            {
+                Character acting = a;
+            
+            while (combat.combatants.Count > 1)
+            {
+                int currentCombats = 1;
+                foreach (CombatObject c in GameState.Instance.Combats)
+                {
+                    if (c.combatants.Contains(a))
+                    {
+                        currentCombats++;
+                    }
+                }
+                if (currentCombats > 1)
+                {
+                    a.CurrentWorkflow = new TargetingWorkflow();
+                }
+                if (acting == a)
+                {
+                    // if this is going to be the new combat loop must adjust turn workflow to accept the targeting 
+                    a.CurrentWorkflow = new CombatTurnWorkflow();
+                    for (int i = 0; i < 30; i++)
+                    {
+                        await Task.Delay(1000);
+                    }
+                    if (a.CurrentWorkflow != null)
+                        a.CurrentWorkflow = null;
+                    acting = e;
+                }
+                else
+                {
+                    NonPlayer.TakeTurn(e, combat);
+                    acting = a;
+                }
+            }
+            
         }
     }
 

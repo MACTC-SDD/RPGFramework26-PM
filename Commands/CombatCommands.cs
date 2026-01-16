@@ -157,52 +157,78 @@ namespace RPGFramework.Commands
             }
         }
 
-        internal class CombatCommands
+        internal class StartCombatCommand : ICommand
         {
-            internal class StartCombatCommand : ICommand
+            public string Name => "attack";
+            public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+            public bool Execute(Character character, List<string> parameters)
             {
-                public string Name => "attack";
-                public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
-                public bool Execute(Character character, List<string> parameters)
+
+                List<string> attackableNonPlayers = new List<string>();
+
+                foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
                 {
+                    attackableNonPlayers.Add(npc.Name);
+                }
 
-                    List<string> attackableNonPlayers = new List<string>();
+                List<string> attackablePlayers = new List<string>();
 
-                    foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
+                foreach (Player p in character.GetRoom().GetPlayers())
+                {
+                    attackablePlayers.Add(p.Name);
+                }
+                if (parameters.Count < 2)
+                {
+                    if (character is Player player)
                     {
-                        attackableNonPlayers.Add(npc.Name);
-                    }
 
-                    List<string> attackablePlayers = new List<string>();
-
-                    foreach (Player p in character.GetRoom().GetPlayers())
-                    {
-                        attackablePlayers.Add(p.Name);
-                    }
-                    if (parameters.Count < 2)
-                    {
-                        if (character is Player player)
+                        player.WriteLine("Attackable NonPlayers");
+                        foreach (string s in attackableNonPlayers)
                         {
-
-                            player.WriteLine("Attackable NonPlayers");
-                            foreach (string s in attackableNonPlayers)
-                            {
-                                player.WriteLine(s);
-                            }
-                            player.WriteLine("Attackable Players");
-                            foreach (string s in attackablePlayers)
-                            {
-                                player.WriteLine(s);
-                            }
-
-
+                            player.WriteLine(s);
                         }
-                    }
-                    if (parameters.Count == 2)
-                    {
-                        if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
+                        player.WriteLine("Attackable Players");
+                        foreach (string s in attackablePlayers)
                         {
-                            Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
+                            player.WriteLine(s);
+                        }
+
+
+                    }
+                }
+                if (parameters.Count == 2)
+                {
+                    if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
+                    {
+                        Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
+                        if (enemy.InCombat)
+                        {
+                            foreach (CombatObject combat in GameState.Instance.Combats)
+                            {                                 
+                                if (combat.combatants.Contains(enemy))
+                                {
+                                    if (character is Player p)
+                                    {
+                                        p.WriteLine($"{enemy.Name} is already in combat! Prepare to Join Combat!");
+                                    }
+                                    combat.combatants.Add(character);
+                                    character.EngageCombat(true);
+                                    CombatObject.RollInitiative(character);
+                                    combat.InitiativeOrder(combat.combatants);
+                                    return true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (character is Player p)
+                            {
+                                p.WriteLine($"You engage {enemy.Name} in combat!");
+                            }
+                            if (enemy is Player ep)
+                            {
+                                ep.WriteLine($"{character.Name} has engaged you in combat!");
+                            }
                             CombatObject combat = new CombatObject();
                             GameState.Instance.Combats.Add(combat);
                             character.EngageCombat(true);
@@ -211,10 +237,74 @@ namespace RPGFramework.Commands
                             CombatObject.RunCombat(combat);
                             return true;
                         }
+                        
                     }
-                    return false;
                 }
+                return false;
             }
         }
     }
+
+    internal class AltStartCombatCommand : ICommand
+    {
+        public string Name => "attack";
+        public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+        public bool Execute(Character character, List<string> parameters)
+        {
+
+            List<string> attackableNonPlayers = new List<string>();
+
+            foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
+            {
+                attackableNonPlayers.Add(npc.Name);
+            }
+
+            List<string> attackablePlayers = new List<string>();
+
+            foreach (Player p in character.GetRoom().GetPlayers())
+            {
+                attackablePlayers.Add(p.Name);
+            }
+            if (parameters.Count < 2)
+            {
+                if (character is Player player)
+                {
+
+                    player.WriteLine("Attackable NonPlayers");
+                    foreach (string s in attackableNonPlayers)
+                    {
+                        player.WriteLine(s);
+                    }
+                    player.WriteLine("Attackable Players");
+                    foreach (string s in attackablePlayers)
+                    {
+                        player.WriteLine(s);
+                    }
+
+
+                }
+            }
+            if (parameters.Count == 2)
+            {
+                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
+                {
+                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
+                    CombatObject combat = new CombatObject();
+                    GameState.Instance.Combats.Add(combat);
+                    //character.EngageCombat(true);
+                    //enemy.EngageCombat(true);
+                    //combat.CombatInitialization(character, enemy, combat);
+                    //CombatObject.RunCombat(combat);
+                    combat.StartCombat(character as Player, enemy as NonPlayer, combat);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    internal class CombatCommands
+    {
+
+    }
 }
+
