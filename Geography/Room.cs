@@ -14,6 +14,7 @@ namespace RPGFramework.Geography
 
         // Description of the room
         public string Description { get; set; } = "";
+        public List<Item> Items { get; set; } = new List<Item>();
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;

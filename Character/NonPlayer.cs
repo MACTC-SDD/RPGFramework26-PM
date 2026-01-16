@@ -15,6 +15,17 @@ namespace RPGFramework
         // contact combat team for help if needed, we know the combat system structure
         // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
+        public bool IsMagic { get; set; } = false;
+        public bool IsMelee { get; set; } = false;
+        public bool IsRanged { get; set; } = false;
+        public bool IsArmy { get; set; } = false;
+        public bool IsUndead { get; set; } = false;
+        public bool Isvillager { get; set; } = false;
+        public bool IsHumanoid { get; set; } = false;
+        public bool IsCreature { get; set; } = false;
+        public bool IsHostile { get; set; } = false;
+
+
         // CODE REVIEW: Rylan (PR #16)
         // I'm adding HasElement and AttackPower properties so this will compile, but
         // I don't think they necessarily belong here. Please review and adjust as needed.
@@ -41,8 +52,8 @@ namespace RPGFramework
                 case 0:
                         // Attack
                         Random rand = new Random();
-                        int targetIndex = rand.Next(0, combat.combatants.Count-1);
-                        Character target = combat.combatants[targetIndex];
+                        int targetIndex = rand.Next(0, combat.Combatants.Count-1);
+                        Character target = combat.Combatants[targetIndex];
                         if (target != null)
                         {
                             target.TakeDamage(npc.AttackPower);

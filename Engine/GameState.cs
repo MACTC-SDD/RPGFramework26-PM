@@ -59,12 +59,14 @@ namespace RPGFramework
 
         // TODO: Move this to configuration settings class
         public DebugLevel DebugLevel { get; set; } = DebugLevel.Debug;
-
+        public Dictionary<string, NonPlayer> NPCs { get; set; } = new Dictionary<string, NonPlayer>();
         /// <summary>
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
         public DateTime ServerStartTime { get; init; }
+
+        public Dictionary<string, Mob> MobCatalog { get; set; } = new Dictionary<string, Mob>();
 
         /// <summary>
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
@@ -590,7 +592,7 @@ namespace RPGFramework
                             {
                                 List<Player> potentialTargets = new List<Player>();
                                 // run combat initializtion method(s)
-                                foreach (var player in npc.GetRoom().Players)
+                                foreach (Player player in npc.GetRoom().Players)
                                 {
                                     // notify player of attack
                                     if (player.IsEngaged)
@@ -601,7 +603,7 @@ namespace RPGFramework
                                 }
                                 if (potentialTargets.Count > 0)
                                 {
-                                    var target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
+                                    Player target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
                                     // notify player of attack
                                     target.WriteLine($"The {npc.Name} attacks you!");
                                     // run combat initialization method(s)
