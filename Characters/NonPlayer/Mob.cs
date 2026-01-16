@@ -6,7 +6,13 @@ namespace RPGFramework
 {
     internal class Mob : NonPlayer
     {
-        public bool IsHostile { get; set; } = false;
+      
+        public bool IsConstruct { get; set; } = false;
+        public bool IsMonster { get; set; } = false;
+
+
+
+
 
     }
 }
