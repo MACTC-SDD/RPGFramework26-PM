@@ -13,7 +13,6 @@ namespace RPGFramework
         // npc team need to fill this method out with logic for npc actions
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
-        // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
         // CODE REVIEW: Rylan (PR #16)
         // I'm adding HasElement and AttackPower properties so this will compile, but

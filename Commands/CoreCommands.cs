@@ -274,7 +274,7 @@ namespace RPGFramework.Commands
                 {
                     case 1:
                         {
-                            (character as Player).WriteLine("Set tick rate to what?");
+                            (character as Player).WriteLine("Set time rate to what?");
                             return true;
                         }
                     case 2:
