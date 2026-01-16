@@ -66,8 +66,6 @@ namespace RPGFramework
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
         public DateTime ServerStartTime { get; init; }
 
-        public List<HelpEntry> HelpEntries { get; set; } = new List<HelpEntry>();
-
         public Dictionary<string, Mob> MobCatalog { get; set; } = new Dictionary<string, Mob>();
 
         /// <summary>
