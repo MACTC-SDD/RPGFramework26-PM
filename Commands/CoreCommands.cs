@@ -1,7 +1,10 @@
 ﻿
 using RPGFramework.Core;
 using RPGFramework.Display;
+using RPGFramework.Geography;
 using Spectre.Console;
+using RPGFramework.Enums;
+using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace RPGFramework.Commands
@@ -23,6 +26,7 @@ namespace RPGFramework.Commands
                 new QuitCommand(),
                 new SayCommand(),
                 new TimeCommand(),
+                new StatusCommand(),
                 new HelpCommand(),
                 // Add other core commands here as they are implemented
             };
@@ -46,6 +50,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+
 
     internal class IpCommand : ICommand
     {
@@ -77,6 +82,8 @@ namespace RPGFramework.Commands
                 {
                     content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
+                content += "[Green]Players Here:[/]\n";
+                content += $"{player.DisplayName()}";
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
                 return true;
@@ -133,39 +140,122 @@ namespace RPGFramework.Commands
         }
     }
 
-    internal class HelpCommand : ICommand
+    internal class StatusCommand : ICommand
     {
-        public string Name => "help";
+        public string Name => "status";
         public IEnumerable<string> Aliases => new List<string> { };
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
-            {   
-                // if no help topic given
-                if (parameters.Count < 2)
+            {
+                int onlineCount = 0;
+                long memory = GC.GetTotalMemory(true);
+                player.WriteLine($"The Server started at {GameState.Instance.ServerStartTime}.");
+                player.WriteLine($"There are currently {System.Diagnostics.Process.GetCurrentProcess().Threads} running.");
+                player.WriteLine($"The system is currently using {memory}.");
+                foreach (Player playerc in GameState.Instance.GetPlayersOnline())
                 {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
-                    {
-                       player.WriteLine($"{he.Name}");
-                    }
-                }
-                else
-                {
-                    foreach (HelpEntry he in GameState.Instance.HelpEntries)
-                    {
-                        if (he.Name.ToLower() == parameters[1].ToLower())
-                        {
-                            player.WriteLine($"{he.Name}");
-                            player.WriteLine($"{he.Content}");
-
-                        }
-                    }
-                }
+                    string name = playerc.DisplayName();
+                    onlineCount++;
                     return true;
+                }
+                player.WriteLine($"There is currently {onlineCount} players online.");
+                player.WriteLine($"It is currently {GameState.Instance.GameDate}.");
+
+                return true;
             }
 
             return false;
         }
     }
 
+    internal class HelpCommand : ICommand
+    {
+        public string Name => "help";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            // if no help topic given
+            if (parameters.Count < 2)
+            {
+                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                {
+                    player.WriteLine($"{he.Name}");
+                }
+            }
+            else
+            {
+                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                {
+                    if (he.Name.ToLower() == parameters[1].ToLower())
+                    {
+                        player.WriteLine($"{he.Name}");
+                        player.WriteLine($"{he.Content}");
+
+                    }
+                }
+            }
+            return true;
+        }
+
+    }
+
+    internal class CheckWeatherCommand : ICommand
+    {
+        public string Name => "weather";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                // make a weather property for areas later
+                Area area = player.GetArea();
+                player.WriteLine($"The current weather is {area.Weather}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+
+    internal class WeatherSetCommand : ICommand
+    {
+        public string Name => "setweather";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+
+            if (character is not Player)
+            {
+                return false;
+            }
+
+            Player player = character as Player;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                if (parameters.Count < 2)
+                {
+                    player.WriteLine("Set weather to what?");
+                    return true;
+                }
+                else
+                {
+                    Area area = player.GetArea();
+                    area.Weather = parameters[1];
+                    player.WriteLine($"You set the weather to {area.Weather}");
+                    return true;
+                }
+            }
+            else
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+        }
+    } 
 }
+

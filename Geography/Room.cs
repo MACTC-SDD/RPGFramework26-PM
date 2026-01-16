@@ -138,6 +138,25 @@ namespace RPGFramework.Geography
         }
 
         /// <summary>
+        /// Returns the first exit in this room that matches the specified name.
+        /// </summary>
+        /// <returns></returns>
+        public Exit? GetExitByName(string name)
+        {
+            return GetExits().Find(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns the first exit in this room that matches the specified id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Exit? GetExitById(int id)
+        {
+            return GetExits().Find(e => e.Id == id);
+        }
+
+        /// <summary>
         /// Get the next available room ID for the specified area.
         /// </summary>
         /// <param name="areaId"></param>
@@ -163,6 +182,14 @@ namespace RPGFramework.Geography
         {
             return GetPlayersInRoom(this);
         }
+        public List<NonPlayer> GetNonPlayers()
+        {
+            return GetCharactersInRoom(this);
+        }
+        public List<Character> GetCharacters()
+        {
+            return GetPlayers().Cast<Character>().Concat(GetNonPlayers().Cast<Character>()).ToList();
+        }
 
         /// <summary>
         /// Return a list of player objects that are in the specified room
@@ -185,10 +212,28 @@ namespace RPGFramework.Geography
 
             return playersInRoom;
         }
+        public static List<NonPlayer> GetCharactersInRoom(Room room){ 
+            List<NonPlayer> charactersInRoom = new List<NonPlayer>();
+
+            // CODE REVIEW: Rylan (PR #16)
+            // Since NPCs will be stored with the room, there will probably
+            // just be a loop through room.NPCs instead of GameState.
+            /*
+            foreach (NonPlayer npc in NPCList)
+            {
+                if (npc.AreaId == room.AreaId 
+                    && npc.LocationId == room.Id)
+                {
+                    charactersInRoom.Add(npc);
+                }
+            }
+            */
+            return charactersInRoom;
+        }
         #endregion --- Methods ---
 
         #region --- Methods (Events) ---
-        
+
         /// <summary>
         /// When a character enters a room, do this.
         /// </summary>

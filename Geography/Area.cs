@@ -10,6 +10,8 @@
         public Dictionary<int, Exit> Exits { get; set; } = new();
 
         public Dictionary<int, Room> Rooms { get; set; } = new();
+
+        public string Weather { get; set; } = "clear skies";
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using RPGFramework.Geography;
+﻿using RPGFramework.Core;
+using RPGFramework.Geography;
 
 namespace RPGFramework.Persistence
 {
@@ -44,6 +45,8 @@ namespace RPGFramework.Persistence
         /// The dictionary is empty if no players are found.</returns>
         Task<IReadOnlyDictionary<string, Player>> LoadPlayersAsync();
 
+        Task<Dictionary<string, HelpEntry>> LoadHelpCatalogAsync();
+
         /// <summary>
         /// Asynchronously saves the specified collection of areas to the data store.
         /// </summary>
@@ -66,6 +69,8 @@ namespace RPGFramework.Persistence
         /// <param name="player">The <see cref="Player"/> instance to save. Cannot be <c>null</c>.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         Task SavePlayerAsync(Player player);
+
+        Task SaveHelpCatalog(Dictionary<string, HelpEntry> helpEntries);
     }
 
     /// <summary>
@@ -98,5 +103,11 @@ namespace RPGFramework.Persistence
         /// Default: true
         /// </summary>
         public bool CreateStarterAreaIfMissing { get; init; } = true;
+
+        /// <summary>
+        /// If true, copies files from the data seed folder to the runtime data folder during initialization.
+        /// WARNING: This will overwrite existing files in the runtime data folder.
+        /// </summary>
+        public bool CopyFilesFromDataSeedToRuntimeData { get; set; } = false;
     }
 }
