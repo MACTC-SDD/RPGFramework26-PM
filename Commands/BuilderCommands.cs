@@ -254,6 +254,344 @@ namespace RPGFramework.Commands
             }
         }
 
+        // CODE REVIEW: Ashten PR #18
+        // This is a big method with a lot of logic - consider breaking it into smaller helper methods for each subcommand.
+        // Some things like FindReturnExit might make sense as part of the Exit class so others could use it too.
+        // When searching for an exit id, keep in mind that they IDs are NOT unique across areas.
+        // Overall a great set of features for exit management!
+        // You can delete this once you've read it. Let me know if you have any questions.
+
+        /// <summary>
+        /// /room set exit ...
+        /// Supports:
+        ///   /room set exit dir <exitId> <direction>
+        ///   /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)
+        ///   /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>
+        ///   /room set exit open <exitId> <open|close>
+        /// All require Builder permission.
+        /// </summary>
+        private static void RoomSetExit(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Builder))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
+                return;
+            }
+
+            if (parameters.Count < 4)
+            {
+                WriteUsage(player);
+                return;
+            }
+
+            var sub = parameters[3].ToLower();
+            Room current = player.GetRoom();
+            if (current == null)
+            {
+                player.WriteLine("You are not in a valid room.");
+                return;
+            }
+
+            // Expect exit id for all subcommands
+            if (parameters.Count < 5 || !int.TryParse(parameters[4], out int exitId))
+            {
+                player.WriteLine("Usage: /room set exit <dir|dest|type|open> <exitId> <...>");
+                return;
+            }
+
+            // Find the exit across all areas (allow builders to operate on exits outside current room)
+            Exit? exit = null;
+            int exitAreaId = -1;
+            foreach (var kvp in GameState.Instance.Areas)
+            {
+                if (kvp.Value.Exits.ContainsKey(exitId))
+                {
+                    exit = kvp.Value.Exits[exitId];
+                    exitAreaId = kvp.Key;
+                    break;
+                }
+            }
+
+            if (exit == null)
+            {
+                player.WriteLine($"Exit id {exitId} not found.");
+                return;
+            }
+
+            // Helper: try find the return exit (if any)
+            Exit? FindReturnExit(int sourceRoomId, int destRoomId)
+            {
+                foreach (var kvp in GameState.Instance.Areas)
+                {
+                    if (kvp.Value.Rooms.ContainsKey(destRoomId))
+                    {
+                        return kvp.Value.Exits.Values.FirstOrDefault(e =>
+                            e.SourceRoomId == destRoomId && e.DestinationRoomId == sourceRoomId);
+                    }
+                }
+                return null;
+            }
+
+            try
+            {
+                switch (sub)
+                {
+                    case "dir":
+                        {
+                            // dir requires the exit to be in the current room (we only allow changing direction for exits in your current room)
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the direction of exits that belong to the current room.");
+                                return;
+                            }
+
+                            if (parameters.Count < 6)
+                            {
+                                player.WriteLine("Usage: /room set exit dir <exitId> <direction>");
+                                return;
+                            }
+
+                            if (!Enum.TryParse(parameters[5], true, out Direction newDir))
+                            {
+                                player.WriteLine("Invalid direction.");
+                                return;
+                            }
+
+                            // Validate no duplicate in current room (except this exit)
+                            if (current.GetExits().Any(e => e.ExitDirection == newDir && e.Id != exit.Id))
+                            {
+                                player.WriteLine("There is already an exit in that direction from this room.");
+                                return;
+                            }
+
+                            // Validate destination room doesn't already have an exit in the opposite direction (except the return exit we'll update)
+                            Direction opposite = Navigation.GetOppositeDirection(newDir);
+                            Exit? returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+
+                            // Find destination area's room and check its exits
+                            int destAreaId = -1;
+                            foreach (var kvp in GameState.Instance.Areas)
+                            {
+                                if (kvp.Value.Rooms.ContainsKey(exit.DestinationRoomId))
+                                {
+                                    destAreaId = kvp.Key;
+                                    break;
+                                }
+                            }
+
+                            if (destAreaId != -1)
+                            {
+                                var destRoom = GameState.Instance.Areas[destAreaId].Rooms[exit.DestinationRoomId];
+                                // If some other exit (not the returnExit) already uses that opposite direction, fail.
+                                if (destRoom.GetExits().Any(e => e.ExitDirection == opposite && (returnExit == null || e.Id != returnExit.Id)))
+                                {
+                                    player.WriteLine("Destination room already has an exit using the opposite direction.");
+                                    return;
+                                }
+                            }
+
+                            // Update directions
+                            Direction oldDir = exit.ExitDirection;
+                            exit.ExitDirection = newDir;
+
+                            // Update return exit direction if present
+                            var ret = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (ret != null)
+                            {
+                                ret.ExitDirection = opposite;
+
+                                // Try to keep description consistent (replace old direction name with new one if present)
+                                if (!string.IsNullOrEmpty(ret.Description))
+                                {
+                                    ret.Description = ret.Description.Replace(oldDir.ToString(), opposite.ToString());
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(exit.Description))
+                            {
+                                exit.Description = exit.Description.Replace(oldDir.ToString(), newDir.ToString());
+                            }
+
+                            player.WriteLine($"Exit {exitId} direction set to {newDir}.");
+                            break;
+                        }
+                    case "dest":
+                        {
+                            // dest requires the exit to be in the current room
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the destination of exits that belong to the current room.");
+                                return;
+                            }
+
+                            if (parameters.Count < 6)
+                            {
+                                player.WriteLine("Usage: /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)");
+                                return;
+                            }
+
+                            // parse new destination
+                            int newAreaId = current.AreaId;
+                            int newRoomId;
+                            string destParam = parameters[5];
+                            if (destParam.Contains(":"))
+                            {
+                                var parts = destParam.Split(':');
+                                if (parts.Length != 2
+                                    || !int.TryParse(parts[0], out newAreaId)
+                                    || !int.TryParse(parts[1], out newRoomId))
+                                {
+                                    player.WriteLine("Invalid destination format. Use <destRoomId> or <areaId>:<destRoomId>.");
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if (!int.TryParse(destParam, out newRoomId))
+                                {
+                                    player.WriteLine("Invalid destination room id.");
+                                    return;
+                                }
+                            }
+
+                            if (!GameState.Instance.Areas.ContainsKey(newAreaId)
+                                || !GameState.Instance.Areas[newAreaId].Rooms.ContainsKey(newRoomId))
+                            {
+                                player.WriteLine($"Destination room not found (Area: {newAreaId}, Room: {newRoomId}).");
+                                return;
+                            }
+
+                            // Ensure new destination doesn't already have an exit in opposite direction pointing back to this source
+                            Direction opposite = Navigation.GetOppositeDirection(exit.ExitDirection);
+                            var newDestRoom = GameState.Instance.Areas[newAreaId].Rooms[newRoomId];
+                            if (newDestRoom.GetExits().Any(e => e.ExitDirection == opposite))
+                            {
+                                player.WriteLine("New destination room already has an exit in the opposite direction.");
+                                return;
+                            }
+
+                            // Remove old return exit if present
+                            Exit? oldReturn = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (oldReturn != null)
+                            {
+                                // remove from the area's exit map and from the destination room ExitIds
+                                foreach (var kvp in GameState.Instance.Areas)
+                                {
+                                    if (kvp.Value.Rooms.ContainsKey(oldReturn.SourceRoomId))
+                                    {
+                                        kvp.Value.Exits.Remove(oldReturn.Id);
+                                        kvp.Value.Rooms[oldReturn.SourceRoomId].ExitIds.Remove(oldReturn.Id);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Update source exit to point to new destination
+                            exit.DestinationRoomId = newRoomId;
+
+                            // Add new return exit in new destination's area
+                            var newReturn = new Exit();
+                            newReturn.Id = Exit.GetNextId(newAreaId);
+                            newReturn.SourceRoomId = newRoomId;
+                            newReturn.DestinationRoomId = exit.SourceRoomId;
+                            newReturn.ExitDirection = opposite;
+                            // Mirror type and defaults
+                            newReturn.ExitType = exit.ExitType;
+                            newReturn.Description = exit.Description?.Replace(exit.ExitDirection.ToString(), opposite.ToString()) ?? "";
+                            newReturn.ApplyDefaultsForType();
+
+                            GameState.Instance.Areas[newAreaId].Exits.Add(newReturn.Id, newReturn);
+                            GameState.Instance.Areas[newAreaId].Rooms[newRoomId].ExitIds.Add(newReturn.Id);
+
+                            player.WriteLine($"Exit {exitId} destination changed to Area {newAreaId} Room {newRoomId}.");
+                            break;
+                        }
+                    case "type":
+                        {
+                            // type requires the exit to be in the current room
+                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
+                            {
+                                player.WriteLine("You can only change the type of exits that belong to the current room.");
+                                return;
+                            }
+
+                            if (parameters.Count < 6)
+                            {
+                                player.WriteLine("Usage: /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>");
+                                return;
+                            }
+
+                            if (!Enum.TryParse(parameters[5], true, out ExitType newType))
+                            {
+                                player.WriteLine("Invalid exit type.");
+                                return;
+                            }
+
+                            exit.ExitType = newType;
+                            exit.ApplyDefaultsForType();
+
+                            // Update mirrored return exit type if present
+                            var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (returnExit != null)
+                            {
+                                returnExit.ExitType = newType;
+                                returnExit.ApplyDefaultsForType();
+                            }
+
+                            player.WriteLine($"Exit {exitId} type set to {newType}.");
+                            break;
+                        }
+                    case "open":
+                        {
+                            if (parameters.Count < 6)
+                            {
+                                player.WriteLine("Usage: /room set exit open <exitId> <open|close>");
+                                return;
+                            }
+
+                            string action = parameters[5].ToLower();
+                            bool? setOpen = action switch
+                            {
+                                "open" => true,
+                                "close" => false,
+                                "true" => true,
+                                "false" => false,
+                                _ => null
+                            };
+
+                            if (!setOpen.HasValue)
+                            {
+                                player.WriteLine("Invalid value. Use 'open' or 'close'.");
+                                return;
+                            }
+
+                            // Allow toggling doors even if they are not in the current room
+                            if (exit.ExitType != ExitType.Door && exit.ExitType != ExitType.LockedDoor)
+                            {
+                                player.WriteLine("This exit cannot be opened or closed (only doors can be toggled).");
+                                return;
+                            }
+
+                            exit.IsOpen = setOpen.Value;
+
+                            // Update return exit state if present and if its type supports toggling
+                            var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
+                            if (returnExit != null && (returnExit.ExitType == ExitType.Door || returnExit.ExitType == ExitType.LockedDoor))
+                            {
+                                returnExit.IsOpen = setOpen.Value;
+                            }
+
+                            player.WriteLine($"Exit {exitId} {(setOpen.Value ? "opened" : "closed")}.");
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Error updating exit: {ex.Message}");
+            }
+        }
 
         private static void RoomSetTags(Player player, List<string> parameters)
         {
@@ -732,337 +1070,7 @@ namespace RPGFramework.Commands
             }//this code above very specifically needs [[ ]] instead of [ ]
         }
 
-        /// <summary>
-        /// /room set exit ...
-        /// Supports:
-        ///   /room set exit dir <exitId> <direction>
-        ///   /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)
-        ///   /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>
-        ///   /room set exit open <exitId> <open|close>
-        /// All require Builder permission.
-        /// </summary>
-        private static void RoomSetExit(Player player, List<string> parameters)
-        {
-            if (!Utility.CheckPermission(player, PlayerRole.Builder))
-            {
-                player.WriteLine("You do not have permission to do that.");
-                player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
-                return;
-            }
 
-            if (parameters.Count < 4)
-            {
-                WriteUsage(player);
-                return;
-            }
-
-            var sub = parameters[3].ToLower();
-            Room current = player.GetRoom();
-            if (current == null)
-            {
-                player.WriteLine("You are not in a valid room.");
-                return;
-            }
-
-            // Expect exit id for all subcommands
-            if (parameters.Count < 5 || !int.TryParse(parameters[4], out int exitId))
-            {
-                player.WriteLine("Usage: /room set exit <dir|dest|type|open> <exitId> <...>");
-                return;
-            }
-
-            // Find the exit across all areas (allow builders to operate on exits outside current room)
-            Exit? exit = null;
-            int exitAreaId = -1;
-            foreach (var kvp in GameState.Instance.Areas)
-            {
-                if (kvp.Value.Exits.ContainsKey(exitId))
-                {
-                    exit = kvp.Value.Exits[exitId];
-                    exitAreaId = kvp.Key;
-                    break;
-                }
-            }
-
-            if (exit == null)
-            {
-                player.WriteLine($"Exit id {exitId} not found.");
-                return;
-            }
-
-            // Helper: try find the return exit (if any)
-            Exit? FindReturnExit(int sourceRoomId, int destRoomId)
-            {
-                foreach (var kvp in GameState.Instance.Areas)
-                {
-                    if (kvp.Value.Rooms.ContainsKey(destRoomId))
-                    {
-                        return kvp.Value.Exits.Values.FirstOrDefault(e =>
-                            e.SourceRoomId == destRoomId && e.DestinationRoomId == sourceRoomId);
-                    }
-                }
-                return null;
-            }
-
-            try
-            {
-                switch (sub)
-                {
-                    case "dir":
-                        {
-                            // dir requires the exit to be in the current room (we only allow changing direction for exits in your current room)
-                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
-                            {
-                                player.WriteLine("You can only change the direction of exits that belong to the current room.");
-                                return;
-                            }
-
-                            if (parameters.Count < 6)
-                            {
-                                player.WriteLine("Usage: /room set exit dir <exitId> <direction>");
-                                return;
-                            }
-
-                            if (!Enum.TryParse(parameters[5], true, out Direction newDir))
-                            {
-                                player.WriteLine("Invalid direction.");
-                                return;
-                            }
-
-                            // Validate no duplicate in current room (except this exit)
-                            if (current.GetExits().Any(e => e.ExitDirection == newDir && e.Id != exit.Id))
-                            {
-                                player.WriteLine("There is already an exit in that direction from this room.");
-                                return;
-                            }
-
-                            // Validate destination room doesn't already have an exit in the opposite direction (except the return exit we'll update)
-                            Direction opposite = Navigation.GetOppositeDirection(newDir);
-                            Exit? returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
-
-                            // Find destination area's room and check its exits
-                            int destAreaId = -1;
-                            foreach (var kvp in GameState.Instance.Areas)
-                            {
-                                if (kvp.Value.Rooms.ContainsKey(exit.DestinationRoomId))
-                                {
-                                    destAreaId = kvp.Key;
-                                    break;
-                                }
-                            }
-
-                            if (destAreaId != -1)
-                            {
-                                var destRoom = GameState.Instance.Areas[destAreaId].Rooms[exit.DestinationRoomId];
-                                // If some other exit (not the returnExit) already uses that opposite direction, fail.
-                                if (destRoom.GetExits().Any(e => e.ExitDirection == opposite && (returnExit == null || e.Id != returnExit.Id)))
-                                {
-                                    player.WriteLine("Destination room already has an exit using the opposite direction.");
-                                    return;
-                                }
-                            }
-
-                            // Update directions
-                            Direction oldDir = exit.ExitDirection;
-                            exit.ExitDirection = newDir;
-
-                            // Update return exit direction if present
-                            var ret = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
-                            if (ret != null)
-                            {
-                                ret.ExitDirection = opposite;
-
-                                // Try to keep description consistent (replace old direction name with new one if present)
-                                if (!string.IsNullOrEmpty(ret.Description))
-                                {
-                                    ret.Description = ret.Description.Replace(oldDir.ToString(), opposite.ToString());
-                                }
-                            }
-
-                            if (!string.IsNullOrEmpty(exit.Description))
-                            {
-                                exit.Description = exit.Description.Replace(oldDir.ToString(), newDir.ToString());
-                            }
-
-                            player.WriteLine($"Exit {exitId} direction set to {newDir}.");
-                            break;
-                        }
-                    case "dest":
-                        {
-                            // dest requires the exit to be in the current room
-                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
-                            {
-                                player.WriteLine("You can only change the destination of exits that belong to the current room.");
-                                return;
-                            }
-
-                            if (parameters.Count < 6)
-                            {
-                                player.WriteLine("Usage: /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)");
-                                return;
-                            }
-
-                            // parse new destination
-                            int newAreaId = current.AreaId;
-                            int newRoomId;
-                            string destParam = parameters[5];
-                            if (destParam.Contains(":"))
-                            {
-                                var parts = destParam.Split(':');
-                                if (parts.Length != 2
-                                    || !int.TryParse(parts[0], out newAreaId)
-                                    || !int.TryParse(parts[1], out newRoomId))
-                                {
-                                    player.WriteLine("Invalid destination format. Use <destRoomId> or <areaId>:<destRoomId>.");
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (!int.TryParse(destParam, out newRoomId))
-                                {
-                                    player.WriteLine("Invalid destination room id.");
-                                    return;
-                                }
-                            }
-
-                            if (!GameState.Instance.Areas.ContainsKey(newAreaId)
-                                || !GameState.Instance.Areas[newAreaId].Rooms.ContainsKey(newRoomId))
-                            {
-                                player.WriteLine($"Destination room not found (Area: {newAreaId}, Room: {newRoomId}).");
-                                return;
-                            }
-
-                            // Ensure new destination doesn't already have an exit in opposite direction pointing back to this source
-                            Direction opposite = Navigation.GetOppositeDirection(exit.ExitDirection);
-                            var newDestRoom = GameState.Instance.Areas[newAreaId].Rooms[newRoomId];
-                            if (newDestRoom.GetExits().Any(e => e.ExitDirection == opposite))
-                            {
-                                player.WriteLine("New destination room already has an exit in the opposite direction.");
-                                return;
-                            }
-
-                            // Remove old return exit if present
-                            Exit? oldReturn = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
-                            if (oldReturn != null)
-                            {
-                                // remove from the area's exit map and from the destination room ExitIds
-                                foreach (var kvp in GameState.Instance.Areas)
-                                {
-                                    if (kvp.Value.Rooms.ContainsKey(oldReturn.SourceRoomId))
-                                    {
-                                        kvp.Value.Exits.Remove(oldReturn.Id);
-                                        kvp.Value.Rooms[oldReturn.SourceRoomId].ExitIds.Remove(oldReturn.Id);
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // Update source exit to point to new destination
-                            exit.DestinationRoomId = newRoomId;
-
-                            // Add new return exit in new destination's area
-                            var newReturn = new Exit();
-                            newReturn.Id = Exit.GetNextId(newAreaId);
-                            newReturn.SourceRoomId = newRoomId;
-                            newReturn.DestinationRoomId = exit.SourceRoomId;
-                            newReturn.ExitDirection = opposite;
-                            // Mirror type and defaults
-                            newReturn.ExitType = exit.ExitType;
-                            newReturn.Description = exit.Description?.Replace(exit.ExitDirection.ToString(), opposite.ToString()) ?? "";
-                            newReturn.ApplyDefaultsForType();
-
-                            GameState.Instance.Areas[newAreaId].Exits.Add(newReturn.Id, newReturn);
-                            GameState.Instance.Areas[newAreaId].Rooms[newRoomId].ExitIds.Add(newReturn.Id);
-
-                            player.WriteLine($"Exit {exitId} destination changed to Area {newAreaId} Room {newRoomId}.");
-                            break;
-                        }
-                    case "type":
-                        {
-                            // type requires the exit to be in the current room
-                            if (exit.SourceRoomId != current.Id || exitAreaId != current.AreaId)
-                            {
-                                player.WriteLine("You can only change the type of exits that belong to the current room.");
-                                return;
-                            }
-
-                            if (parameters.Count < 6)
-                            {
-                                player.WriteLine("Usage: /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>");
-                                return;
-                            }
-
-                            if (!Enum.TryParse(parameters[5], true, out ExitType newType))
-                            {
-                                player.WriteLine("Invalid exit type.");
-                                return;
-                            }
-
-                            exit.ExitType = newType;
-                            exit.ApplyDefaultsForType();
-
-                            // Update mirrored return exit type if present
-                            var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
-                            if (returnExit != null)
-                            {
-                                returnExit.ExitType = newType;
-                                returnExit.ApplyDefaultsForType();
-                            }
-
-                            player.WriteLine($"Exit {exitId} type set to {newType}.");
-                            break;
-                        }
-                    case "open":
-                        {
-                            if (parameters.Count < 6)
-                            {
-                                player.WriteLine("Usage: /room set exit open <exitId> <open|close>");
-                                return;
-                            }
-
-                            string action = parameters[5].ToLower();
-                            bool? setOpen = action switch
-                            {
-                                "open" => true,
-                                "close" => false,
-                                "true" => true,
-                                "false" => false,
-                                _ => null
-                            };
-
-                            if (!setOpen.HasValue)
-                            {
-                                player.WriteLine("Invalid value. Use 'open' or 'close'.");
-                                return;
-                            }
-
-                            // Allow toggling doors even if they are not in the current room
-                            if (exit.ExitType != ExitType.Door && exit.ExitType != ExitType.LockedDoor)
-                            {
-                                player.WriteLine("This exit cannot be opened or closed (only doors can be toggled).");
-                                return;
-                            }
-
-                            exit.IsOpen = setOpen.Value;
-
-                            // Update return exit state if present and if its type supports toggling
-                            var returnExit = FindReturnExit(exit.SourceRoomId, exit.DestinationRoomId);
-                            if (returnExit != null && (returnExit.ExitType == ExitType.Door || returnExit.ExitType == ExitType.LockedDoor))
-                            {
-                                returnExit.IsOpen = setOpen.Value;
-                            }
-
-                            player.WriteLine($"Exit {exitId} {(setOpen.Value ? "opened" : "closed")}.");
-                            break;
-                        }
-                }
-            }
-            catch (Exception ex)
-            {
-                player.WriteLine($"Error updating exit: {ex.Message}");
-            }
-        }
         #endregion
     }
 
