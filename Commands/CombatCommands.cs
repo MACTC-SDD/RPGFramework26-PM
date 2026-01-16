@@ -123,6 +123,7 @@ namespace RPGFramework.Commands
                 }
                 else
                 {
+                    player.WriteLine("You do not have permission to use this command.");
                     return false;
                 }
 
