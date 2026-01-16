@@ -86,6 +86,14 @@ namespace RPGFramework.Commands
                 content += $"{player.DisplayName()}";
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
+
+                var table = new Table();
+                table.AddColumn("[deepskyblue1]Items Here:[/]").Centered();
+
+                foreach (Item item in player.GetRoom().Items)
+                {                    
+                    table.AddRow($"{item.DisplayText}");
+                }
                 return true;
             }
             return false;
