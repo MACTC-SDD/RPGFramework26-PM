@@ -5,6 +5,7 @@ using RPGFramework.Combat;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RPGFramework
 {
@@ -79,7 +80,7 @@ namespace RPGFramework
         [JsonIgnore] public Random Random { get; } = new Random();
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
-
+        public int TimeRate { get; set; } = 60; // sets the ratio of real time to game time, default is 1 minute real = 1 hour in game
         public TelnetServer? TelnetServer { get; private set; }
 
         #endregion --- Properties ---
@@ -298,8 +299,9 @@ namespace RPGFramework
             _timeOfDayTask = RunTimeOfDayLoopAsync(TimeSpan.FromMilliseconds(15000), _timeOfDayCts.Token);
 
             // Other threads will go here
+            
             _tickCts = new CancellationTokenSource();
-            _tickTask = RunTickLoopAsync(TimeSpan.FromSeconds(1), _tickCts.Token);
+            _tickTask = RunTickLoopAsync(TimeSpan.FromSeconds(100/TickRate), _tickCts.Token);
 
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
@@ -411,7 +413,7 @@ namespace RPGFramework
                 try
                 {
                     GameState.Log(DebugLevel.Debug, "Updating time...");
-                    double hours = interval.TotalMinutes * 60;
+                    double hours = interval.TotalMinutes * TimeRate;
                     GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
                 }
                 catch (Exception ex)

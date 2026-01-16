@@ -256,6 +256,83 @@ namespace RPGFramework.Commands
                 return false;
             }
         }
-    } 
+    }
+
+    internal class SetTimeRateCommand : ICommand
+    {
+        public string Name => "settimerate";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(character as Player, PlayerRole.Admin))
+            {
+                return false;
+            }
+            else
+            {
+                switch (parameters.Count)
+                {
+                    case 1:
+                        {
+                            (character as Player).WriteLine("Set tick rate to what?");
+                            return true;
+                        }
+                    case 2:
+                        {
+                            if (int.TryParse(parameters[1], out int newTimeRate))
+                            {
+                                GameState.Instance.TimeRate = newTimeRate;
+                                (character as Player).WriteLine($"Time rate set to {newTimeRate}. 1 minute in real life is equal to {newTimeRate} minutes in game");
+                                return true;
+                            }
+                            else
+                            {
+                                (character as Player).WriteLine("Invalid time rate value.");
+                                return false;
+                            }
+                        }
+                    default:
+                        {
+                            (character as Player).WriteLine("Usage: settimerate <1:TimeRate minutes real:game time>");
+                            return false;
+                        }
+                }
+            }
+        }
+    }
+
+    internal class SetTimeCommand : ICommand
+    {
+        public string Name => "settime";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(character as Player, PlayerRole.Admin))
+            {
+                return false;
+            }
+            else
+            {
+                switch (parameters.Count)
+                {
+                    case 1:
+                        {
+                            (character as Player).WriteLine("Set time to what?");
+                            return true;
+                        }
+                    case 2:
+                        {
+
+                        }
+                    default:
+                        {
+                            (character as Player).WriteLine("Usage: settime <>");
+                            return false;
+                        }
+                }
+            }
+
+        }
+    }
 }
 
