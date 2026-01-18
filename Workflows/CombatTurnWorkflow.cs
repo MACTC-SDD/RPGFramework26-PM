@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RPGFramework.Engine;
-using RPGFramework.Combat;
+﻿using RPGFramework.Combat;
+using RPGFramework.Commands;
 
 namespace RPGFramework.Workflows
 {
@@ -10,12 +7,28 @@ namespace RPGFramework.Workflows
     {
 
         public int CurrentStep { get; set; } = 0;
-        public string
-            Description => "Manages the sequence of actions during a combat turn.";
-        public string Name => "Combat Turn Workflow";
+        public string Description { get; } = "Manages the sequence of actions during a combat turn.";
+        public string Name { get; } = "Combat Turn Workflow";
+        public List<ICommand> PreProcessCommands { get; set; } = new List<ICommand>();
+        public List<ICommand> PostProcessCommands { get; set; } = new List<ICommand>();
+
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
+
+
+        // CODE REVIEW: Rylan - This needs to be broken down into smaller chunks.        
+        // Consider starting with a method for each case in the switch statement.
+        // A good rule of thumb is that if a method is longer than 20-30 lines it
+        // is probably too long.
+        // NOTE: You have some warnings about possible null references. These are because
+        // you are defining things like selectedWeapon as nullable types, but then using
+        // them as non-nullable later (ie. passing them to RollToHit). See me for help
+        // if this doesn't make sense. 
         public void Execute(Player player, List<string> parameters)
         {
+            // Process any pre-process commands, if it matches, we'll execute it and return
+            if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
+                return;
+
             Weapon? selectedWeapon = null;
             Spell? selectedSpell = null;
             CombatObject? currentCombat = null;
@@ -321,6 +334,10 @@ namespace RPGFramework.Workflows
                     player.WriteLine("Invalid step in combat turn workflow.");
                     break;
             }
+
+            // Process any pre-process commands, if it matches, we'll execute it and return
+            if (CommandManager.ProcessSpecificCommands(player, parameters, PostProcessCommands))
+                return;
         }
     }
 }

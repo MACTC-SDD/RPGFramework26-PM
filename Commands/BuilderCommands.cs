@@ -158,7 +158,7 @@ namespace RPGFramework.Commands
             catch (Exception ex)
             {
                 player.WriteLine($"Error creating room: {ex.Message}");
-                player.WriteLine(ex.StackTrace);
+                player.WriteLine(ex.StackTrace ?? "");
             }
         }
 
@@ -965,7 +965,7 @@ namespace RPGFramework.Commands
             catch (Exception ex)
             {
                 player.WriteLine($"Error creating exit: {ex.Message}");
-                player.WriteLine(ex.StackTrace);
+                player.WriteLine(ex.StackTrace ?? "");
             }
         }
 
