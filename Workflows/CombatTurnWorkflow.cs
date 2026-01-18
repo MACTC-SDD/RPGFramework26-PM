@@ -94,7 +94,7 @@ namespace RPGFramework.Workflows
                                 break;
                             case "flee":
                                 player.WriteLine("You attempt to flee from combat!");
-                                CombatObject.FleeCombat(player, currentCombat);
+                                currentCombat.FleeCombat(player);
                                 player.CurrentWorkflow = null;
                                 break;
                         }

@@ -207,8 +207,8 @@ namespace RPGFramework.Commands
                             GameState.Instance.Combats.Add(combat);
                             character.EngageCombat(true);
                             enemy.EngageCombat(true);
-                            combat.CombatInitialization(character, enemy, combat);
-                            CombatObject.RunCombat(combat);
+                            combat.CombatInitialization(character, enemy);
+                            combat.RunCombat();
                             return true;
                         }
                     }

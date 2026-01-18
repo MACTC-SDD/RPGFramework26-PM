@@ -62,5 +62,23 @@ namespace RPGFramework
 
             if (speaker is Player) ((Player)speaker).WriteLine($"You say, '{message}'");                           
         }
+
+        /// <summary>
+        /// Sends the specified message to the character if it is a player.
+        /// </summary>
+        /// <param name="character">The character to which the message may be sent. 
+        /// If the character is a player, the message will be delivered;
+        /// otherwise, no action is taken.</param>
+        /// <param name="message">The message to send to the player character. Cannot be null.</param>
+        /// <returns>true if the message was sent to a player; otherwise, false.</returns>
+        public static bool SendToIfPlayer(Character character, string message)
+        {
+            if (character is Player)
+            {
+                ((Player)character).WriteLine(message);
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -1,45 +1,37 @@
 ﻿using RPGFramework.Engine;
 using RPGFramework.Workflows;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
+using RPGFramework;
 
 namespace RPGFramework.Combat
 {
-    
+
     //rounds will be 6 seconds
     //actions + bonus action + reaction etc
     //initialization will be DND initiative(random 1-20 + dexterity modifier((dexterity score - 10) / 2)
-    
-  
+
+    //CODE Review: Rylan (PR #19) - Initial 223 lines
+    // Because we are doing so much player checking I made a simple method
+    // in Comm called SendToIfPlayer(Character c, string message)
     internal class CombatObject {
-        
-        public void InitiativeOrder(List<Character> combatants)
+
+        // This should be a property not a public field (always avoid public fields)
+        public List<Character> Combatants { get; set; } =  new List<Character>();
+
+        // If this is private, no need for a property, just make it a field and start with underscore
+        private int _roundCounter = 0;
+
+        public void InitiativeOrder()
         {
-            int n = combatants.Count;
-            for (int i = 0; i < n - 1; i++)
-            {
-                for (int j = 0; j < n - i - 1; j++)
-                { 
-                    if (combatants[j].Initiative < combatants[j + 1].Initiative)
-                    {
-                        Character temp = combatants[j];
-                        combatants[j] = combatants[j + 1];
-                        combatants[j + 1] = temp;
-                    }
-                }
-            }
+            // CODE REVIEW: Rylan
+            // This is a good implementation of a bubble sort but you might 
+            // consider using LINQ and sort. It's more efficient and easier to read.
+            // Also, 1 line versus 11. Since this is an instance method we don't need to pass combatants as a parameter.
+            Combatants = Combatants.OrderByDescending(c => c.Initiative).ToList();
         }
-        public List<Character> Combatants = new List<Character>();
 
-        private int roundCounter { get; set; } = 0;
-
-
-
-        public async Task CombatInitialization(Character attacker, Character enemy, CombatObject combat)
+        // CODE REVIEW: It appears that combat parameter is redundant since this is an instance method.
+        public async Task CombatInitialization(Character attacker, Character enemy)
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);
@@ -52,42 +44,35 @@ namespace RPGFramework.Combat
             }
             foreach (Character c in Combatants)
             {
-                Random rand = new Random();
-                int initiativeRoll = rand.Next(1, 20);
+                // No need to create a new Random instance each iteration, already one in GameState
+                int initiativeRoll = GameState.Instance.Random.Next(1, 20);
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
-            combat.InitiativeOrder(Combatants);
-            RunCombat(combat);
+            InitiativeOrder();
+            RunCombat(); 
         }
 
-        
-        
-        public static bool FleeCombat(Character character, CombatObject combat)
+        // This makes more sense as an instance method rather than static
+        public bool FleeCombat(Character character)
         {
-            Random rand = new Random();
-            int fleeRoll = rand.Next(1, 100);
+            int fleeRoll = GameState.Instance.Random.Next(1, 100);
             if (fleeRoll >= 80)
             {
-                combat.Combatants.Remove(character);
-                if (character is Player player)
-                    player.WriteLine("You successfully fled the combat!");
+                Combatants.Remove(character);
+                Comm.SendToIfPlayer(character, "You successfully fled the combat!");
                 return true;
             }
             else
             {
-                if (character is Player player)
-                    player.WriteLine("You failed to flee the combat!");
-                return false;
+                Comm.SendToIfPlayer(character, "You failed to flee the combat!");
             }
+            return false;
         }
-
-        // 
 
         public static void RollToHitS(Character attacker, Spell weapon, Character target)
         {
-            Random rand = new Random();
-            int attackRoll = rand.Next(1, 20);
+            int attackRoll = GameState.Instance.Random.Next(1, 20);
             int attackModifier = (attacker.Intelligence - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
             int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
@@ -99,34 +84,24 @@ namespace RPGFramework.Combat
             }
             else if (attackRoll == 1)
             {
-                if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name}!");
+                Comm.SendToIfPlayer(attacker, $"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
                 attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             { 
                 target.TakeDamage(totalDamage);
-                if (attacker is Player player)
-                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
-                if (target is Player targetPlayer)
-                {
-                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
-                }
+                Comm.SendToIfPlayer(attacker, $"You hit {target.Name} for {totalDamage} damage!");
+                Comm.SendToIfPlayer(target, $"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");            
             }
             else
-            {
-                //miss
-                if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name}!");
-            }
+                Comm.SendToIfPlayer(attacker, $"You missed {target.Name}!"); //miss
         }
 
         
         public static void RollToHit(Character attacker, Weapon weapon, Character target)
         {
-            Random rand = new Random();
-            int attackRoll = rand.Next(1, 20);
+            int attackRoll = GameState.Instance.Random.Next(1, 20);
             int attackModifier = (attacker.Strength - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
             int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
@@ -138,47 +113,46 @@ namespace RPGFramework.Combat
             }
             else if (attackRoll == 1)
             {
-                if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
+                Comm.SendToIfPlayer(attacker, $"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
                 attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             {
                 target.TakeDamage(totalDamage);
-                if (attacker is Player player)
-                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
-                if (target is Player targetPlayer)
-                {
-                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
-                }
+                Comm.SendToIfPlayer(attacker, $"You hit {target.Name} for {totalDamage} damage!");
+                Comm.SendToIfPlayer(target, $"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
             }
             else
-            {
-                //miss
-                if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name}!");
-            }
+                Comm.SendToIfPlayer(attacker, $"You missed {target.Name}!"); //miss            
         }
 
-        public static async Task RunCombat(CombatObject combat)
+        // CODE REVIEW: Rylan (PR #19)
+        // We almost certainly don't want this pausing the thread with Task.Delay.
+        // The good thing is that if we don't use that mechanism we won't have to make this method async.
+        // Also I think this method makes more sense as an instance method.
+        // Most likely handling rounds is best done by an outside process
+        // we can revisit this later.
+        public async Task RunCombat()
         {
             //main combat loop
-            while (combat.Combatants.Count >= 1)
+            // CODE REVIEW: This doesn't account for multiple enemies/allies, but we discussed 
+            // some teams mechanism.
+            while (Combatants.Count >= 1)
             {
-                combat.roundCounter++;
-                if (combat.Combatants.Count <= 1)
+                _roundCounter++;               
+                if (Combatants.Count <= 1)
                 {
                     //combat ends
-                    CombatObject.EndCombat(combat);
+                    EndCombat();
                     return;
                 }
-                foreach (Character c in combat.Combatants)
+                foreach (Character c in Combatants)
                 {
                     //each character takes their turn here
                     if (c.Alive == false)
-                    {
-                        combat.Combatants.Remove(c);
+                    {                        
+                        Combatants.Remove(c);
                         continue;
                     }
                     if (c is Player player)
@@ -194,7 +168,7 @@ namespace RPGFramework.Combat
                     else if (c is NonPlayer npc)
                     {
                         //handle npc turn
-                        NonPlayer.TakeTurn(npc, combat);
+                        NonPlayer.TakeTurn(npc, this);
                     }
                 }
             }
@@ -204,9 +178,10 @@ namespace RPGFramework.Combat
         // CODE REVIEW: Rylan (PR #16)
         // Added IsEngaged property to Character class to track combat status.
         // Added stub EngageCombat method to set IsEngaged to true for combatants.
-        public static void EndCombat(CombatObject combat)
+        // This makes more sense as an instance method.
+        public void EndCombat()
         {
-            foreach (Character c in combat.Combatants)
+            foreach (Character c in Combatants)
             {
                 c.EngageCombat(false);
                 if (c is Player player)
@@ -215,7 +190,7 @@ namespace RPGFramework.Combat
                     player.CurrentWorkflow = null;
                 }
             }
-            GameState.Instance.Combats.Remove(combat);
+            GameState.Instance.Combats.Remove(this);
         }
     }
 
