@@ -7,8 +7,8 @@ namespace RPGFramework.Workflows
         int CurrentStep { get; set; }
         string Description { get; }
         string Name { get; }
-        List<ICommand> PreProcessCommands { get; set; }
-        List<ICommand> PostProcessCommands { get; set; }
+        List<ICommand> PreProcessCommands { get;  }
+        List<ICommand> PostProcessCommands { get;  }
         Dictionary<string, object> WorkflowData { get; set; }
 
         void Execute(Player player, List<string> parameters);

@@ -9,8 +9,8 @@ namespace RPGFramework.Workflows
         public int CurrentStep { get; set; } = 0;
         public string Description { get; } = "Manages the sequence of actions during a combat turn.";
         public string Name { get; } = "Combat Turn Workflow";
-        public List<ICommand> PreProcessCommands { get; set; } = new List<ICommand>();
-        public List<ICommand> PostProcessCommands { get; set; } = new List<ICommand>();
+        public List<ICommand> PreProcessCommands { get; private set; } = new List<ICommand>();
+        public List<ICommand> PostProcessCommands { get; private set; } = new List<ICommand>();
 
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
 
