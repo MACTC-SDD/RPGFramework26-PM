@@ -91,7 +91,7 @@ namespace RPGFramework.Commands
                 table.AddColumn("[deepskyblue1]Items Here:[/]").Centered();
 
                 foreach (Item item in player.GetRoom().Items)
-                {                    
+                {
                     table.AddRow($"{item.DisplayText}");
                 }
                 return true;
@@ -189,14 +189,14 @@ namespace RPGFramework.Commands
             // if no help topic given
             if (parameters.Count < 2)
             {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
                     player.WriteLine($"{he.Name}");
                 }
             }
             else
             {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
                     if (he.Name.ToLower() == parameters[1].ToLower())
                     {
@@ -232,38 +232,34 @@ namespace RPGFramework.Commands
     internal class WeatherSetCommand : ICommand
     {
         public string Name => "setweather";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
 
-            if (character is not Player)
-            {
+            if (character is not Player player)
                 return false;
-            }
 
-            Player player = character as Player;
-
-            if (Utility.CheckPermission(player, PlayerRole.Admin))
-            {
-                if (parameters.Count < 2)
-                {
-                    player.WriteLine("Set weather to what?");
-                    return true;
-                }
-                else
-                {
-                    Area area = player.GetArea();
-                    area.Weather = parameters[1];
-                    player.WriteLine($"You set the weather to {area.Weather}");
-                    return true;
-                }
-            }
-            else
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
                 player.WriteLine("You do not have permission to use this command.");
                 return false;
             }
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Set weather to what?");
+                return true;
+            }
+            else
+            {
+                Area area = player.GetArea();
+                area.Weather = parameters[1];
+                player.WriteLine($"You set the weather to {area.Weather}");
+                return true;
+            }
+
+
         }
-    } 
+    }
 }
 

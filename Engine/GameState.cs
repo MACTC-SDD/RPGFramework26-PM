@@ -5,6 +5,7 @@ using RPGFramework.Combat;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using RPGFramework.Interfaces;
 
 namespace RPGFramework
 {
@@ -17,6 +18,7 @@ namespace RPGFramework
     /// <para> <b>Persistence:</b> The <see cref="Persistence"/> property determines how 
     /// game data is loaded and saved. By default, a JSON-based persistence
     /// mechanism is used, but this can be replaced with a custom implementation. </para> 
+    /// TODO: Given the number of properties that are not serialized, we should consider making a GameStateData DTO.
     internal sealed class GameState
     {
         // Static Fields and Properties
@@ -26,8 +28,6 @@ namespace RPGFramework
 
         // The persistence mechanism to use. Default is JSON-based persistence.
         public static IGamePersistence Persistence { get; set; } = new JsonGamePersistence();
-
-        public bool IsRunning { get; private set; } = false;
 
         #region --- Fields ---
         private CancellationTokenSource? _saveCts;
@@ -49,48 +49,58 @@ namespace RPGFramework
         #endregion
 
         #region --- Properties ---
-
-        /// <summary>
-        /// All Areas are loaded into this dictionary
-        /// </summary>
-        [JsonIgnore]
-        public Dictionary<int, Area> Areas { get; set; } =
-            new Dictionary<int, Area>();
-
         // TODO: Move this to configuration settings class
         public DebugLevel DebugLevel { get; set; } = DebugLevel.Debug;
-        public Dictionary<string, NonPlayer> NPCs { get; set; } = new Dictionary<string, NonPlayer>();
         /// <summary>
         /// The date of the game world. This is used for time of day, etc.
         /// </summary>
         public DateTime GameDate { get; set; } = new DateTime(2021, 1, 1);
-        public DateTime ServerStartTime { get; init; }
 
-        public Dictionary<string, Mob> MobCatalog { get; set; } = new Dictionary<string, Mob>();
+        public int StartAreaId { get; set; } = 0;
+        public int StartRoomId { get; set; } = 0;
+
+        #region --- Unserialized Properties ---
+        [JsonIgnore] public bool IsRunning { get; private set; } = false;
+
+        /// <summary>
+        /// All Areas are loaded into this dictionary
+        /// </summary>
+        [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
+
+        // Relocate later
+        [JsonIgnore] public List<CombatObject> Combats = new List<CombatObject>();
+
+        [JsonIgnore] public DateTime ServerStartTime { get; private set; }
+        
+        /// <summary>
+        /// All Players are loaded into this dictionary, with the player's name as the key 
+        /// </summary>
+        [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = [];
+
+        [JsonIgnore] public Random Random { get; } = new Random();
+        [JsonIgnore] public TelnetServer? TelnetServer { get; private set; }
+
+        #region --- Catalogs ---        
+        [JsonIgnore] public List<ICatalog> Catalogs { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
         /// </summary>
-        [JsonIgnore] public Dictionary<string, HelpEntry> HelpEntries { get; set; } = new Dictionary<string, HelpEntry>();
+        [JsonIgnore] public Catalog<string, HelpEntry> HelpCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
 
-        /// <summary>
-        /// All Players are loaded into this dictionary, with the player's name as the key 
-        /// </summary>
-        [JsonIgnore] public Dictionary<string, Player> Players { get; set; } = new Dictionary<string, Player>();
+        #endregion --- Catalogs ---
 
-        [JsonIgnore] public Random Random { get; } = new Random();
-        public int StartAreaId { get; set; } = 0;
-        public int StartRoomId { get; set; } = 0;
-
-        public TelnetServer? TelnetServer { get; private set; }
-
+        #endregion --- Unserialized Properties ---
         #endregion --- Properties ---
-        // Relocate later
-        public List<CombatObject> Combats = new List<CombatObject>();
+        
         #region --- Methods ---
         private GameState()
         {
-            ServerStartTime = DateTime.Now;
+            Catalogs.Add(HelpCatalog);
+            Catalogs.Add(MobCatalog);
+            Catalogs.Add(NPCCatalog);
         }
 
         public void AddPlayer(Player player)
@@ -103,6 +113,7 @@ namespace RPGFramework
             return Players.Values.Where(o => o.IsOnline).ToList();
         }
 
+        #region GetPlayerByName Method
         // CODE REVIEW: Aiden (PR #13)
         // I moved Trim around a little for readability and renamed to 
         // GetPlayerByName since DisplayName means something different.
@@ -132,7 +143,9 @@ namespace RPGFramework
 
             return null;
         }
+        #endregion
 
+        #region LoadArea Methods
         /// <summary>
         /// This would be used by an admin command to load an area on demand. 
         /// For now useful primarily for reloading externally crearted changes
@@ -167,17 +180,13 @@ namespace RPGFramework
                 GameState.Log(DebugLevel.Alert, $"Area '{kvp.Value.Name}' loaded successfully.");
             }
         }
+        #endregion
 
-
+        #region LoadAllPlayers Method
         /// <summary>
         /// Loads all player data from persistent storage and adds each player 
         /// to the <see cref="Players"/> collection.
         /// </summary>
-        /// <remarks>This method loads all player objects from the data source and 
-        /// populates the <see cref="Players"/> dictionary using each player's name 
-        /// as the key. Existing entries in <see cref="Players"/>
-        /// are not cleared before loading; newly loaded players are added or 
-        /// overwrite existing entries with the same name.</remarks>
         private async Task LoadAllPlayers()
         {
             Players.Clear();
@@ -191,21 +200,24 @@ namespace RPGFramework
 
             GameState.Log(DebugLevel.Alert, $"{Players.Count} players loaded.");
         }
+        #endregion
 
+        #region LoadCatalogs Method
+        /// <summary>
+        /// Loop through all catalogs and load them. Each catalog
+        /// should be added to the Catalogs list during initialization.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadCatalogs()
         {
-            HelpEntries.Clear();
-            try
+            foreach (ICatalog catalog in Catalogs)
             {
-                HelpEntries = await Persistence.LoadHelpCatalogAsync();
-                GameState.Log(DebugLevel.Alert, $"Help catalog loaded with {HelpEntries.Count} entries.");
-            }
-            catch (FileNotFoundException fex)
-            {
-                GameState.Log(DebugLevel.Warning, $"Help catalog file not found. Loading blank.");
+                await catalog.LoadCatalogAsync();
             }
         }
+        #endregion
 
+        #region SaveAllAreas Method
         /// <summary>
         /// Saves all area entities asynchronously to the persistent storage.
         /// </summary>
@@ -217,7 +229,9 @@ namespace RPGFramework
         {
             return Persistence.SaveAreasAsync(Areas.Values);
         }
+        #endregion
 
+        #region SaveAllPlayers Method
         /// <summary>
         /// Saves all player data asynchronously.
         /// </summary>
@@ -232,12 +246,19 @@ namespace RPGFramework
 
             return Persistence.SavePlayersAsync(toSave);
         }
+        #endregion
 
-        public Task SaveCatalogs()
+        #region SaveCatalogsAsync Method
+        public async Task SaveCatalogsAsync()
         {
-            return Persistence.SaveHelpCatalog(HelpEntries);
+            foreach (ICatalog catalog in Catalogs)
+            {
+                catalog.SaveCatalogAsync().Wait();
+            }            
         }
+        #endregion
 
+        #region SavePlayer Method
         /// <summary>
         /// Saves the specified player to persistent storage asynchronously.
         /// </summary>
@@ -247,7 +268,9 @@ namespace RPGFramework
         {
             return Persistence.SavePlayerAsync(p);
         }
+        #endregion
 
+        #region Start Method (Async)
         /// <summary>
         /// Initializes and starts the game server 
         ///   loading all areas
@@ -267,6 +290,7 @@ namespace RPGFramework
                 throw new InvalidOperationException("Game server is already running.");
 
             IsRunning = true;
+            ServerStartTime = DateTime.Now;
 
             // Initialize game data if it doesn't exist
             await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions());
@@ -274,11 +298,6 @@ namespace RPGFramework
             await LoadAllAreas();
             await LoadAllPlayers();
             await LoadCatalogs();
-
-            // Load Item (Weapon/Armor/Consumable/General) catalogs
-            // Load NPC (Mobs/Shop/Guild/Quest) catalogs
-
-
 
             // TODO: Consider moving thread methods to their own class
 
@@ -306,19 +325,13 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
-
-            
-
-
-
-            // Room threads?
-
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
-
         }
+        #endregion
 
+        #region Stop Method (Async)
         /// <summary>
         /// Stops the server, saving all player and area data, disconnecting online players, 
         /// and terminating the application.
@@ -333,6 +346,7 @@ namespace RPGFramework
         {
             await SaveAllPlayers(includeOffline: true);
             await SaveAllAreas();
+            await SaveCatalogsAsync();
 
             foreach (var player in Players.Values.Where(p => p.IsOnline))
             {
@@ -356,6 +370,7 @@ namespace RPGFramework
             // Exit program
             Environment.Exit(0);
         }
+        #endregion
 
         #endregion --- Methods ---
 
@@ -384,7 +399,7 @@ namespace RPGFramework
                 {
                     await SaveAllPlayers();
                     await SaveAllAreas();
-                    await SaveCatalogs();
+                    await SaveCatalogsAsync();
 
                     GameState.Log(DebugLevel.Info, "Autosave complete.");
                 }
