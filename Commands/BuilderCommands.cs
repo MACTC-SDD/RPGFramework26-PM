@@ -7,12 +7,12 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new RoomBuilderCommand(),
                 new ExitBuilderCommand(),
                 // Add more builder commands here as needed
-            };
+            ];
         }
     }
 
@@ -24,7 +24,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/room";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -35,7 +35,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 2)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return false;
             }
 
@@ -50,7 +50,7 @@ namespace RPGFramework.Commands
                     RoomSet(player, parameters);
                     break;
                 case "show":
-                    ShowCommand(player, parameters);
+                    ShowCommand(player);
                     break;
                 case "add":
                     RoomAdd(player, parameters);
@@ -59,7 +59,7 @@ namespace RPGFramework.Commands
                     RoomRemove(player, parameters);
                     break;
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
                 case "delete":
                     RoomDelete(player, parameters);
@@ -73,7 +73,7 @@ namespace RPGFramework.Commands
         {
             if (parameters.Count < 3)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return;
             }
             switch (parameters[2].ToLower())
@@ -86,7 +86,7 @@ namespace RPGFramework.Commands
                     break;
                 // As we add more settable properties, we can expand this switch
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
                 case "icon":
                     RoomSetIcon(player, parameters);
@@ -100,7 +100,7 @@ namespace RPGFramework.Commands
             }
         }
 
-        private static void WriteUsage(Player player)
+        private static void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/room set description '<set room desc to this>'");
@@ -281,7 +281,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 4)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return;
             }
 
@@ -305,9 +305,9 @@ namespace RPGFramework.Commands
             int exitAreaId = -1;
             foreach (var kvp in GameState.Instance.Areas)
             {
-                if (kvp.Value.Exits.ContainsKey(exitId))
+                if (kvp.Value.Exits.TryGetValue(exitId, out Exit? value))
                 {
-                    exit = kvp.Value.Exits[exitId];
+                    exit = value;
                     exitAreaId = kvp.Key;
                     break;
                 }
@@ -455,8 +455,8 @@ namespace RPGFramework.Commands
                                 }
                             }
 
-                            if (!GameState.Instance.Areas.ContainsKey(newAreaId)
-                                || !GameState.Instance.Areas[newAreaId].Rooms.ContainsKey(newRoomId))
+                            if (!GameState.Instance.Areas.TryGetValue(newAreaId, out Area? value)
+                                || !value.Rooms.TryGetValue(newRoomId, out Room? newDestRoom))
                             {
                                 player.WriteLine($"Destination room not found (Area: {newAreaId}, Room: {newRoomId}).");
                                 return;
@@ -464,7 +464,6 @@ namespace RPGFramework.Commands
 
                             // Ensure new destination doesn't already have an exit in opposite direction pointing back to this source
                             Direction opposite = Navigation.GetOppositeDirection(exit.ExitDirection);
-                            var newDestRoom = GameState.Instance.Areas[newAreaId].Rooms[newRoomId];
                             if (newDestRoom.GetExits().Any(e => e.ExitDirection == opposite))
                             {
                                 player.WriteLine("New destination room already has an exit in the opposite direction.");
@@ -478,10 +477,10 @@ namespace RPGFramework.Commands
                                 // remove from the area's exit map and from the destination room ExitIds
                                 foreach (var kvp in GameState.Instance.Areas)
                                 {
-                                    if (kvp.Value.Rooms.ContainsKey(oldReturn.SourceRoomId))
+                                    if (kvp.Value.Rooms.TryGetValue(oldReturn.SourceRoomId, out Room? value1))
                                     {
                                         kvp.Value.Exits.Remove(oldReturn.Id);
-                                        kvp.Value.Rooms[oldReturn.SourceRoomId].ExitIds.Remove(oldReturn.Id);
+                                        value1.ExitIds.Remove(oldReturn.Id);
                                         break;
                                     }
                                 }
@@ -491,18 +490,19 @@ namespace RPGFramework.Commands
                             exit.DestinationRoomId = newRoomId;
 
                             // Add new return exit in new destination's area
-                            var newReturn = new Exit();
-                            newReturn.Id = Exit.GetNextId(newAreaId);
-                            newReturn.SourceRoomId = newRoomId;
-                            newReturn.DestinationRoomId = exit.SourceRoomId;
-                            newReturn.ExitDirection = opposite;
-                            // Mirror type and defaults
-                            newReturn.ExitType = exit.ExitType;
-                            newReturn.Description = exit.Description?.Replace(exit.ExitDirection.ToString(), opposite.ToString()) ?? "";
+                            var newReturn = new Exit
+                            {
+                                Id = Exit.GetNextId(newAreaId),
+                                SourceRoomId = newRoomId,
+                                DestinationRoomId = exit.SourceRoomId,
+                                ExitDirection = opposite,
+                                // Mirror type and defaults
+                                ExitType = exit.ExitType,
+                                Description = exit.Description?.Replace(exit.ExitDirection.ToString(), opposite.ToString()) ?? ""
+                            };
                             newReturn.ApplyDefaultsForType();
-
-                            GameState.Instance.Areas[newAreaId].Exits.Add(newReturn.Id, newReturn);
-                            GameState.Instance.Areas[newAreaId].Rooms[newRoomId].ExitIds.Add(newReturn.Id);
+                            value.Exits.Add(newReturn.Id, newReturn);
+                            newDestRoom.ExitIds.Add(newReturn.Id);
 
                             player.WriteLine($"Exit {exitId} destination changed to Area {newAreaId} Room {newRoomId}.");
                             break;
@@ -621,9 +621,7 @@ namespace RPGFramework.Commands
             }
 
             // Otherwise, set new tags
-            room.Tags = tagInput.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(t => t.Trim())
-                                .ToList();
+            room.Tags = [.. tagInput.Split([','], StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim())];
 
             player.WriteLine("Room tags set: " + string.Join(", ", room.Tags));
         }
@@ -690,14 +688,12 @@ namespace RPGFramework.Commands
             bool returnExit = !parameters.Any(p => p.Equals("noreturn", StringComparison.OrdinalIgnoreCase));
 
             // Validate destination room exists
-            if (!GameState.Instance.Areas.ContainsKey(destAreaId)
-                || !GameState.Instance.Areas[destAreaId].Rooms.ContainsKey(destRoomId))
+            if (!GameState.Instance.Areas.TryGetValue(destAreaId, out Area? value)
+                || !value.Rooms.TryGetValue(destRoomId, out Room? destRoom))
             {
                 player.WriteLine($"Destination room not found (Area: {destAreaId}, Room: {destRoomId}).");
                 return;
             }
-
-            Room destRoom = GameState.Instance.Areas[destAreaId].Rooms[destRoomId];
 
             try
             {
@@ -793,10 +789,10 @@ namespace RPGFramework.Commands
             try
             {
                 // Remove the exit from its area's exit dictionary and from the source room's ExitIds
-                if (GameState.Instance.Areas.ContainsKey(current.AreaId)
-                    && GameState.Instance.Areas[current.AreaId].Exits.ContainsKey(exitToRemove.Id))
+                if (GameState.Instance.Areas.TryGetValue(current.AreaId, out Area? value)
+                    && value.Exits.ContainsKey(exitToRemove.Id))
                 {
-                    GameState.Instance.Areas[current.AreaId].Exits.Remove(exitToRemove.Id);
+                    value.Exits.Remove(exitToRemove.Id);
                 }
 
                 current.ExitIds.Remove(exitToRemove.Id);
@@ -839,12 +835,12 @@ namespace RPGFramework.Commands
             }
         }
 
-        private static void ShowCommand(Player player, List<string> parameters)
+        private static void ShowCommand(Player player)
         {
             Room r = player.GetRoom();
             player.WriteLine($"Name: {r.Name}");
-            player.WriteLine($"Id: {r.Id.ToString()}");
-            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+            player.WriteLine($"Id: {r.Id}");
+            player.WriteLine($"Area Id: {r.AreaId}");
             player.WriteLine($"Description: {r.Description}");
         }
     }
@@ -859,7 +855,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/exit";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -868,9 +864,16 @@ namespace RPGFramework.Commands
                 return false;
             }
 
+            // All /exit commands require admin, no need to check further down
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return false;
+            }
+
             if (parameters.Count < 2)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return false;
             }
 
@@ -878,63 +881,61 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    ExitCreate(player, parameters);
-                    break;
+                    return ExitCreate(player, parameters);
                 case "set":
-                    // We'll move setting name and description into this
-                    ExitSet(player, parameters);
-                    break;
+                    return ExitSet(player, parameters);
                 case "show":
-                    ShowCommand(player, parameters);
-                    break;
+                    return ShowCommand(player);
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
             }
 
             return true;
         }
 
-        private static void ExitSet(Player player, List<string> parameters)
+        #region ExitSet Method
+        private static bool ExitSet(Player player, List<string> parameters)
         {
             if (parameters.Count < 5)
             {
-                WriteUsage(player);
-                return;
+                ShowHelp(player);
+                return false;
             }
             switch (parameters[3].ToLower())
             {
                 case "description":
-                    ExitSetDescription(player, parameters);
-                    break;
+                    return ExitSetDescription(player, parameters);
                 case "name":
-                    ExitSetName(player, parameters);
-                    break;
+                    return ExitSetName(player, parameters);
+                case "icon":
+                    return ExitSetIcon(player, parameters);
                 // As we add more settable properties, we can expand this switch
                 default:
-                    WriteUsage(player);
-                    break;
-                case "icon":
-                    ExitSetIcon(player, parameters);
+                    ShowHelp(player);
                     break;
             }
+            return false;
         }
+        #endregion
 
-        private static void WriteUsage(Player player)
+        #region ShowHelp Method
+        private static void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/room description '<set room desc to this>'");
             player.WriteLine("/room name '<set room name to this>'");
             player.WriteLine("/room create '<name>' '<description>' <exit direction> '<exit description>'");
         }
+        #endregion
 
-        private static void ExitCreate(Player player, List<string> parameters)
+        #region ExitCreate Method
+        private static bool ExitCreate(Player player, List<string> parameters)
         {
-            if (!Utility.CheckPermission(player, PlayerRole.Player))
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
             {
                 player.WriteLine("You do not have permission to do that.");
-                player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
-                return;
+                return false;
             }
 
             // 0: /room
@@ -945,100 +946,104 @@ namespace RPGFramework.Commands
             // 5: exit description
             if (parameters.Count < 6)
             {
-                player.WriteLine("Usage: /room create '<name>' '<description>' <exit direction> '<exit description>'");
-                return;
+                ShowHelp(player);
+                return false;
             }
 
             if (!Enum.TryParse(parameters[4], true, out Direction exitDirection))
             {
                 player.WriteLine("Invalid exit direction.");
-                return;
+                return false;
             }
 
             try
             {
+                // TODO Before creating the room, ensure there's no existing exit in that direction
+                // Also, shouuld exit create be creating a room? maybe this is a copy of room create right now?
                 Room room = Room.CreateRoom(player.AreaId, parameters[2], parameters[3]);
 
                 player.GetRoom().AddExits(player, exitDirection, parameters[5], room);
                 player.WriteLine("Room exit created.");
+                return true;
             }
             catch (Exception ex)
             {
                 player.WriteLine($"Error creating exit: {ex.Message}");
                 player.WriteLine(ex.StackTrace ?? "");
             }
+            return false;
         }
+        #endregion
 
-
-        private static void ExitSetIcon(Player player, List<string> parameters)
+        #region ExitSetIcon Method
+        private static bool ExitSetIcon(Player player, List<string> parameters)
         {
-            if (!Utility.CheckPermission(player, PlayerRole.Admin))
-            {
-                player.WriteLine("You do not have permission to do that.");
-                return;
-            }
-
             if (parameters.Count < 4)
             {
                 player.WriteLine($"Current room icon: {player.GetRoom().MapIcon}");
+                return false;
             }
-            else
 
-                player.GetRoom().MapIcon = parameters[3];
+            // TODO: Should we check that it's a single character? Maybe we don't care.
+            player.GetRoom().MapIcon = parameters[3];            
             player.WriteLine($"Room icon set to: {player.GetRoom().MapIcon}");
-            return;
+            return true;
         }
+        #endregion
 
-        private static void ExitSetName(Player player, List<string> parameters)
+        #region ExitSetName Method
+        private static bool ExitSetName(Player player, List<string> parameters)
         {
             if (parameters.Count < 5)
             {
                 player.WriteLine(player.GetRoom().Name);
+                return false;
             }
-            else
-            {
-                Room r = player.GetRoom();
-                Exit? e = r.GetExitByName(parameters[2]);
-                if (e != null)
-                {
-                    e.Name = parameters[4];
-                    player.WriteLine("Exit name set.");
-                }
-                else
-                {
-                    player.WriteLine($"Could not find exit {parameters[2]}.");
-                }
-            }
-        }
-        private static void ExitSetDescription(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 5)
-            {
-                player.WriteLine(player.GetRoom().Name);
-            }
-            else
-            {
-                Room r = player.GetRoom();
-                Exit? e = r.GetExitByName(parameters[2]);
-                if (e != null)
-                {
-                    e.Description = parameters[4];
-                    player.WriteLine("Exit description set.");
-                }
-                else
-                {
-                    player.WriteLine($"Could not set description. {parameters[2]}.");
-                }
-            }
-        }
-        private static void ShowCommand(Player player, List<string> parameters)
-        {
-
 
             Room r = player.GetRoom();
+            Exit? e = r.GetExitByName(parameters[2]);
+            if (e != null)
+            {
+                e.Name = parameters[4];
+                player.WriteLine("Exit name set.");
+                return true;
+            }
+
+            player.WriteLine($"Could not find exit {parameters[2]}.");
+            return false;
+        }
+        #endregion
+
+        #region ExitSetDescription Method
+        private static bool ExitSetDescription(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine(player.GetRoom().Name);
+                return false;
+            }
+
+            Room r = player.GetRoom();
+            Exit? e = r.GetExitByName(parameters[2]);
+            if (e != null)
+            {
+                e.Description = parameters[4];
+                player.WriteLine("Exit description set.");
+                return true;
+            }
+
+            player.WriteLine($"Could not set description. {parameters[2]}.");
+            return false;
+        }
+        #endregion
+
+        #region ShowCommand Method
+        private static bool ShowCommand(Player player)
+        {
+            Room r = player.GetRoom();
             player.WriteLine($"Name: {r.Name}");
-            player.WriteLine($"Id: {r.Id.ToString()}");
-            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+            player.WriteLine($"Id: {r.Id}");
+            player.WriteLine($"Area Id: {r.AreaId}");
             player.WriteLine($"Description: {r.Description}");
 
             // Show exits in the current room
@@ -1046,7 +1051,7 @@ namespace RPGFramework.Commands
             if (exits == null || exits.Count == 0)
             {
                 player.WriteLine("Exits: None");
-                return;
+                return true;
             }
 
             player.WriteLine("Exits:");
@@ -1054,10 +1059,10 @@ namespace RPGFramework.Commands
             {
                 // Try to resolve destination room (rooms are stored per-area)
                 Room? destRoom = null;
-                if (GameState.Instance.Areas.ContainsKey(r.AreaId)
-                    && GameState.Instance.Areas[r.AreaId].Rooms.ContainsKey(e.DestinationRoomId))
+                if (GameState.Instance.Areas.TryGetValue(r.AreaId, out Area? value)
+                    && value.Rooms.TryGetValue(e.DestinationRoomId, out Room? value1))
                 {
-                    destRoom = GameState.Instance.Areas[r.AreaId].Rooms[e.DestinationRoomId];
+                    destRoom = value1;
                 }
 
                 string destName = destRoom != null ? destRoom.Name : "Unknown";
@@ -1068,10 +1073,9 @@ namespace RPGFramework.Commands
 
                 player.WriteLine($"{e.ExitDirection} -> {destName} (Id: {destId}) [[{e.ExitType}]] [[{openState}]] : {e.Description}");
             }//this code above very specifically needs [[ ]] instead of [ ]
+            return true;
         }
-
-
         #endregion
     }
-
+    #endregion
 }

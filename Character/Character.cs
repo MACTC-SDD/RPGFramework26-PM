@@ -19,7 +19,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
@@ -30,7 +30,7 @@ namespace RPGFramework
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
         public CharacterClass Class { get; set; } = CharacterClass.None;
-        public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
+        public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
         public int Initiative { get; set; }
         #endregion
@@ -48,7 +48,7 @@ namespace RPGFramework
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new Weapon() 
+            Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0 };
             PrimaryWeapon = w;
         }

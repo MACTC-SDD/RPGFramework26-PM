@@ -111,7 +111,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 2)
             {
-                ShowHelp(player, parameters);
+                ShowHelp(player);
                 return true;
             }
 
@@ -121,7 +121,7 @@ namespace RPGFramework.Commands
                     CreateHelp(player, parameters);
                     break;
                 default:
-                    ShowHelp(player, parameters);
+                    ShowHelp(player);
                     break;
             }
 
@@ -132,7 +132,7 @@ namespace RPGFramework.Commands
         {
             if (parameters.Count < 5)
             {
-                ShowHelp(player, parameters);
+                ShowHelp(player);
                 return false;
             }
 
@@ -153,7 +153,7 @@ namespace RPGFramework.Commands
             return true;
         }
 
-        public static bool ShowHelp(Player player, List<string> parameters)
+        public static bool ShowHelp(Player player)
         {
             player.WriteLine("Usage: /help create <name> <category> <content>");
             return false;

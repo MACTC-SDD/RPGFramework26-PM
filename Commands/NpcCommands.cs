@@ -15,14 +15,6 @@ namespace RPGFramework.Commands
                 // Add other Npc commands here as they are implemented
             ];
         }
-        /*
-        public void NPCSpawnCommand()
-        {
-            NonPlayer n = new NonPlayer();
-            NPCList.Add(n);
-        }
-        */
-
     }
 
     #region MobBuilderCommand Class
@@ -46,15 +38,12 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    MobCreate(player, parameters);
-                    break;
-                case "set":
-                    // We'll move setting name and description into this
-                    //RoomSet(player, parameters);
+                    return MobCreate(player, parameters);
+                case "set":                   
+                    //MobSet(player, parameters);
                     break;
                 case "delete":
-                    MobDelete(player, parameters);
-                    break;
+                    return MobDelete(player, parameters);
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
@@ -62,22 +51,23 @@ namespace RPGFramework.Commands
                     ShowHelp(player);
                     break;
             }
-            ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
             return false;
         }
 
-        private static void MobCreate(Player player, List<string> parameters)
+        #region MobCreate Method
+        ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
+        private static bool MobCreate(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} already exists.");
-                return;
+                return false;
             }
 
             Mob m = new()
@@ -88,32 +78,33 @@ namespace RPGFramework.Commands
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
+            return true;
         }
-        private static void MobDelete(Player player, List<string> parameters)
+        #endregion
+
+        #region MobDelete Method
+        private static bool MobDelete(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} does not exist.");
-                return;
+                return false;
             }
             
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
             GameState.Instance.MobCatalog.Remove(m.Name);
             player.WriteLine($"{m.Name} was removed the mob catalog.");
+            return true;
         }
-        // NpcList.Add(NonPlayer, Nonplayer.Name)
+        #endregion
 
-
-       // private  void Roomset(Player player, List<string> parameters)
-        //{
-            //mob.RoomID = player.GetRoom();
-        //}
+        #region ShowHelp Method
         private static void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
@@ -121,6 +112,7 @@ namespace RPGFramework.Commands
             player.WriteLine("/mob name '<set room name to this>'");
             player.WriteLine("/mob create '<name>' '<description>' <exit direction> '<exit description>'");
         }
+        #endregion
     }
     #endregion
 
