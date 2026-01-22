@@ -54,7 +54,7 @@ namespace RPGFramework.Commands
                     //RoomSet(player, parameters);
                     break;
                 case "delete":
-                    //ShowCommand(player, parameters);
+                    MobDelete(player, parameters);
                     break;
                 case "list":
                     //ShowCommand(player, parameters);
@@ -90,13 +90,31 @@ namespace RPGFramework.Commands
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
         }
+        private void MobDelete(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 4)
+            {
+                player.WriteLine("Provide at least a name and description.");
+                return;
+            }
+
+            if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The mob {parameters[2]} does not exist.");
+                return;
+            }
+            
+            Mob m = GameState.Instance.MobCatalog[parameters[2]];
+            GameState.Instance.MobCatalog.Remove(m.Name);
+            player.WriteLine($"{m.Name} was removed the mob catalog.");
+        }
         // NpcList.Add(NonPlayer, Nonplayer.Name)
 
 
-        private  void Roomset(Player player, List<string> parameters)
-        {
+       // private  void Roomset(Player player, List<string> parameters)
+        //{
             //mob.RoomID = player.GetRoom();
-        }
+        //}
         private  void WriteUsage(Player player)
         {
             player.WriteLine("Usage: ");
