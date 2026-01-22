@@ -14,6 +14,7 @@ namespace RPGFramework.Geography
 
         // Description of the room
         public string Description { get; set; } = "";
+        public List<Item> Items { get; set; } = new List<Item>();
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
@@ -61,6 +62,10 @@ namespace RPGFramework.Geography
             exit.DestinationRoomId = destinationRoom.Id;
             exit.ExitDirection = direction;
             exit.Description = exitDescription;
+            // Keep ExitType default unless modified later.
+            // Apply sensible open/close defaults based on ExitType
+            exit.ApplyDefaultsForType();
+
             ExitIds.Add(exit.Id);
             GameState.Instance.Areas[AreaId].Exits.Add(exit.Id, exit);
 
@@ -73,6 +78,10 @@ namespace RPGFramework.Geography
                 exit1.DestinationRoomId = Id;
                 exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());
+                // Mirror the exit type and defaults
+                exit1.ExitType = exit.ExitType;
+                exit1.ApplyDefaultsForType();
+
                 destinationRoom.ExitIds.Add(exit1.Id);
                 GameState.Instance.Areas[destinationRoom.AreaId].Exits.Add(exit1.Id, exit1);
             }

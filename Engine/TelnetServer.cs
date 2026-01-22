@@ -51,7 +51,13 @@ internal class TelnetServer
 
 
             pn.Writer.WriteLine("Username: ");
-            //string? playerName = pn.Reader.ReadLine();
+
+            if (pn.TelnetConnection == null)
+            {
+                GameState.Log(DebugLevel.Error, "Telnet connection is null (disconnect?).");
+                return;
+            }
+
             string? playerName = await pn.TelnetConnection.ReadLineAsync();
 
             while (string.IsNullOrEmpty(playerName))

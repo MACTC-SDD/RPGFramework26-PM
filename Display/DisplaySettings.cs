@@ -13,6 +13,8 @@ namespace RPGFramework.Display
 
         public static string SuccessColor { get; set; } = "[green3]";
 
+        public static string TellColor { get; set; } = "[darkorange]";
+
         #region Map Settings
         public static string RoomMapIcon { get; set; } = "■";
         public static string RoomMapIconColor { get; set; } = "[green]";

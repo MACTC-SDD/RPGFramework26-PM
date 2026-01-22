@@ -9,7 +9,7 @@ namespace RPGFramework
         public TcpClient Client { get; }
         public TelnetConnection? TelnetConnection { get; set; }
         public StreamWriter Writer { get; }
-        public StreamReader Reader { get; }
+        public StreamReader? Reader { get; }
         public bool NeedsOutputNewline { get { return _needsOutputNewLine; } }
 
         private bool _needsOutputNewLine;
