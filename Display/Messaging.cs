@@ -11,6 +11,18 @@ namespace RPGFramework.Display
             {
             return $"\n{DisplaySettings.TellColor}[[Tell]]: [/][lightgoldenrod2_1] {message}[/]";
         }
+        public static string CreateErrorMessage(string message)
+        {
+            return $"\n{DisplaySettings.ErrorColor}[[Error]]: [/][lightpink1] {message}[/]";
+        }
+        public static string CreateSystemMessage(string message)
+        {
+            return $"\n{DisplaySettings.SystemMessageColor}[[System]]: [/][lightcyan1] {message}[/]";
+        }
+        public static string CreateCombatMessage(string message)
+        {
+            return $"\n{DisplaySettings.CombatMessageColor}[[Combat]]: [/][lightgreen1] {message}[/]";
+        }
     }
 }
 
