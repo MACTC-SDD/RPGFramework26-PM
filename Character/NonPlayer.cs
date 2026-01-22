@@ -20,8 +20,9 @@ namespace RPGFramework
         public bool IsRanged { get; set; } = false;
         public bool IsArmy { get; set; } = false;
         public bool IsUndead { get; set; } = false;
-        public bool Isvillager { get; set; } = false;
+        public bool IsVillager { get; set; } = false;
         public bool IsHumanoid { get; set; } = false;
+        public bool IsElf { get; set; } = false;
         public bool IsCreature { get; set; } = false;
         public bool IsHostile { get; set; } = false;
 

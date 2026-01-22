@@ -1,7 +1,9 @@
 ﻿
+using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Combat;
+using RPGFramework.Workflows;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -44,6 +46,8 @@ namespace RPGFramework
         public int Charisma { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
         #endregion
 
+        [JsonIgnore]
+        public IWorkflow? CurrentWorkflow { get; set; } = null;
 
         public Character()
         {

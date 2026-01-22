@@ -1,7 +1,7 @@
 ﻿using RPGFramework.Combat;
-
 using RPGFramework;
 using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 
 namespace RPGFramework.Commands
@@ -131,8 +131,8 @@ namespace RPGFramework.Commands
             }
             private bool ShowCombatStatus(Player p, List<string> parameters)
             {
-                CombatObject currentCombat = null;
-                foreach (CombatObject combat in GameState.Instance.Combats)
+                CombatWorkflow currentCombat = null;
+                foreach (CombatWorkflow combat in GameState.Instance.Combats)
                 {
                     if (combat.Combatants.Contains(p))
                     {
@@ -203,12 +203,7 @@ namespace RPGFramework.Commands
                         if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                         {
                             Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
-                            CombatObject combat = new();
-                            GameState.Instance.Combats.Add(combat);
-                            character.EngageCombat(true);
-                            enemy.EngageCombat(true);
-                            combat.CombatInitialization(character, enemy, combat);
-                            CombatObject.RunCombat(combat);
+                            CombatWorkflow.Create(character, enemy);
                             return true;
                         }
                     }

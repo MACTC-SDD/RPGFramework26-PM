@@ -1,9 +1,11 @@
-﻿using RPGFramework.Combat;
+﻿using RPGFramework;
+using RPGFramework.Combat;
 using RPGFramework.Commands;
+using System.Numerics;
 
 namespace RPGFramework.Workflows
 {
-    internal class CombatWorkflow : IWorkflow
+    internal partial class CombatWorkflow : IWorkflow
     {
 
         public int CurrentStep { get; set; } = 0;
@@ -15,7 +17,7 @@ namespace RPGFramework.Workflows
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
 
         public List<Character> Combatants = new List<Character>();
-        public async Task CombatInitialization(Character attacker, Character enemy, CombatWorkflow combat)
+        public async Task CombatInitialization(Character attacker, Character enemy)
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);
@@ -33,15 +35,70 @@ namespace RPGFramework.Workflows
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
-            combat.InitiativeOrder(Combatants);
+            InitiativeOrder(Combatants);
+            foreach (Character c in Combatants)
+            {
+                c.EngageCombat(true);
+                c.CurrentWorkflow = this;
+            }
+        }
+        public Character ActiveCombatant { get; set; } = null!;
+
+        public List<Character> Elves = new List<Character>();
+        public List<Character> Monsters = new List<Character>();
+        public List<Character> Constructs = new List<Character>();
+        public List<Character> Bandits = new List<Character>();
+        public List<Character> Army = new List<Character>();
+        public void SortCombatants()
+        {
+            foreach (Character c in Combatants)
+            {
+                if (c is NonPlayer npc)
+                {
+                    if (npc.IsHumanoid)
+                    {
+                        if (npc.IsElf)
+                            Elves.Add(c);
+                        else
+                            Bandits.Add(c);
+
+                    }
+                    if (npc is Mob m)
+                    {
+                        if (m.IsMonster)
+                        {
+                            Monsters.Add(c);
+                        }
+                        if (m.IsConstruct)
+                        {
+                            Constructs.Add(c);
+                        }
+                    }
+                    if (npc.IsArmy)
+                    {
+                        Army.Add(c);
+                    }
+                }
+                else
+                    continue;
+            }
         }
 
-        private static CombatWorkflow Create()
+        public void InitiativeOrder(List<Character> combatants)
+        {
+            Combatants = Combatants.OrderByDescending(c => c.Initiative).ToList();
+        }
+        public static CombatWorkflow Create(Character attacker, Character enemy)
         {
             CombatWorkflow combat = new CombatWorkflow();
+            GameState.Instance.Combats.Add(combat);
+            combat.CombatInitialization(attacker, enemy);
             return combat;
 
         }
+        public Weapon? selectedWeapon = null;
+        public Spell? selectedSpell = null;
+        
 
         // CODE REVIEW: Rylan - This needs to be broken down into smaller chunks.        
         // Consider starting with a method for each case in the switch statement.
@@ -57,10 +114,9 @@ namespace RPGFramework.Workflows
             if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
                 return;
 
-            Weapon? selectedWeapon = null;
-            Spell? selectedSpell = null;
-            CombatObject? currentCombat = null;
-            foreach (CombatObject combat in GameState.Instance.Combats)
+            
+            CombatWorkflow? currentCombat = null;
+            foreach (CombatWorkflow combat in GameState.Instance.Combats)
             {
                 if (combat.Combatants.Contains(player))
                 {
@@ -122,7 +178,7 @@ namespace RPGFramework.Workflows
                                 break;
                             case "flee":
                                 player.WriteLine("You attempt to flee from combat!");
-                                CombatObject.FleeCombat(player, currentCombat);
+                                Player.FleeCombat(player, currentCombat);
                                 player.CurrentWorkflow = null;
                                 break;
                         }
@@ -131,114 +187,11 @@ namespace RPGFramework.Workflows
                     break;
                 case 2:
                     // second step of attack action
-
-                    List<Weapon> weapons = new List<Weapon>();
-                    foreach (Weapon weapon in player.Inventory)
-                    {
-                        weapons.Add(weapon);
-                    }
-                    if (parameters.Count == 0)
-                    {
-                        player.WriteLine("You must choose a weapon to attack with!");
-                    }
-                    else
-                    {
-                        string weaponName = parameters[0].ToLower();
-                        if (weaponName == "back" || weaponName == "exit")
-                        {
-                            CurrentStep = 1; // go back to action selection
-                            break;
-                        }
-                        
-                        foreach (Weapon weapon in weapons)
-                        {
-                            if (weapon.Name.ToLower() == weaponName)
-                            {
-                                selectedWeapon = weapon;
-                                break;
-                            }
-                        }
-                        if (selectedWeapon != null)
-                        {
-                            player.WriteLine($"You attack with your {selectedWeapon.Name}!");
-                            
-                            player.WriteLine("Select your target:");
-                            foreach (CombatObject combat in GameState.Instance.Combats)
-                            {
-                                if (combat.Combatants.Contains(player))
-                                {
-                                    foreach (Character target in combat.Combatants)
-                                    {
-                                        if (target != player)
-                                        {
-                                            player.WriteLine($"- {target.Name}");
-                                        }
-                                    }
-                                }
-                            }
-                            CurrentStep = 5; // targeting phase next
-                        }
-                        else
-                        {
-                            player.WriteLine("You don't have that weapon!");
-                            CurrentStep = 2; // stay in weapon selection
-                        }
-                    }
+                    ChooseWeapon(player, parameters);
                     break;
                 case 3:
                 // second step of cast spell action
-                    List<Spell> spells = new List<Spell>();
-                    foreach (Spell spell in player.Spellbook)
-                    {
-                        spells.Add(spell);
-                    }
-                    if (parameters.Count == 0)
-                    {
-                        player.WriteLine("You must choose a spell to cast!");
-                    }
-                    else
-                    {
-                        string spellName = parameters[0].ToLower();
-                        if (spellName == "back" || spellName == "exit")
-                            {
-                            CurrentStep = 1; // go back to action selection
-                            break;
-                            }
-                        
-                        foreach (Spell spell in spells)
-                        {
-                            if (spell.Name.ToLower() == spellName)
-                            {
-                                selectedSpell = spell;
-                                break;
-                            }
-                        }
-                        if (selectedSpell != null)
-                        {
-                            player.WriteLine($"You cast {selectedSpell.Name}!");
-                            
-                            player.WriteLine("Select your target:");
-                            foreach (CombatObject combat in GameState.Instance.Combats)
-                            {
-                                if (combat.Combatants.Contains(player))
-                                {
-                                    foreach (Character target in combat.Combatants)
-                                    {
-                                        if (target != player)
-                                        {
-                                            player.WriteLine($"- {target.Name}");
-                                        }
-                                    }
-                                }
-                            }
-                            CurrentStep = 5; // targeting phase next
-                        }
-                        else
-                        {
-                            player.WriteLine("You don't know that spell!");
-                            CurrentStep = 3; // stay in spell selection
-                        }
-                    }
+                    ChooseSpell(player, parameters);
                     break;
                 case 4:
                     // second step of inventory action
@@ -275,7 +228,6 @@ namespace RPGFramework.Workflows
                         player.WriteLine("You don't have that item!");
                         CurrentStep = 4; // stay in item selection
                     }
-                    player.CurrentWorkflow = null;
                     break;
                 case 5:
                     // targeting phase for attack
@@ -288,7 +240,7 @@ namespace RPGFramework.Workflows
                     {
                         string targetName = parameters[0].ToLower();
                         Character? chosenTarget = null;
-                        foreach (CombatObject combat in GameState.Instance.Combats)
+                        foreach (CombatWorkflow combat in GameState.Instance.Combats)
                         {
                             if (combat.Combatants.Contains(player))
                             {
@@ -306,7 +258,7 @@ namespace RPGFramework.Workflows
                         {
                             player.WriteLine($"You target {chosenTarget.Name}!");
                             // Here you would add logic to apply the attack or spell effects to the chosen target
-                            CombatObject.RollToHit(player, selectedWeapon, chosenTarget);
+                            Player.RollToHit(player, selectedWeapon, chosenTarget);
                             
                             CurrentStep = 0;
                             // CurrentStep = 0; // End turn
@@ -328,7 +280,7 @@ namespace RPGFramework.Workflows
                     {
                         string targetName = parameters[0].ToLower();
                         Character? chosenTarget = null;
-                        foreach (CombatObject combat in GameState.Instance.Combats)
+                        foreach (CombatWorkflow combat in GameState.Instance.Combats)
                         {
                             if (combat.Combatants.Contains(player))
                             {
@@ -346,7 +298,7 @@ namespace RPGFramework.Workflows
                         {
                             player.WriteLine($"You target {chosenTarget.Name}!");
                             // Here you would add logic to apply the attack or spell effects to the chosen target
-                            CombatObject.RollToHitS(player, selectedSpell, chosenTarget);
+                            Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                             CurrentStep = 0;
                             // CurrentStep = 0; // End turn
@@ -356,7 +308,6 @@ namespace RPGFramework.Workflows
                             player.WriteLine("Invalid target selected!");
                         }
                     }
-                    player.CurrentWorkflow = null;
                     break;
                 default:
                     player.WriteLine("Invalid step in combat turn workflow.");

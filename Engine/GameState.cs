@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
 using RPGFramework.Combat;
+using RPGFramework.Workflows;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
@@ -68,7 +69,7 @@ namespace RPGFramework
         [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
 
         // Relocate later
-        [JsonIgnore] public List<CombatObject> Combats = new List<CombatObject>();
+        [JsonIgnore] public List<CombatWorkflow> Combats = new List<CombatWorkflow>();
 
         [JsonIgnore] public DateTime ServerStartTime { get; private set; }
         
