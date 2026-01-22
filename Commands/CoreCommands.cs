@@ -25,6 +25,7 @@ namespace RPGFramework.Commands
                 new LookCommand(),
                 new QuitCommand(),
                 new SayCommand(),
+                new TellCommand(),
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
@@ -57,7 +58,7 @@ namespace RPGFramework.Commands
         public string Name => "ip";
         public IEnumerable<string> Aliases => new List<string> { };
         public bool Execute(Character character, List<string> parameters)
-        {
+        {           
             if (character is Player player)
             {
                 player.WriteLine($"Your IP address is {player.GetIPAddress()}");
@@ -129,6 +130,39 @@ namespace RPGFramework.Commands
                 return true;
             }
             Comm.RoomSay(character.GetRoom(), parameters[1], character);
+            return true;
+        }
+    }
+
+    internal class TellCommand : ICommand
+    {
+        public string Name => "tell";
+        public IEnumerable<string> Aliases => new List<string> { "msg", "whisper" };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Tell whom what?");
+                return false;
+            }
+            string targetName = parameters[1];
+            string message = string.Join(' ', parameters.Skip(2));
+            Player? targetPlayer = GameState.Instance.GetPlayerByName(targetName);
+            
+            if (targetPlayer == null)
+            {
+                Comm.SendToIfPlayer(character, $"Player '{targetName}' not found.");
+
+                return false;
+            }
+
+            // Probably should check if target is online
+
+            targetPlayer.WriteLine($"Tell from {player.DisplayName()}: {message}");
+            player.WriteLine($"You tell {targetPlayer.DisplayName()}: {message}");
             return true;
         }
     }
