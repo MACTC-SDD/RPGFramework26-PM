@@ -33,33 +33,13 @@ namespace RPGFramework.Combat
                 }
             }
         }
-        public List<Character> Combatants = new List<Character>();
+
 
         private int roundCounter { get; set; } = 0;
 
 
 
-        public async Task CombatInitialization(Character attacker, Character enemy, CombatObject combat)
-        {
-            Combatants.Add(attacker);
-            Combatants.Add(enemy);
-            foreach (NonPlayer npc in attacker.GetRoom().GetNonPlayers())
-            {
-                //if (npc.Hostile == true || npc.Army == true)
-                { 
-                    Combatants.Add(npc);
-                }
-            }
-            foreach (Character c in Combatants)
-            {
-                Random rand = new Random();
-                int initiativeRoll = rand.Next(1, 20);
-                int dexterityModifier = (c.Dexterity - 10) / 2;
-                c.Initiative = initiativeRoll + dexterityModifier;
-            }
-            combat.InitiativeOrder(Combatants);
-            RunCombat(combat);
-        }
+
 
         
         
@@ -183,7 +163,7 @@ namespace RPGFramework.Combat
                     }
                     if (c is Player player)
                     {
-                        player.CurrentWorkflow = new CombatTurnWorkflow();
+                        player.CurrentWorkflow = new CombatWorkflow();
                         //handle player turn
                         while (player.CurrentWorkflow != null)
                         {

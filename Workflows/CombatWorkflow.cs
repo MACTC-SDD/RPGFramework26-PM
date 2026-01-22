@@ -3,7 +3,7 @@ using RPGFramework.Commands;
 
 namespace RPGFramework.Workflows
 {
-    internal class CombatTurnWorkflow : IWorkflow
+    internal class CombatWorkflow : IWorkflow
     {
 
         public int CurrentStep { get; set; } = 0;
@@ -14,6 +14,34 @@ namespace RPGFramework.Workflows
 
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
 
+        public List<Character> Combatants = new List<Character>();
+        public async Task CombatInitialization(Character attacker, Character enemy, CombatWorkflow combat)
+        {
+            Combatants.Add(attacker);
+            Combatants.Add(enemy);
+            foreach (NonPlayer npc in attacker.GetRoom().GetNonPlayers())
+            {
+                //if (npc.Hostile == true || npc.Army == true)
+                {
+                    Combatants.Add(npc);
+                }
+            }
+            foreach (Character c in Combatants)
+            {
+                Random rand = new Random();
+                int initiativeRoll = rand.Next(1, 20);
+                int dexterityModifier = (c.Dexterity - 10) / 2;
+                c.Initiative = initiativeRoll + dexterityModifier;
+            }
+            combat.InitiativeOrder(Combatants);
+        }
+
+        private static CombatWorkflow Create()
+        {
+            CombatWorkflow combat = new CombatWorkflow();
+            return combat;
+
+        }
 
         // CODE REVIEW: Rylan - This needs to be broken down into smaller chunks.        
         // Consider starting with a method for each case in the switch statement.
