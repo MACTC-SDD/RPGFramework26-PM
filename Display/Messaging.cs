@@ -7,9 +7,9 @@ namespace RPGFramework.Display
         {
             return $"\n{DisplaySettings.AnnouncementColor}[[Announcement]]: [/][white] {message}[/]";
         }
-        public static string CreateTellMessage(string message)
+        public static string CreateTellMessage(string senderName, string message)
             {
-            return $"\n{DisplaySettings.TellColor}[[Tell]]: [/][lightgoldenrod2_1] {message}[/]";
+            return $"\n{DisplaySettings.TellColor}[[Tell from [cornflowerblue]{senderName}[/]]]: [/][lightgoldenrod2_1] {message}[/]";
         }
         public static string CreateErrorMessage(string message)
         {
