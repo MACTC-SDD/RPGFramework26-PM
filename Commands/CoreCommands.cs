@@ -161,7 +161,7 @@ namespace RPGFramework.Commands
 
             // Probably should check if target is online
 
-            targetPlayer.WriteLine($"Tell from {player.DisplayName()}: {message}");
+            targetPlayer.WriteLine($"{Messaging.CreateTellMessage(player.DisplayName(),message)}");
             player.WriteLine($"You tell {targetPlayer.DisplayName()}: {message}");
             return true;
         }
