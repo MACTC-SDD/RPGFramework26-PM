@@ -9,11 +9,11 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new MobBuilderCommand(),
                 // Add other Npc commands here as they are implemented
-            };
+            ];
         }
         /*
         public void NPCSpawnCommand()
@@ -25,12 +25,11 @@ namespace RPGFramework.Commands
 
     }
 
-    
-
+    #region MobBuilderCommand Class
     internal class MobBuilderCommand : ICommand
     {
         public string Name => "/mob";
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -40,7 +39,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 2)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return false;
             }
 
@@ -60,14 +59,14 @@ namespace RPGFramework.Commands
                     //ShowCommand(player, parameters);
                     break;
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
             }
             ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
             return false;
         }
 
-        private void MobCreate(Player player, List<string> parameters)
+        private static void MobCreate(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
@@ -81,7 +80,7 @@ namespace RPGFramework.Commands
                 return;
             }
 
-            Mob m = new Mob()
+            Mob m = new()
             {
                 Name = parameters[2],
                 Description = parameters[3]
@@ -90,7 +89,7 @@ namespace RPGFramework.Commands
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
         }
-        private void MobDelete(Player player, List<string> parameters)
+        private static void MobDelete(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
@@ -115,7 +114,7 @@ namespace RPGFramework.Commands
         //{
             //mob.RoomID = player.GetRoom();
         //}
-        private  void WriteUsage(Player player)
+        private static void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
@@ -123,5 +122,6 @@ namespace RPGFramework.Commands
             player.WriteLine("/mob create '<name>' '<description>' <exit direction> '<exit description>'");
         }
     }
+    #endregion
 
 }

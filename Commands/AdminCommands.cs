@@ -10,21 +10,21 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>()
-            {
+            return
+            [
                 new AnnounceCommand(),
+                new GoToCommand(),
+                new HelpEditCommand(),
+                new KickCommand(),
+                new RenameCommand(),
+                new RoleCommand(),
+                new SummonCommand(),
                 new ShutdownCommand(),
+                new SaveAll(),
                 new WhereCommand(),
                 new WhoCommand(),
-                new GoToCommand(),
-                new SaveAll(),
-                new SummonCommand(),
-                new KickCommand(),
-                new RoleCommand(),
-                new RenameCommand(),
-                new HelpEditCommand(),
                 // Add more builder commands here as needed
-            };
+            ];
         }
     }
 
@@ -32,7 +32,7 @@ namespace RPGFramework.Commands
     internal class AnnounceCommand : ICommand
     {
         public string Name => "/announce";
-        public IEnumerable<string> Aliases => new List<string>() { "ann" };
+        public IEnumerable<string> Aliases => [ "ann" ];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -82,7 +82,7 @@ namespace RPGFramework.Commands
 
             // CODE REVIEW: Aidan - This looks incomplete, maybe you were just using summon?
             // You should be able to use the example there to revise this command.
-            Player playerc = GameState.Instance.GetPlayerByName(parameters[2]);
+            Player? playerc = GameState.Instance.GetPlayerByName(parameters[2]);                        
             playerc.AreaId = target.AreaId;
 
             player.WriteLine($"You have been teleported to {target.DisplayName()}.");
@@ -95,7 +95,7 @@ namespace RPGFramework.Commands
     internal class HelpEditCommand : ICommand
     {
         public string Name => "/help";
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -103,29 +103,46 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (parameters.Count > 1)
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
-                switch (parameters[1].ToLower())
-                {
-                    case "create":
-                        CreateHelp(player, parameters);
-                        break;
-
-
-                }
-            }
-            else
-            {
-                // Show usage message
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
             }
 
-            // Do stuff
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player, parameters);
+                return true;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    CreateHelp(player, parameters);
+                    break;
+                default:
+                    ShowHelp(player, parameters);
+                    break;
+            }
+
             return true;
         }
 
-        public void CreateHelp(Player player, List<string> parameters)
+        public static bool CreateHelp(Player player, List<string> parameters)
         {
-            HelpEntry h = new HelpEntry()
+            if (parameters.Count < 5)
+            {
+                ShowHelp(player, parameters);
+                return false;
+            }
+
+            if (GameState.Instance.HelpCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine("A help entry with that name already exists.");
+                return false;
+            }        
+            
+            HelpEntry h = new()
             {
                 Name = parameters[2],
                 Category = parameters[3],
@@ -133,6 +150,13 @@ namespace RPGFramework.Commands
             };
 
             GameState.Instance.HelpCatalog.Add(h.Name, h);
+            return true;
+        }
+
+        public static bool ShowHelp(Player player, List<string> parameters)
+        {
+            player.WriteLine("Usage: /help create <name> <category> <content>");
+            return false;
         }
     }
     #endregion
@@ -143,7 +167,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "kick";
 
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -326,7 +350,7 @@ namespace RPGFramework.Commands
 
 
         public string Name => "/shutdown";
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -359,7 +383,7 @@ namespace RPGFramework.Commands
         }
         */
         
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -463,7 +487,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "who";
 
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
 
         public bool Execute(Character character, List<string> parameters)
         {
