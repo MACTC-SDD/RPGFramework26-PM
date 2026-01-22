@@ -10,9 +10,7 @@ using System.Threading.Tasks;
 namespace RPGFramework.Combat
 {
     
-    //rounds will be 6 seconds
-    //actions + bonus action + reaction etc
-    //initialization will be DND initiative(random 1-20 + dexterity modifier((dexterity score - 10) / 2)
+    // initialization will be DND initiative(random 1-20 + dexterity modifier((dexterity score - 10) / 2)
     
   
     internal class CombatObject {
