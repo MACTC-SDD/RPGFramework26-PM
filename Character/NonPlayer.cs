@@ -1,5 +1,7 @@
 ﻿
 using RPGFramework.Combat;
+using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 namespace RPGFramework
 {
@@ -34,7 +36,7 @@ namespace RPGFramework
         public int AttackPower { get; set; } = 0;
 
 
-        public static void TakeTurn(NonPlayer npc, CombatObject combat)
+        public static void TakeTurn(NonPlayer npc, CombatWorkflow combat)
         {
             // NPC turn logic to be implemented
             int? action = null;

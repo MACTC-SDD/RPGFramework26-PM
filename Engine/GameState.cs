@@ -45,6 +45,8 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _combatManagerCts;
+        private Task? _combatManagerTask;
 
         private int _tickCount = 0;
         #endregion
@@ -306,6 +308,8 @@ namespace RPGFramework
             _announcementsCts = new CancellationTokenSource();
             _announcementsTask = RunAnnouncementsLoopAsync(TimeSpan.FromSeconds(30), _announcementsCts.Token);
 
+            _combatManagerCts = new CancellationTokenSource();
+            _combatManagerTask = RunCombatManagerLoopAsync(TimeSpan.FromSeconds(1), _combatManagerCts.Token);
 
             _itemDecayCts = new CancellationTokenSource();
             _itemDecayTask = RunItemDecayLoopAsync(TimeSpan.FromMinutes(2), _itemDecayCts.Token);
@@ -367,7 +371,7 @@ namespace RPGFramework
             _npcCts?.Cancel();
             _itemDecayCts?.Cancel();
             _announcementsCts?.Cancel();
-
+            _combatManagerCts?.Cancel();
             // Exit program
             Environment.Exit(0);
         }
@@ -462,6 +466,102 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
         }
 
+        private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    foreach (CombatWorkflow combat in Combats)
+                    {
+                        // remove dead combatants
+                        foreach (Character combatant in combat.Combatants)
+                        {
+                            if (!combatant.Alive)
+                            {
+                                combat.Combatants.Remove(combatant);
+                            }
+                        }
+                        // lists of factions
+                        // chack if they have any characters in them, then increase the number of active factions 
+                        // based on that
+                        int activeFactions = 0;
+                        if (combat.Elf.Count > 0)
+                            activeFactions++;
+                        if (combat.Bandit.Count > 0)
+                            activeFactions++;
+                        if (combat.Monster.Count > 0)
+                            activeFactions++;
+                        if (combat.Construct.Count > 0)
+                            activeFactions++;
+                        if (combat.Army.Count > 0)
+                            activeFactions++;
+                        // miscellaneous is a list that contains creatures (like wolves based on npc team input)
+                        // and players that makes it so that any characters in that list (npc's in particular)
+                        // can attack anyone in the combat while also allowing for us to keep track of how many 
+                        // creatures should/would still be fighting
+                        if ((activeFactions <= 1 && combat.Miscellaneous.Count <= 0) || (activeFactions <= 0 && combat.Miscellaneous.Count <= 1))
+                        {
+                            // end combat if there is no more opposing characters
+                            foreach (Character c in combat.Combatants)
+                            {
+                                // removes the current workflow from every character and removes them before deleting the combat object
+                                c.CurrentWorkflow = null;
+                                combat.Combatants.Remove(c);
+                            }
+                            Combats.Remove(combat);
+                        }
+                        // at the start of combat assign first active combatant based on initiative order
+                        if (combat.ActiveCombatant == null)
+                            combat.ActiveCombatant = combat.Combatants[0];
+                        // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
+                        if (combat.ActiveCombatant is NonPlayer npc)
+                        {
+                            NonPlayer.TakeTurn(npc, combat);
+                            combat.TurnTimer++;
+                            continue;
+                        }
+                        else
+                        {
+                            if (combat.PreviousActingCharacter != null)
+                            {
+
+                                if (combat.PreviousActingCharacter == combat.ActiveCombatant)
+                                {
+                                    // update timer for player turns if it is the same player as the last run of this task
+                                    combat.TurnTimer++;
+                                    if (combat.TurnTimer >= 30)
+                                    {
+                                        // end player turn if 30 seconds have passed
+                                        int indexOfNextCombatant = combat.Combatants.IndexOf(combat.ActiveCombatant) + 1;
+                                        if (indexOfNextCombatant > combat.Combatants.Count - 1)
+                                            indexOfNextCombatant = 0;
+                                        combat.ActiveCombatant = combat.Combatants[indexOfNextCombatant];
+                                    }
+                                    else if (combat.PreviousActingCharacter != combat.ActiveCombatant)
+                                    {
+                                        // update so that new player gets full turn time
+                                        combat.PreviousActingCharacter = combat.ActiveCombatant;
+                                        combat.TurnTimer = 1;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    
+                        
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
+        }
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Decay thread started.");

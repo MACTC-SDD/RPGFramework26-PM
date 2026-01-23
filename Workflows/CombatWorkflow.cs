@@ -7,15 +7,47 @@ namespace RPGFramework.Workflows
 {
     internal partial class CombatWorkflow : IWorkflow
     {
-
+        public bool EndTurn { get; set; }
         public int CurrentStep { get; set; } = 0;
         public string Description { get; } = "Manages the sequence of actions during a combat turn.";
         public string Name { get; } = "Combat Turn Workflow";
         public List<ICommand> PreProcessCommands { get; private set; } = new List<ICommand>();
-        public List<ICommand> PostProcessCommands { get; private set; } = new List<ICommand>();
+        public List<ICommand> PostProcessCommands { get; private set; } = new List<ICommand>()
+        {
+                new AnnounceCommand(),
+                new ShutdownCommand(),
+                new WhereCommand(),
+                new WhoCommand(),
+                new GoToCommand(),
+                new SaveAll(),
+                new SummonCommand(),
+                new KickCommand(),
+                new RoleCommand(),
+                new RenameCommand(),
+                new HelpEditCommand(),
+                new AFKCommand(),
+                new IpCommand(),
+                new LookCommand(),
+                new QuitCommand(),
+                new SayCommand(),
+                new TimeCommand(),
+                new StatusCommand(),
+                new HelpCommand(),
+                new UXCommand(),
+                new UXColorCommand(),
+                new UXDecorationCommand(),
+                new UXPanelCommand(),
+                new UXTreeCommand(),
+                new UXBarChartCommand(),
+                new UXCanvasCommand()
+        };
 
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
 
+        public int TurnTimer { get; set; } = 0;
+
+        public Character? PreviousActingCharacter { get; set; }
+        
         public List<Character> Combatants = new List<Character>();
         public async Task CombatInitialization(Character attacker, Character enemy)
         {
@@ -44,11 +76,13 @@ namespace RPGFramework.Workflows
         }
         public Character ActiveCombatant { get; set; } = null!;
 
-        public List<Character> Elves = new List<Character>();
-        public List<Character> Monsters = new List<Character>();
-        public List<Character> Constructs = new List<Character>();
-        public List<Character> Bandits = new List<Character>();
+        public List<Character> Elf = new List<Character>();
+        public List<Character> Monster = new List<Character>();
+        public List<Character> Bandit = new List<Character>();
+        public List<Character> Construct = new List<Character>();
         public List<Character> Army = new List<Character>();
+        public List<Character> Miscellaneous = new List<Character>();
+        public List<Character> Players = new List<Character>();
         public void SortCombatants()
         {
             foreach (Character c in Combatants)
@@ -58,29 +92,47 @@ namespace RPGFramework.Workflows
                     if (npc.IsHumanoid)
                     {
                         if (npc.IsElf)
-                            Elves.Add(c);
+                        {
+                            npc.CombatFaction = Enums.CombatFaction.Elf;
+                            Elf.Add(npc);
+                        }
+
                         else
-                            Bandits.Add(c);
+                        { 
+                            npc.CombatFaction = Enums.CombatFaction.Bandit; 
+                            Bandit.Add(npc);
+                        }
 
                     }
-                    if (npc is Mob m)
+                    else if (npc is Mob m)
                     {
                         if (m.IsMonster)
                         {
-                            Monsters.Add(c);
+                            m.CombatFaction = Enums.CombatFaction.Monster;
+                            Monster.Add(m);
                         }
                         if (m.IsConstruct)
                         {
-                            Constructs.Add(c);
+                            m.CombatFaction = Enums.CombatFaction.Construct;
+                            Construct.Add(npc);
                         }
                     }
-                    if (npc.IsArmy)
+                    else if (npc.IsArmy)
                     {
-                        Army.Add(c);
+                        npc.CombatFaction = Enums.CombatFaction.Army;
+                        Army.Add(npc);
+                    }
+                    else
+                    {
+                        npc.CombatFaction = Enums.CombatFaction.Miscellaneous;
+                        Miscellaneous.Add(npc);
                     }
                 }
                 else
-                    continue;
+                {
+                    c.CombatFaction = Enums.CombatFaction.PlayerCharacter;
+                    Players.Add(c);
+                }
             }
         }
 
@@ -96,8 +148,8 @@ namespace RPGFramework.Workflows
             return combat;
 
         }
-        public Weapon? selectedWeapon = null;
-        public Spell? selectedSpell = null;
+        public Weapon? selectedWeapon;
+        public Spell? selectedSpell;
         
 
         // CODE REVIEW: Rylan - This needs to be broken down into smaller chunks.        
@@ -110,20 +162,18 @@ namespace RPGFramework.Workflows
         // if this doesn't make sense. 
         public void Execute(Player player, List<string> parameters)
         {
+            if (ActiveCombatant != player)
+            {
+                player.WriteLine("It's not your turn!");
+                return;
+            }
             // Process any pre-process commands, if it matches, we'll execute it and return
             if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
                 return;
 
             
-            CombatWorkflow? currentCombat = null;
-            foreach (CombatWorkflow combat in GameState.Instance.Combats)
-            {
-                if (combat.Combatants.Contains(player))
-                {
-                    currentCombat = combat;
-                    break;
-                }
-            }
+            CombatWorkflow? currentCombat = this;
+
             switch (CurrentStep)
             {
                 case 0:
@@ -141,12 +191,13 @@ namespace RPGFramework.Workflows
                         // Process the chosen action
                         player.WriteLine($"You chose to {action}.");
                         // After processing, end the turn
-                        
+
 
 
                         switch (action)
                         {
                             case "attack":
+                            case "1":
                                 player.WriteLine($"What do you attack with?");
                                 foreach (Weapon weapon in player.Inventory)
                                 {
@@ -154,7 +205,9 @@ namespace RPGFramework.Workflows
                                 }
                                 CurrentStep = 2;
                                 break;
-
+                            case "spell":
+                            case "cast":
+                            case "2":
                             case "cast spell":
                                 player.WriteLine($"Which spell do you want to cast?");
                                 foreach (Spell spell in player.Spellbook)
@@ -164,6 +217,8 @@ namespace RPGFramework.Workflows
                                 CurrentStep = 3;
                                 break;
                             case "inventory":
+                            case "3":
+                            case "items":
                                 player.WriteLine("You open your inventory:");
                                 foreach (Consumable item in player.Inventory)
                                 {
@@ -177,6 +232,8 @@ namespace RPGFramework.Workflows
                                 CurrentStep = 4;
                                 break;
                             case "flee":
+                            case "4":
+                            case "run":
                                 player.WriteLine("You attempt to flee from combat!");
                                 Player.FleeCombat(player, currentCombat);
                                 player.CurrentWorkflow = null;
@@ -195,119 +252,16 @@ namespace RPGFramework.Workflows
                     break;
                 case 4:
                     // second step of inventory action
-                    List<Consumable> consumables = new List<Consumable>();
-                    foreach (Consumable item in player.Inventory)
-                    {
-                        consumables.Add(item);
-                    }
-                    string itemName = parameters[0].ToLower();
-                    if (itemName == "back" || itemName == "exit")
-                    {
-                        CurrentStep = 1; // go back to action selection
-                        break;
-                    }
-                    Consumable? chosenItem = null;
-                    foreach (Consumable item in consumables)
-                    {
-                        if (item.Name.ToLower() == itemName)
-                        {
-                            chosenItem = item;
-                            break;
-                        }
-                    }
-                    if (chosenItem != null)
-                    {
-                        player.WriteLine($"You use the {chosenItem.Name}!");
-                        // Here you would add logic to apply the item's effects
-                        player.Heal(chosenItem.HealAmount);
-                        player.Inventory.Remove(chosenItem); // Remove used item from inventory
-                        CurrentStep = 0; // End turn
-                    }
-                    else
-                    {
-                        player.WriteLine("You don't have that item!");
-                        CurrentStep = 4; // stay in item selection
-                    }
+                    EndTurn = ChooseItem(player, parameters);
                     break;
                 case 5:
                     // targeting phase for attack
-                    
-                    if (parameters.Count == 0)
-                    {
-                        player.WriteLine("You must choose a target!");
-                    }
-                    else
-                    {
-                        string targetName = parameters[0].ToLower();
-                        Character? chosenTarget = null;
-                        foreach (CombatWorkflow combat in GameState.Instance.Combats)
-                        {
-                            if (combat.Combatants.Contains(player))
-                            {
-                                foreach (Character target in combat.Combatants)
-                                {
-                                    if (target.Name.ToLower() == targetName && target != player)
-                                    {
-                                        chosenTarget = target;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (chosenTarget != null)
-                        {
-                            player.WriteLine($"You target {chosenTarget.Name}!");
-                            // Here you would add logic to apply the attack or spell effects to the chosen target
-                            Player.RollToHit(player, selectedWeapon, chosenTarget);
-                            
-                            CurrentStep = 0;
-                            // CurrentStep = 0; // End turn
-                        }
-                        else
-                        {
-                            player.WriteLine("Invalid target selected!");
-                        }
-                    }
-                    player.CurrentWorkflow = null;
+
+                    EndTurn = TargetWeapon(player, parameters);
                     break; 
                     case 6:
                     // targeting phase for spell
-                    if (parameters.Count == 0)
-                    {
-                        player.WriteLine("You must choose a target!");
-                    }
-                    else
-                    {
-                        string targetName = parameters[0].ToLower();
-                        Character? chosenTarget = null;
-                        foreach (CombatWorkflow combat in GameState.Instance.Combats)
-                        {
-                            if (combat.Combatants.Contains(player))
-                            {
-                                foreach (Character target in combat.Combatants)
-                                {
-                                    if (target.Name.ToLower() == targetName && target != player)
-                                    {
-                                        chosenTarget = target;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (chosenTarget != null)
-                        {
-                            player.WriteLine($"You target {chosenTarget.Name}!");
-                            // Here you would add logic to apply the attack or spell effects to the chosen target
-                            Player.RollToHitS(player, selectedSpell, chosenTarget);
-
-                            CurrentStep = 0;
-                            // CurrentStep = 0; // End turn
-                        }
-                        else
-                        {
-                            player.WriteLine("Invalid target selected!");
-                        }
-                    }
+                    EndTurn = TargetSpell(player, parameters);
                     break;
                 default:
                     player.WriteLine("Invalid step in combat turn workflow.");

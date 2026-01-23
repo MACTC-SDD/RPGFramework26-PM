@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RPGFramework
 {
-    internal partial class Player : Character
+    internal partial class Character
     {
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {
@@ -66,7 +66,7 @@ namespace RPGFramework
         }
 
 
-        public static void RollToHit(Character attacker, Weapon weapon, Character target)
+        public static void RollToHitW(Character attacker, Weapon weapon, Character target)
         {
             Random rand = new Random();
             int attackRoll = rand.Next(1, 20);
