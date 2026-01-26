@@ -485,7 +485,7 @@ namespace RPGFramework
                             }
                         }
                         // lists of factions
-                        // chack if they have any characters in them, then increase the number of active factions 
+                        // check if they have any characters in them, then increase the number of active factions 
                         // based on that
                         int activeFactions = 0;
                         if (combat.Elf.Count > 0)
