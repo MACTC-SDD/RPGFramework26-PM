@@ -203,7 +203,7 @@ namespace RPGFramework.Commands
                         if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                         {
                             Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
-                            CombatWorkflow.Create(character, enemy);
+                            CombatWorkflow.CreateCombat(character, enemy);
                             return true;
                         }
                     }

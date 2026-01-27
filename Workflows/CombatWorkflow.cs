@@ -140,7 +140,7 @@ namespace RPGFramework.Workflows
         {
             Combatants = Combatants.OrderByDescending(c => c.Initiative).ToList();
         }
-        public static CombatWorkflow Create(Character attacker, Character enemy)
+        public static CombatWorkflow CreateCombat(Character attacker, Character enemy)
         {
             CombatWorkflow combat = new CombatWorkflow();
             GameState.Instance.Combats.Add(combat);

@@ -695,7 +695,7 @@ namespace RPGFramework
                     /* CODE REVIEW: Rylan (PR #16)
                      * We don't have NonPlayers in GameState.
 
-                    foreach (var npc in GameState.Instance.NonPlayers)
+                    foreach (var npc in NPCCatalog)
                     {
                         if (npc.IsEngaged)
                         {
@@ -723,15 +723,13 @@ namespace RPGFramework
                                     // notify player of attack
                                     target.WriteLine($"The {npc.Name} attacks you!");
                                     // run combat initialization method(s)
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else if (npc.GetRoom().NPC.Count > 1)
                                 {
                                     List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
 
-                                    foreach (var otherNpc in npc.GetRoom().GetCharacters())
+                                    foreach (NonPlayer otherNpc in npc.GetRoom().GetCharacters())
                                     {
                                         if (otherNpc == npc || otherNpc.IsEngaged)
                                         {
@@ -742,23 +740,29 @@ namespace RPGFramework
                                             potentialNpcTargets.Add(otherNpc);
                                         }
                                     }
-                                    var target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    Character target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
+                                    foreach (Player p in npc.GetRoom().GetPlayers())
+                                    {
+                                        p.WriteLine($"The {npc.Name} attacks {target.Name}");
+                                    }
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
 
                             }
                             else if (npc is Army)
                             {
-                                if (npc.GetRoom().NPC.Hostile.Count > 0)
+                                if (npc.GetRoom().NPCs.Hostile.Count > 0)
                                 {
-                                    foreach (var player in npc.GetRoom().Players)
+                                    Random rand = new Random();
+                                    NonPlayer target = npc.GetRoom().NPCs.Hostile.Count[rand.Next(0, npc.GetRoom().NPCs.Count - 1)];
+                                    foreach (Player player in npc.GetRoom().Players)
                                     {
                                         // notify player of attack
                                         player.WriteLine($"The {npc.Name} attacks an enemy!");
                                     }
                                     // run combat initialization method(s)
+                                    
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else
                                 {
