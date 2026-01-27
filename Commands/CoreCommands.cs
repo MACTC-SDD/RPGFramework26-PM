@@ -185,7 +185,7 @@ namespace RPGFramework.Commands
     internal class StatusCommand : ICommand
     {
         public string Name => "status";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -214,7 +214,7 @@ namespace RPGFramework.Commands
     internal class HelpCommand : ICommand
     {
         public string Name => "help";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -232,7 +232,7 @@ namespace RPGFramework.Commands
             {
                 foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
-                    if (he.Name.ToLower() == parameters[1].ToLower())
+                    if (he.Name.Equals(parameters[1], StringComparison.CurrentCultureIgnoreCase))
                     {
                         player.WriteLine($"{he.Name}");
                         player.WriteLine($"{he.Content}");
