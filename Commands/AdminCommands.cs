@@ -230,7 +230,6 @@ namespace RPGFramework.Commands
     #endregion
 
     #region RenameCommand Class
-
     // CODE REVIEW: Aidan - The renameCommand had several issues similar to those I addressed in SummonCommand.
     // Also, class names should be PascalCase, so I've renamed it to RenameCommand.
     internal class RenameCommand : ICommand
