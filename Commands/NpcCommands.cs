@@ -47,6 +47,8 @@ namespace RPGFramework.Commands
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
+                case "set":
+                    return MobSet(player, parameters);
                 default:
                     ShowHelp(player);
                     break;
@@ -100,6 +102,69 @@ namespace RPGFramework.Commands
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
             GameState.Instance.MobCatalog.Remove(m.Name);
             player.WriteLine($"{m.Name} was removed the mob catalog.");
+            return true;
+        }
+        #endregion
+
+        #region MobSet Method
+        private static bool MobSet(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine("Usage: /mob set <mob name> <property name> <value>");
+                return false;
+            }
+
+            if (!GameState.Instance.MobCatalog.TryGetValue(parameters[2], out Mob? m) || m == null)
+            {
+                player.WriteLine($"The mob {parameters[2]} does not exist.");
+                return false;
+            }
+
+            string propName = parameters[3].ToLower();
+            string propValue = parameters[4];
+
+            switch (propName)
+            {
+                case "name":
+                    if (GameState.Instance.MobCatalog.ContainsKey(propValue))
+                    {
+                        player.WriteLine($"A mob with the name '{propValue}' already exists.");
+                        return false;
+                    }
+                    m.Name = propValue;
+                    GameState.Instance.MobCatalog.Remove(parameters[2]);
+                    GameState.Instance.MobCatalog.Add(m.Name, m);
+                    break;
+                case "description":
+                case "desc":
+                    m.Description = propValue;
+                    return true;
+                case "health":
+                case "maxhealth":
+                    if (!int.TryParse(propValue, out int health))
+                    {
+                        player.WriteLine("Health must be a valid integer.");
+                        return false;
+                    }
+
+                    m.SetMaxHealth(health);
+                    break;
+                case "gold":
+                    if (!int.TryParse(propValue, out int gold))
+                    {
+                        player.WriteLine("Gold must be a valid integer.");
+                        return false;
+                    }
+                    m.Gold = gold;
+                    break;
+                default:
+                    player.WriteLine($"Unknown property '{propName}'.");
+                    return false;
+            }
+
+            // Set properties of the mob here based on additional parameters
+            player.WriteLine($"{m.Name} {propName} was updated to {propValue} in the mob catalog.");
             return true;
         }
         #endregion
