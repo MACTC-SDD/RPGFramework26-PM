@@ -15,7 +15,7 @@ namespace RPGFramework.Combat
     //initialization will be DND initiative(random 1-20 + dexterity modifier((dexterity score - 10) / 2)
     
   
-    internal class CombatObject {
+    /*internal class CombatObject {
         
         
 
@@ -91,6 +91,6 @@ namespace RPGFramework.Combat
             GameState.Instance.Combats.Remove(combat);
         }
     }
-
+    */
 
 }
