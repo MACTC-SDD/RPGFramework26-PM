@@ -39,9 +39,6 @@ namespace RPGFramework.Commands
             {
                 case "create":
                     return MobCreate(player, parameters);
-                case "set":                   
-                    //MobSet(player, parameters);
-                    break;
                 case "delete":
                     return MobDelete(player, parameters);
                 case "list":

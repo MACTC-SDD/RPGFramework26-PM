@@ -157,7 +157,7 @@ namespace RPGFramework
         /// For now useful primarily for reloading externally crearted changes
         /// </summary>
         /// <param name="areaName"></param>
-        private Task LoadArea(string areaName)
+        public Task LoadArea(string areaName)
         {
             Area? area = GameState.Persistence.LoadAreaAsync(areaName).Result;
             if (area != null)
@@ -175,7 +175,7 @@ namespace RPGFramework
 
         // Load all Area files from /data/areas. Each Area file will contain some
         // basic info and lists of rooms and exits.
-        private async Task LoadAllAreas()
+        public async Task LoadAllAreas()
         {
             Areas.Clear();
 
@@ -193,7 +193,7 @@ namespace RPGFramework
         /// Loads all player data from persistent storage and adds each player 
         /// to the <see cref="Players"/> collection.
         /// </summary>
-        private async Task LoadAllPlayers()
+        public async Task LoadAllPlayers()
         {
             Players.Clear();
 
@@ -214,7 +214,7 @@ namespace RPGFramework
         /// should be added to the Catalogs list during initialization.
         /// </summary>
         /// <returns></returns>
-        private async Task LoadCatalogs()
+        public async Task LoadCatalogs()
         {
             foreach (ICatalog catalog in Catalogs)
             {
