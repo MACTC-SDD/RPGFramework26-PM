@@ -10,8 +10,10 @@ namespace RPGFramework.Geography
         public ExitType ExitType { get; set; } = ExitType.Open;
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
+        public int SourceAreaId { get; set; } = 0;
         public int SourceRoomId { get; set; }
         public int DestinationRoomId { get; set; }
+        public int DestinationAreaId { get; set; } = 0;
 
         // whether the exit is currently open (can be traversed)
         public bool IsOpen { get; set; } = true;
@@ -44,6 +46,19 @@ namespace RPGFramework.Geography
             }
         }
 
+        #region Delete Methods
+        public static void Delete(int exitId, int sourceRoom, int areaId)
+        {
+            GameState.Instance.Areas[areaId].Exits.Remove(exitId);
+            GameState.Instance.Areas[areaId].Rooms[sourceRoom].ExitIds.Remove(exitId);
+        }
+
+        public static void Delete(Exit exit)
+        {
+            Delete(exit.Id, exit.SourceRoomId, exit.SourceAreaId);
+        }
+        #endregion
+
         /// <summary>
         /// Finds the highest Exit ID for the current area in GameState and returns one higher
         /// This could lead to gaps in the ID sequence if we delete Exits, but that's ok for now.
@@ -63,6 +78,8 @@ namespace RPGFramework.Geography
             return GameState.Instance.Areas[areaId].Exits.Keys.Max() + 1;
             // Return one higher
         }
+
+
     }
 
 }
