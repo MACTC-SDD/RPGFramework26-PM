@@ -21,6 +21,12 @@ namespace RPGFramework
     /// TODO: Given the number of properties that are not serialized, we should consider making a GameStateData DTO.
     internal sealed class GameState
     {
+        // IF YOU SET THIS TO TRUE, IT WILL OVERWRITE ALL DATA FILES DURING INITIALIZATION
+        // This is a good thing if you want to reset everything, like after world files
+        // have been updated in data_seed, but be careful as it will wipe out
+        // any existing area, room, and catalog (mob, item, etc.) data.
+        private bool _OVERWRITE_DATA = false;
+
         // Static Fields and Properties
         private static readonly Lazy<GameState> _instance = new(() => new GameState());
 
@@ -293,7 +299,10 @@ namespace RPGFramework
             ServerStartTime = DateTime.Now;
 
             // Initialize game data if it doesn't exist
-            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions());
+            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions()
+            {
+                CopyFilesFromDataSeedToRuntimeData = _OVERWRITE_DATA
+            });
 
             await LoadAllAreas();
             await LoadAllPlayers();
