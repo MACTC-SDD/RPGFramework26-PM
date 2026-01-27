@@ -9,31 +9,18 @@ using System.Threading.Tasks;
 
 namespace RPGFramework.Combat
 {
-    
+
     //rounds will be 6 seconds
     //actions + bonus action + reaction etc
     //initialization will be DND initiative(random 1-20 + dexterity modifier((dexterity score - 10) / 2)
-    
-  
-    internal class CombatObject {
-        
-        
 
 
+    internal class CombatObject
+    {
         private int roundCounter { get; set; } = 0;
 
 
-
-
-
-        
-        
-        
-
-        // 
-
-        
-
+        /* Commented out to compile since it looks like you've replaced this with the combat workflow
         public static async Task RunCombat(CombatObject combat)
         {
             //main combat loop
@@ -89,8 +76,9 @@ namespace RPGFramework.Combat
                 }
             }
             GameState.Instance.Combats.Remove(combat);
-        }
+        */
     }
+
 
 
 }

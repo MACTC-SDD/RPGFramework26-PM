@@ -476,6 +476,8 @@ namespace RPGFramework
                     GameState.Log(DebugLevel.Debug, "Managing combats...");
                     foreach (CombatWorkflow combat in Combats)
                     {
+                        combat.Process();
+                        /* All of this is handled in CombatTurnManagingMethods.cs
                         // remove dead combatants
                         foreach (Character combatant in combat.Combatants)
                         {
@@ -550,9 +552,9 @@ namespace RPGFramework
 
                             }
                         }
+                        */
                     }
-                    
-                        
+                                                                  
                 }
                 catch (Exception ex)
                 {
