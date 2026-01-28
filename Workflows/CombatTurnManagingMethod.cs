@@ -15,6 +15,7 @@ namespace RPGFramework.Workflows
         /// <returns>true if the battle is still ongoing, otherwise, false</returns>
         public bool Process()
         {
+            TurnTimer++;
             BringOutYourDead();
             ActiveFactions = CountActiveFactions();
 

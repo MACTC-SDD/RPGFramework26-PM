@@ -5,6 +5,8 @@ using System.Numerics;
 
 namespace RPGFramework.Workflows
 {
+    // probably move this and other partial classes for this class to the combat folder,
+    // this one may be fine to stay since its the main workflow
     internal partial class CombatWorkflow : IWorkflow
     {
         public bool EndTurn { get; set; }

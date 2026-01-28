@@ -142,6 +142,7 @@ namespace RPGFramework.Commands
                 }
                 if (currentCombat != null)
                 {
+                    p.WriteLine($"Current round count: {currentCombat.TurnTimer}");
                     p.WriteLine("Combatants:");
                     foreach (Character c in currentCombat.Combatants)
                     {
