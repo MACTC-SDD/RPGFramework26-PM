@@ -55,7 +55,7 @@ namespace RPGFramework
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new Weapon() 
+            Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
         }

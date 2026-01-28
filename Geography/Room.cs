@@ -16,7 +16,7 @@ namespace RPGFramework.Geography
 
         // Description of the room
         public string Description { get; set; } = "";
-        public List<Item> Items { get; set; } = new List<Item>();
+        public List<Item> Items { get; set; } = [];
 
 
         // Icon to display on map
@@ -28,10 +28,10 @@ namespace RPGFramework.Geography
 
         public List<NonPlayer> NonPlayers { get; set; } = [];
 
-        public List<string> Tags { get; set; } = new List<string>(); // (for scripting or special behavior)
+        public List<string> Tags { get; set; } = []; // (for scripting or special behavior)
 
         // List of exits from the room
-        public List<int> ExitIds { get; set; } = new List<int>();
+        public List<int> ExitIds { get; set; } = [];
 
         #endregion --- Properties ---
 
@@ -64,12 +64,15 @@ namespace RPGFramework.Geography
             }
 
             // Create a new Exit object from this room
-            Exit exit = new Exit();
-            exit.Id = Exit.GetNextId(AreaId);
-            exit.SourceRoomId = Id;
-            exit.DestinationRoomId = destinationRoom.Id;
-            exit.ExitDirection = direction;
-            exit.Description = exitDescription;
+            Exit exit = new()
+            {
+                Id = Exit.GetNextId(AreaId),
+                SourceRoomId = Id,
+                DestinationRoomId = destinationRoom.Id,
+                ExitDirection = direction,
+                Description = exitDescription
+            };
+
             // Keep ExitType default unless modified later.
             // Apply sensible open/close defaults based on ExitType
             exit.ApplyDefaultsForType();
@@ -80,11 +83,13 @@ namespace RPGFramework.Geography
             // Create a new exit from the destination room back to this room
             if (returnExit)
             {
-                Exit exit1 = new Exit();
-                exit1.Id = Exit.GetNextId(destinationRoom.AreaId);
-                exit1.SourceRoomId = destinationRoom.Id;
-                exit1.DestinationRoomId = Id;
-                exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
+                Exit exit1 = new()
+                {
+                    Id = Exit.GetNextId(destinationRoom.AreaId),
+                    SourceRoomId = destinationRoom.Id,
+                    DestinationRoomId = Id,
+                    ExitDirection = Navigation.GetOppositeDirection(direction)
+                };
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());
                 // Mirror the exit type and defaults
                 exit1.ExitType = exit.ExitType;
@@ -130,10 +135,12 @@ namespace RPGFramework.Geography
         /// <returns></returns>
         public static Room CreateRoom(int areaId, string name, string description)
         {
-            Room room = new Room();
-            room.Id = GetNextId(areaId);
-            room.Name = name;
-            room.Description = description;
+            Room room = new()
+            {
+                Id = GetNextId(areaId),
+                Name = name,
+                Description = description
+            };
             GameState.Instance.Areas[areaId].Rooms.Add(room.Id, room);
 
             return room;
@@ -157,8 +164,9 @@ namespace RPGFramework.Geography
             GameState.Instance.Areas[areaId].Rooms.Remove(roomId);
 
             // Remove all exits from the room
-            List<Exit> exits = GameState.Instance.Areas[areaId].Exits.Values
-                .Where(e => e.SourceRoomId == roomId || e.DestinationRoomId == roomId).ToList();
+            List<Exit> exits = [.. GameState.Instance.Areas[areaId]
+                    .Exits.Values
+                    .Where(e => e.SourceRoomId == roomId || e.DestinationRoomId == roomId)];
 
             foreach (Exit e in exits)
             {
@@ -181,8 +189,8 @@ namespace RPGFramework.Geography
         {
             // This works just like the loop in GetPlayersInRoom, but is shorter
             // This style of list maniuplation is called "LINQ"
-            return GameState.Instance.Areas[AreaId].Exits.Values
-                .Where(e => e.SourceRoomId == Id).ToList();
+            return [.. GameState.Instance.Areas[AreaId].Exits.Values
+                .Where(e => e.SourceRoomId == Id)];
         }
         #endregion
 
@@ -251,7 +259,7 @@ namespace RPGFramework.Geography
         public static List<Player> GetPlayersInRoom(Room room)
         {
             // Loop through GameState.ConnectedPlayers and return a list of players in the room
-            List<Player> playersInRoom = new List<Player>();
+            List<Player> playersInRoom = [];
             foreach (Player p in GameState.Instance.Players.Values)
             {
                 if (p.IsOnline 

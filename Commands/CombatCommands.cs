@@ -29,9 +29,6 @@ namespace RPGFramework.Commands
             // I also moved the consider text generation to Character.Consider(Character)
             // You might give that a look to see another way to use a switch statement to replace
             // if/else chains.
-            List<Character> charactersInRoom =
-                [.. Room.GetCharactersInRoom(character.GetRoom())];
-
             if (parameters.Count < 2)
             {
                 Comm.SendToIfPlayer(character, "Consider whom?");
@@ -54,7 +51,7 @@ namespace RPGFramework.Commands
     internal class CombatStatusCommand : ICommand
     {
         public string Name => "combatstatus";
-        public IEnumerable<string> Aliases => new List<string> { "/combatstatus", "/cs" };
+        public IEnumerable<string> Aliases => [ "/combatstatus", "/cs" ];
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -87,7 +84,7 @@ namespace RPGFramework.Commands
 
         private static bool ShowCombatStatus(Player p, List<string> parameters)
         {
-            CombatWorkflow currentCombat = null;
+            CombatWorkflow? currentCombat = null;
             foreach (CombatWorkflow combat in GameState.Instance.Combats)
             {
                 if (combat.Combatants.Contains(p))
@@ -120,7 +117,7 @@ namespace RPGFramework.Commands
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
-        public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+        public IEnumerable<string> Aliases => [ "/attack", "/a" ];
         public bool Execute(Character character, List<string> parameters)
         {
             Player? player = character as Player ?? null;
@@ -132,7 +129,7 @@ namespace RPGFramework.Commands
                 attackableNonPlayers.Add(npc.Name);
             }
 
-            List<string> attackablePlayers = new List<string>();
+            List<string> attackablePlayers = [];
 
             foreach (Player p in Room.GetPlayersInRoom(character.GetRoom()))
             {
@@ -191,18 +188,14 @@ namespace RPGFramework.Commands
         // readability and maintainability.
         public bool Execute(Character character, List<string> parameters)
         {
-            Player? p = null;
-            if (character is Player player)
+
+            if (character is not Player player)
+                    return false;
+            
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
-                p = character as Player;
-            }
-            else
-            {
-                return false;
-            }
-            if (Utility.CheckPermission(character as Player, PlayerRole.Admin) == false)
-            {
-                return false;
+                player.WriteLine("You do not have permission to use this command.");
+                    return false;
             }
 
             switch (parameters.Count)
@@ -213,17 +206,17 @@ namespace RPGFramework.Commands
                 case 2:
                     if (parameters[1].ToLower() == "start")
                     {
-                        p.WriteLine($"You need to provide a target player");
+                        player.WriteLine($"You need to provide a target player");
                         return false;
                     }
                     else if (parameters[1].ToLower() == "end")
                     {
-                        p.WriteLine("You need to provide a target player");
+                        player.WriteLine("You need to provide a target player");
                         return false;
                     }
                     else
                     {
-                        p.WriteLine("You provided a subselect that does not exist");
+                        player.WriteLine("You provided a subselect that does not exist");
                         return false;
                     }
                 case 3:
@@ -267,7 +260,7 @@ namespace RPGFramework.Commands
                     }
                     else
                     {
-                        p.WriteLine("You provided a subselect that does not exist");
+                        player.WriteLine("You provided a subselect that does not exist");
                         return false;
                     }
                 case 4:
@@ -304,16 +297,16 @@ namespace RPGFramework.Commands
                     }
                     else if (parameters[1].ToLower() == "end")
                     {
-                        p.WriteLine("You provided too many arguments, /combat end takes one target (e.g. /combat end player)");
+                        player.WriteLine("You provided too many arguments, /combat end takes one target (e.g. /combat end player)");
                         return false;
                     }
                     else
                     {
-                        p.WriteLine("You provided a subselect that does not exist");
+                        player.WriteLine("You provided a subselect that does not exist");
                         return false;
                     }
                 default:
-                    p.WriteLine("You provided inproper arguments, /combat only has two subselects, \n" +
+                    player.WriteLine("You provided inproper arguments, /combat only has two subselects, \n" +
                         "start and end, start takes 1 or 2 arguments, a primary target and an optional secondary target,\n" +
                         "end takes one argument, a target character");
                     return false;
@@ -322,7 +315,7 @@ namespace RPGFramework.Commands
         public void AdminStartCombatUntargeted(Player player)
         {
             NonPlayer? target = null;
-            List<NonPlayer> possibleTargets = new List<NonPlayer>();
+            List<NonPlayer> possibleTargets = [];
             foreach (NonPlayer npc in player.GetRoom().NonPlayers)
             {
                 if (npc.IsHostile)
@@ -330,11 +323,11 @@ namespace RPGFramework.Commands
                     possibleTargets.Add(npc);
                 }
             }
-            if (!possibleTargets.Any())
+            if (possibleTargets.Count == 0)
             {
                 return;
             }
-            Random random = new Random();
+            Random random = new();
             target = possibleTargets[random.Next(0, possibleTargets.Count - 1)];
             CombatWorkflow.CreateCombat(player, target);
             return;
