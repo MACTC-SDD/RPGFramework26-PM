@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Combat;
 using RPGFramework.Enums;
+using RPGFramework.Items;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
 using System.Text.Json.Serialization;
@@ -27,6 +28,7 @@ namespace RPGFramework
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
+        public Inventory BackPack { get; protected set; } = new Inventory();
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
@@ -53,8 +55,8 @@ namespace RPGFramework
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new() 
-              { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0 };
+            Weapon w = new Weapon() 
+              { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
         }
 
