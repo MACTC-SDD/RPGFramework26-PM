@@ -15,6 +15,7 @@ namespace RPGFramework
         // contact combat team for help if needed, we know the combat system structure
         // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
+        public bool IsAlive { get; set; } = false;
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
         public bool IsRanged { get; set; } = false;
