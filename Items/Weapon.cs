@@ -3,7 +3,7 @@ namespace RPGFramework
 {
     internal class Weapon : Item
     {
-        public double Damage { get; set; } = 0;
+        public int Damage { get; set; } = 0;
 
         // TODO
         // Add attack properties (damage, speed, etc.)

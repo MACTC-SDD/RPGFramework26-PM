@@ -59,6 +59,8 @@ namespace RPGFramework
             Console = CreateAnsiConsole();
         }
 
+        
+
         /// <summary>
         /// Things that should happen when a player logs out. 
         /// </summary>
@@ -94,12 +96,18 @@ namespace RPGFramework
         }
         public void Write(string message)
         {
-            Console.Write(message);
+            WriteNewLineIfNeeded();
+            Console?.Write(message);
+            var line = Network?.TelnetConnection?.CurrentLineText;
+            Console?.Write(line ?? String.Empty); // Re-write current input line
         }
 
         public void Write(IRenderable renderable)
         {
-            Console.Write(renderable);
+            WriteNewLineIfNeeded();
+            Console?.Write(renderable);
+            var line = Network?.TelnetConnection?.CurrentLineText;
+            Console?.Write(line ?? String.Empty); // Re-write current input line
         }
 
         
@@ -110,8 +118,22 @@ namespace RPGFramework
         /// p formatting supported by the output system.</param>
         public void WriteLine(string message)
         {
-            Console.MarkupLine(message);
-            //Network?.Writer.WriteLine(message);
+            WriteNewLineIfNeeded();
+            Console?.MarkupLine(message);
+            var line = Network?.TelnetConnection?.CurrentLineText;
+            Console?.Write(line ?? String.Empty); // Re-write current input line
+        }
+
+        private void WriteNewLineIfNeeded()
+        {
+            if (Network == null)
+                return;
+            if (Network.TelnetConnection == null)
+                return;
+            if (Network.NeedsOutputNewline)
+            {
+                Console?.Write("\r\n");
+            }
         }
 
 

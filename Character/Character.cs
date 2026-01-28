@@ -1,6 +1,9 @@
 ﻿
+using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
+using RPGFramework.Workflows;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -13,22 +16,27 @@ namespace RPGFramework
     /// as needed. The class enforces valid ranges for skill attributes and manages health and alive status. Instances
     /// of this class are not created directly; instead, use a concrete subclass representing a specific character
     /// type.</remarks>
-    internal abstract class Character
+    internal abstract partial class Character
     {
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public CombatFaction CombatFaction { get; set; }
+        public string Description { get; set; } = "";
+        public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
+        public bool IsEngaged { get; protected set; } = false;
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
         public CharacterClass Class { get; set; } = CharacterClass.None;
-        public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
+        public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
+        public int Initiative { get; set; }
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -40,13 +48,22 @@ namespace RPGFramework
         public int Charisma { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
         #endregion
 
+        [JsonIgnore]
+        public IWorkflow? CurrentWorkflow { get; set; } = null;
 
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new Weapon() 
+            Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0 };
             PrimaryWeapon = w;
+        }
+
+        // Things to do when a character engages in combat. This may be overridden by subclasses.
+        public void EngageCombat(bool inCombat)
+        {
+            IsEngaged = inCombat;
+
         }
 
         /// <summary>
@@ -56,6 +73,11 @@ namespace RPGFramework
         public Room GetRoom()
         {
             return GameState.Instance.Areas[AreaId].Rooms[LocationId];
+        }
+
+        public Area GetArea()
+        {
+            return GameState.Instance.Areas[AreaId];
         }
 
         // Set Health to a specific value
@@ -83,6 +105,17 @@ namespace RPGFramework
             }
         }
 
+        // Set Max Health to a specific value, use sparingly, mostly for creating characters
+        public void SetMaxHealth(int maxHealth)
+        {
+            if (maxHealth < 1)
+                maxHealth = 1;
+            MaxHealth = maxHealth;
+            // Ensure current health is not greater than new max health
+
+            Health = MaxHealth;            
+        }
+
         // Remove some amount from health
         public void TakeDamage(int damage)
         {
@@ -94,5 +127,7 @@ namespace RPGFramework
         {
             SetHealth(Health + heal);
         }
+
+        
     }
 }
