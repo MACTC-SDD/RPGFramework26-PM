@@ -16,6 +16,7 @@ namespace RPGFramework
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
 
+        public bool IsAlive { get; set; } = false;
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
         public bool IsRanged { get; set; } = false;

@@ -40,7 +40,11 @@ namespace RPGFramework.Commands
                 case "create":
                     return MobCreate(player, parameters);
                 case "delete":
-                    return MobDelete(player, parameters);
+                    MobDelete(player, parameters);
+                    break;
+                case "kill":
+                    MobKill(player, parameters);
+                    break;
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
@@ -165,9 +169,31 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
+        private void MobKill(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 4)
+            {
+                player.WriteLine("Provide at least a name and description.");
+                return;
+            }
 
-        #region ShowHelp Method
-        private static void ShowHelp(Player player)
+            if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The mob {parameters[2]} is not alive or does not exist");
+                return;
+            }
+
+            //player.GetRoom
+
+            Mob m = GameState.Instance.MobCatalog[parameters[2]];
+
+            player.WriteLine($"{m.Name} was removed the mob catalog.");
+        }
+        // private  void Roomset(Player player, List<string> parameters)
+        //{
+        //mob.RoomID = player.GetRoom();
+        //}
+        private  void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
@@ -176,6 +202,6 @@ namespace RPGFramework.Commands
         }
         #endregion
     }
-    #endregion
+   // #endregion
 
 }
