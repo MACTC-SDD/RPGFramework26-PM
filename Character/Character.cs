@@ -25,7 +25,7 @@ namespace RPGFramework
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
-        public CharacterClass Class { get; set; } = CharacterClass.None;
+        public CharacterClass Class { get; set; } = new();
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
         #endregion

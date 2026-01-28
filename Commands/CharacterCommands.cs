@@ -1,31 +1,33 @@
 ﻿using RPGFramework;
 using RPGFramework.Commands;
+using RPGFramework.Enums;
+using RPGFramework.Geography;
 namespace RPGFramework.Commands
 {
     internal class CharacterCommands
     {
         public static List<ICommand> GetAllCommands()
-    {
-        return new List<ICommand>
+        {
+            return new List<ICommand>
             {
                 new CCCommand(),
                 // Add more test commands here as needed
             };
+        }
     }
-}
 
 
     internal class CCCommand : ICommand
-{
-    // This is the command a player would type to execute this command
-    public string Name => "cc";
-
-    // These are the aliases that can also be used to execute this command. This can be empty.
-    public IEnumerable<string> Aliases => new List<string>() {};
-
-    // What will happen when the command is executed
-    public bool Execute(Character character, List<string> parameters)
     {
+        // This is the command a player would type to execute this command
+        public string Name => "cc";
+
+        // These are the aliases that can also be used to execute this command. This can be empty.
+        public IEnumerable<string> Aliases => new List<string>() { };
+
+        // What will happen when the command is executed
+        public bool Execute(Character character, List<string> parameters)
+        {
             //CharacterClass c = new CharacterClass();
             //c.Name = character.Name;
 
@@ -42,10 +44,10 @@ namespace RPGFramework.Commands
                 player.WriteLine($"{character.Class.CharismaMod}");
             }
 
-        // If the command failed to run for some reason, return false
-        return true;
+            // If the command failed to run for some reason, return false
+            return true;
+        }
     }
-}
 
-
+   
 }

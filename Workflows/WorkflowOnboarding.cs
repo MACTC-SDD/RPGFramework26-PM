@@ -55,26 +55,35 @@ namespace RPGFramework.Workflows
                     if (chosenClass == "warrior" || chosenClass == "mage" || chosenClass == "rogue" || chosenClass == "paladin" ||
                         chosenClass == "bard" || chosenClass == "druid" || chosenClass == "necromancer")
                     {
-                        if (chosenClass == "warrior")
-                            player.Class = CharacterClass.Warrior;
-                        else if (chosenClass == "mage")
-                            player.Class = CharacterClass.Mage;
-                        else if (chosenClass == "rogue")
-                            player.Class = CharacterClass.Rogue;
-                        else if (chosenClass == "paladin")
-                            player.Class = CharacterClass.Paladin;
-                        else if (chosenClass == "bard")
-                            player.Class = CharacterClass.Bard;
-                        else if (chosenClass == "druid")
-                            player.Class = CharacterClass.Druid;
-                        else if (chosenClass == "necromancer")
-                            player.Class = CharacterClass.Necromancer;
+
+                        switch (chosenClass)
+                        {
+                            case "warrior":
+                                player.Class = new CharacterClass { Name = "Warrior" };
+                                break;
+                            case "mage":
+                                player.Class = new CharacterClass { Name = "Mage" };
+                                break;
+                            case "rogue":
+                                player.Class = new CharacterClass { Name = "Rogue" };
+                                break;
+                            case "paladin":
+                                player.Class = new CharacterClass { Name = "Paladin" };
+                                break;
+                            case "bard":
+                                player.Class = new CharacterClass { Name = "Bard" };
+                                break;
+                            case "druid":
+                                player.Class = new CharacterClass { Name = "Druid" };
+                                break;
+                            case "necromancer":
+                                player.Class = new CharacterClass { Name = "Necromancer" };
+                                break;
+                        }
+
 
                         WorkflowData["ChosenClass"] = chosenClass;
-                        if (chosenClass == "warrior")
-                        {
-                            player.Class = 
-                        }
+                        
                         player.WriteLine($"You have chosen the {chosenClass} class.");
                         // If class is valid, proceed, otherwise print message and stay on this step
                         // Placeholder logic
@@ -119,7 +128,7 @@ namespace RPGFramework.Workflows
                     // Onboarding complete
                     // TODO: Set PlayerClass (or maybe do that in step above) and save Player
                     player.WriteLine(Name + ": Onboarding complete! You are now ready to explore the game world.");
-                    player.WriteLine("Your class is: " + player.Class);
+                    player.WriteLine("Your class is: " + player.Class.Name);
                     player.WriteLine("Type 'help' to see a list of available commands.");
                     player.CurrentWorkflow = null;
                     break;
