@@ -15,7 +15,6 @@ namespace RPGFramework
         // npc team need to fill this method out with logic for npc actions
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
-        // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
