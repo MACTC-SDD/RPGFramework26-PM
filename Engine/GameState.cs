@@ -400,6 +400,27 @@ namespace RPGFramework
         #endregion
 
         #region --- Thread Methods ---
+        #region RunAnnouncementsLoopAsync Method
+        private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Announcements thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Announcing things...");
+                    // Do the actual work
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during announcements: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
+        }
+        #endregion
 
         #region RunAutosaveLoopAsync Method
         /// <summary>
@@ -428,57 +449,6 @@ namespace RPGFramework
             }
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
-        }
-        #endregion
-
-        #region RunTimeOfDayLoopAsync Method
-        /// <summary>
-        /// Update the time periodically.
-        /// We might want to create game variables that indicate how often this should run
-        /// and how much time should pass each time. For now it adds 1 hour / minute.
-        /// </summary>
-        /// <param name="interval"></param>
-        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Updating time...");
-                    double hours = interval.TotalMinutes * 60;
-                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during time update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
-        }
-        #endregion
-
-        #region RunAnnouncementsLoopAsync Method
-        private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Announcements thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Announcing things...");
-                    // Do the actual work
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during announcements: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
         }
         #endregion
 
@@ -537,89 +507,6 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
-        #endregion
-
-        #region RunTickLoopAsync Method
-        // CODE REVIEW: Rylan (PR #16)
-        // We should consider whether this is necessary.
-        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Tick thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
-                    _tickCount++;
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
-        }
-        #endregion
-
-        #region RunWeatherLoopAsync Method
-        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Weather thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Predicting the weather...");
-                    // Update weather in all areas
-                    //choose random from list, apply to area
-                    //repeat for every area
-                    //await build team for areas/weather types
-                    foreach (var area in Areas.Values)
-                    {
-                        UpdateWeather();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
-        }
-        #endregion
-
-        #region UpdateWeather Method
-        // CODE REVIEW: Rylan (PR #16)
-        // All of the weather code (UpdateWeather, weatherStates)
-        // needs to be moved to its own class.
-        // An enum for WeatherState would be better than a list of strings.
-        //   It should go in the enums folder.
-        // / <summary> weather update method, move later
-        // / </summary>
-        public void UpdateWeather()
-        {
-            // choose random from list, apply to area
-            // repeat for every area
-            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
-            string newWeather = weatherStates[randomWeatherIndex];
-            // apply newWeather to area
-            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
-            // figure out how to implement those effects later, probably within combat and npc methods
-        }
-        //placeholder weather states, await build teams final choices
-        List<string> weatherStates = new List<string>()
-        {
-            "Sunny",
-            "Cloudy",
-            "Rainy",
-            "Stormy",
-            "Snowy",
-            "Windy"
-        };
         #endregion
 
         #region RunNPCLoopAsync Method
@@ -742,6 +629,118 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
         }
+        #endregion
+
+        #region RunTickLoopAsync Method
+        // CODE REVIEW: Rylan (PR #16)
+        // We should consider whether this is necessary.
+        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Tick thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
+                    _tickCount++;
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
+        }
+        #endregion
+
+        #region RunTimeOfDayLoopAsync Method
+        /// <summary>
+        /// Update the time periodically.
+        /// We might want to create game variables that indicate how often this should run
+        /// and how much time should pass each time. For now it adds 1 hour / minute.
+        /// </summary>
+        /// <param name="interval"></param>
+        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Updating time...");
+                    double hours = interval.TotalMinutes * 60;
+                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during time update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
+        }
+        #endregion
+
+        #region RunWeatherLoopAsync Method
+        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Weather thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Predicting the weather...");
+                    // Update weather in all areas
+                    //choose random from list, apply to area
+                    //repeat for every area
+                    //await build team for areas/weather types
+                    foreach (var area in Areas.Values)
+                    {
+                        UpdateWeather();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
+        }
+        #endregion
+
+        #region UpdateWeather Method
+        // CODE REVIEW: Rylan (PR #16)
+        // All of the weather code (UpdateWeather, weatherStates)
+        // needs to be moved to its own class.
+        // An enum for WeatherState would be better than a list of strings.
+        //   It should go in the enums folder.
+        // / <summary> weather update method, move later
+        // / </summary>
+        public void UpdateWeather()
+        {
+            // choose random from list, apply to area
+            // repeat for every area
+            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
+            string newWeather = weatherStates[randomWeatherIndex];
+            // apply newWeather to area
+            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
+            // figure out how to implement those effects later, probably within combat and npc methods
+        }
+        //placeholder weather states, await build teams final choices
+        List<string> weatherStates = new List<string>()
+        {
+            "Sunny",
+            "Cloudy",
+            "Rainy",
+            "Stormy",
+            "Snowy",
+            "Windy"
+        };
         #endregion
 
         #endregion --- Thread Methods ---
