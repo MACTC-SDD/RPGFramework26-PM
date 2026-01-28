@@ -1,7 +1,5 @@
-﻿using RPGFramework;
-using RPGFramework.Combat;
-using RPGFramework.Commands;
-using System.Numerics;
+﻿using RPGFramework.Commands;
+using RPGFramework.Geography;
 
 namespace RPGFramework.Workflows
 {
@@ -53,7 +51,7 @@ namespace RPGFramework.Workflows
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);
-            foreach (NonPlayer npc in attacker.GetRoom().GetNonPlayers())
+            foreach (NonPlayer npc in attacker.GetRoom().NonPlayers)
             {
                 //if (npc.Hostile == true || npc.Army == true)
                 {
@@ -76,13 +74,13 @@ namespace RPGFramework.Workflows
         }
         public Character ActiveCombatant { get; set; } = null!;
 
-        public List<Character> Elf = new List<Character>();
-        public List<Character> Monster = new List<Character>();
-        public List<Character> Bandit = new List<Character>();
-        public List<Character> Construct = new List<Character>();
-        public List<Character> Army = new List<Character>();
-        public List<Character> Miscellaneous = new List<Character>();
-        public List<Character> Players = new List<Character>();
+        public List<Character> Elf = [];
+        public List<Character> Monster = [];
+        public List<Character> Bandit = [];
+        public List<Character> Construct = [];
+        public List<Character> Army = [];
+        public List<Character> Miscellaneous = [];
+        public List<Character> Players = [];
         public void SortCombatants()
         {
             foreach (Character c in Combatants)

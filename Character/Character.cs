@@ -60,6 +60,36 @@ namespace RPGFramework
             PrimaryWeapon = w;
         }
 
+        #region Consider Method
+        // Consider another character and return a string describing how they compare
+        public string Consider(Character targetCharacter)
+        {
+            string output;
+            int levelDifference = targetCharacter.Level - this.Level;
+
+            switch (levelDifference)
+            {
+                case int n when (n >= 5):
+                    output = $"{targetCharacter.Name} looks like a formidable opponent.";
+                    break;
+                case int n when (n >= 2):
+                    output = $"{targetCharacter.Name} looks slightly stronger than you.";
+                    break;
+                case int n when (n >= -1 && n <= 1):
+                    output = $"{targetCharacter.Name} appears to be evenly matched with you.";
+                    break;
+                case int n when (n >= -4):
+                    output = $"{targetCharacter.Name} seems a bit weaker than you.";
+                    break;
+                default:
+                    output = $"{targetCharacter.Name} looks like an easy target.";
+                    break;
+            }
+
+            return output;
+        }
+        #endregion
+
         // Things to do when a character engages in combat. This may be overridden by subclasses.
         public void EngageCombat(bool inCombat)
         {

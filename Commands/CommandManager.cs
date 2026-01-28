@@ -5,7 +5,7 @@ namespace RPGFramework.Commands
 {
     internal static class CommandManager
     {
-        private static readonly List<ICommand> _commands = new List<ICommand>();
+        private static readonly List<ICommand> _commands = [];
 
         static CommandManager()
         {
@@ -13,6 +13,7 @@ namespace RPGFramework.Commands
             // Add new command sets here as needed
             AdminCommands.GetAllCommands().ForEach(o => Register(o));
             BuilderCommands.GetAllCommands().ForEach(o => Register(o));
+            CombatCommands.GetAllCommands().ForEach(o => Register(o));
             CommunicationCommands.GetAllCommands().ForEach((o) => Register(o));
             CoreCommands.GetAllCommands().ForEach(o => Register(o));
             ItemCommands.GetAllCommands().ForEach(o => Register(o));
@@ -146,7 +147,7 @@ namespace RPGFramework.Commands
         public static bool ProcessSpecificCommands(Character character, string command, 
             List<ICommand> commands, bool ignoreWorkflow = true)
         {
-            return Execute(character, ParseCommand(command), commands, ignoreWorkflow: true);
+            return Execute(character, ParseCommand(command), commands, ignoreWorkflow);
         }
 
         public static bool ProcessSpecificCommands(Character character, List<string> parameters,
@@ -200,10 +201,7 @@ namespace RPGFramework.Commands
         /// <exception cref="ArgumentNullException"></exception>
         public static void Register(ICommand command)
         {
-            if (command == null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
+            ArgumentNullException.ThrowIfNull(command);
 
             _commands.Add(command);
         }
