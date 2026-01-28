@@ -44,6 +44,7 @@ namespace RPGFramework.Commands
                     break;
                 case "kill":
                     MobKill(player, parameters);
+                    break;
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
@@ -182,7 +183,7 @@ namespace RPGFramework.Commands
                 return;
             }
 
-            player.GetRoom
+            //player.GetRoom
 
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
 
@@ -192,7 +193,7 @@ namespace RPGFramework.Commands
         //{
         //mob.RoomID = player.GetRoom();
         //}
-        private  void WriteUsage(Player player)
+        private  void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
@@ -201,6 +202,6 @@ namespace RPGFramework.Commands
         }
         #endregion
     }
-    #endregion
+   // #endregion
 
 }
