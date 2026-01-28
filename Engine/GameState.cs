@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
 using RPGFramework.Combat;
+using RPGFramework.Workflows;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
@@ -21,6 +22,12 @@ namespace RPGFramework
     /// TODO: Given the number of properties that are not serialized, we should consider making a GameStateData DTO.
     internal sealed class GameState
     {
+        // IF YOU SET THIS TO TRUE, IT WILL OVERWRITE ALL DATA FILES DURING INITIALIZATION
+        // This is a good thing if you want to reset everything, like after world files
+        // have been updated in data_seed, but be careful as it will wipe out
+        // any existing area, room, and catalog (mob, item, etc.) data.
+        private bool _OVERWRITE_DATA = false;
+
         // Static Fields and Properties
         private static readonly Lazy<GameState> _instance = new(() => new GameState());
 
@@ -44,6 +51,8 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _combatManagerCts;
+        private Task? _combatManagerTask;
 
         private int _tickCount = 0;
         #endregion
@@ -68,7 +77,7 @@ namespace RPGFramework
         [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
 
         // Relocate later
-        [JsonIgnore] public List<CombatObject> Combats = new List<CombatObject>();
+        [JsonIgnore] public List<CombatWorkflow> Combats = new List<CombatWorkflow>();
 
         [JsonIgnore] public DateTime ServerStartTime { get; private set; }
         
@@ -151,7 +160,7 @@ namespace RPGFramework
         /// For now useful primarily for reloading externally crearted changes
         /// </summary>
         /// <param name="areaName"></param>
-        private Task LoadArea(string areaName)
+        public Task LoadArea(string areaName)
         {
             Area? area = GameState.Persistence.LoadAreaAsync(areaName).Result;
             if (area != null)
@@ -169,7 +178,7 @@ namespace RPGFramework
 
         // Load all Area files from /data/areas. Each Area file will contain some
         // basic info and lists of rooms and exits.
-        private async Task LoadAllAreas()
+        public async Task LoadAllAreas()
         {
             Areas.Clear();
 
@@ -187,7 +196,7 @@ namespace RPGFramework
         /// Loads all player data from persistent storage and adds each player 
         /// to the <see cref="Players"/> collection.
         /// </summary>
-        private async Task LoadAllPlayers()
+        public async Task LoadAllPlayers()
         {
             Players.Clear();
 
@@ -208,7 +217,7 @@ namespace RPGFramework
         /// should be added to the Catalogs list during initialization.
         /// </summary>
         /// <returns></returns>
-        private async Task LoadCatalogs()
+        public async Task LoadCatalogs()
         {
             foreach (ICatalog catalog in Catalogs)
             {
@@ -293,7 +302,10 @@ namespace RPGFramework
             ServerStartTime = DateTime.Now;
 
             // Initialize game data if it doesn't exist
-            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions());
+            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions()
+            {
+                CopyFilesFromDataSeedToRuntimeData = _OVERWRITE_DATA
+            });
 
             await LoadAllAreas();
             await LoadAllPlayers();
@@ -305,6 +317,8 @@ namespace RPGFramework
             _announcementsCts = new CancellationTokenSource();
             _announcementsTask = RunAnnouncementsLoopAsync(TimeSpan.FromSeconds(30), _announcementsCts.Token);
 
+            _combatManagerCts = new CancellationTokenSource();
+            _combatManagerTask = RunCombatManagerLoopAsync(TimeSpan.FromSeconds(1), _combatManagerCts.Token);
 
             _itemDecayCts = new CancellationTokenSource();
             _itemDecayTask = RunItemDecayLoopAsync(TimeSpan.FromMinutes(2), _itemDecayCts.Token);
@@ -366,7 +380,7 @@ namespace RPGFramework
             _npcCts?.Cancel();
             _itemDecayCts?.Cancel();
             _announcementsCts?.Cancel();
-
+            _combatManagerCts?.Cancel();
             // Exit program
             Environment.Exit(0);
         }
@@ -386,6 +400,29 @@ namespace RPGFramework
         #endregion
 
         #region --- Thread Methods ---
+        #region RunAnnouncementsLoopAsync Method
+        private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Announcements thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Announcing things...");
+                    // Do the actual work
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during announcements: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
+        }
+        #endregion
+
+        #region RunAutosaveLoopAsync Method
         /// <summary>
         /// Things that need to be saved periodically
         /// </summary>
@@ -413,54 +450,33 @@ namespace RPGFramework
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
         }
+        #endregion
 
-        /// <summary>
-        /// Update the time periodically.
-        /// We might want to create game variables that indicate how often this should run
-        /// and how much time should pass each time. For now it adds 1 hour / minute.
-        /// </summary>
-        /// <param name="interval"></param>
-        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
+        #region RunCombatManagerLoopAsync Method
+        private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
-            GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
             while (!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
-                    GameState.Log(DebugLevel.Debug, "Updating time...");
-                    double hours = interval.TotalMinutes * 60;
-                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
+                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    foreach (CombatWorkflow combat in Combats)
+                    {
+                        combat.Process();
+                    }                                                                  
                 }
                 catch (Exception ex)
                 {
-                    GameState.Log(DebugLevel.Error, $"Error during time update: {ex.Message}");
+                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message}");
                 }
-
                 await Task.Delay(interval, ct);
             }
-            GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
         }
+        #endregion
 
-        private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Announcements thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Announcing things...");
-                    // Do the actual work
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during announcements: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
-        }
-
+        #region RunItemDecayLoopAsync Method
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Decay thread started.");
@@ -491,85 +507,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
+        #endregion
 
-        // CODE REVIEW: Rylan (PR #16)
-        // We should consider whether this is necessary.
-        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Tick thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
-                    _tickCount++;
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
-        }
-
-        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Weather thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Predicting the weather...");
-                    // Update weather in all areas
-                    //choose random from list, apply to area
-                    //repeat for every area
-                    //await build team for areas/weather types
-                    foreach (var area in Areas.Values)
-                    {
-                        UpdateWeather();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
-        }
-
-        // CODE REVIEW: Rylan (PR #16)
-        // All of the weather code (UpdateWeather, weatherStates)
-        // needs to be moved to its own class.
-        // An enum for WeatherState would be better than a list of strings.
-        //   It should go in the enums folder.
-        // / <summary> weather update method, move later
-        // / </summary>
-        public void UpdateWeather()
-        {
-            // choose random from list, apply to area
-            // repeat for every area
-            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
-            string newWeather = weatherStates[randomWeatherIndex];
-            // apply newWeather to area
-            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
-            // figure out how to implement those effects later, probably within combat and npc methods
-        }
-        //placeholder weather states, await build teams final choices
-        List<string> weatherStates = new List<string>()
-        {
-            "Sunny",
-            "Cloudy",
-            "Rainy",
-            "Stormy",
-            "Snowy",
-            "Windy"
-        };
-        // end weather update method
-
+        #region RunNPCLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
         // probably should live in the NonPlayer, Mob, etc. classes. 
@@ -594,7 +534,7 @@ namespace RPGFramework
                     /* CODE REVIEW: Rylan (PR #16)
                      * We don't have NonPlayers in GameState.
 
-                    foreach (var npc in GameState.Instance.NonPlayers)
+                    foreach (var npc in NPCCatalog)
                     {
                         if (npc.IsEngaged)
                         {
@@ -622,15 +562,13 @@ namespace RPGFramework
                                     // notify player of attack
                                     target.WriteLine($"The {npc.Name} attacks you!");
                                     // run combat initialization method(s)
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else if (npc.GetRoom().NPC.Count > 1)
                                 {
                                     List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
 
-                                    foreach (var otherNpc in npc.GetRoom().GetCharacters())
+                                    foreach (NonPlayer otherNpc in npc.GetRoom().GetCharacters())
                                     {
                                         if (otherNpc == npc || otherNpc.IsEngaged)
                                         {
@@ -641,23 +579,29 @@ namespace RPGFramework
                                             potentialNpcTargets.Add(otherNpc);
                                         }
                                     }
-                                    var target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    Character target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
+                                    foreach (Player p in npc.GetRoom().GetPlayers())
+                                    {
+                                        p.WriteLine($"The {npc.Name} attacks {target.Name}");
+                                    }
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
 
                             }
                             else if (npc is Army)
                             {
-                                if (npc.GetRoom().NPC.Hostile.Count > 0)
+                                if (npc.GetRoom().NPCs.Hostile.Count > 0)
                                 {
-                                    foreach (var player in npc.GetRoom().Players)
+                                    Random rand = new Random();
+                                    NonPlayer target = npc.GetRoom().NPCs.Hostile.Count[rand.Next(0, npc.GetRoom().NPCs.Count - 1)];
+                                    foreach (Player player in npc.GetRoom().Players)
                                     {
                                         // notify player of attack
                                         player.WriteLine($"The {npc.Name} attacks an enemy!");
                                     }
                                     // run combat initialization method(s)
+                                    
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else
                                 {
@@ -685,6 +629,119 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
         }
+        #endregion
+
+        #region RunTickLoopAsync Method
+        // CODE REVIEW: Rylan (PR #16)
+        // We should consider whether this is necessary.
+        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Tick thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
+                    _tickCount++;
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
+        }
+        #endregion
+
+        #region RunTimeOfDayLoopAsync Method
+        /// <summary>
+        /// Update the time periodically.
+        /// We might want to create game variables that indicate how often this should run
+        /// and how much time should pass each time. For now it adds 1 hour / minute.
+        /// </summary>
+        /// <param name="interval"></param>
+        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Updating time...");
+                    double hours = interval.TotalMinutes * 60;
+                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during time update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
+        }
+        #endregion
+
+        #region RunWeatherLoopAsync Method
+        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Weather thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Predicting the weather...");
+                    // Update weather in all areas
+                    //choose random from list, apply to area
+                    //repeat for every area
+                    //await build team for areas/weather types
+                    foreach (var area in Areas.Values)
+                    {
+                        UpdateWeather();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
+        }
+        #endregion
+
+        #region UpdateWeather Method
+        // CODE REVIEW: Rylan (PR #16)
+        // All of the weather code (UpdateWeather, weatherStates)
+        // needs to be moved to its own class.
+        // An enum for WeatherState would be better than a list of strings.
+        //   It should go in the enums folder.
+        // / <summary> weather update method, move later
+        // / </summary>
+        public void UpdateWeather()
+        {
+            // choose random from list, apply to area
+            // repeat for every area
+            int randomWeatherIndex = new Random().Next(0, weatherStates.Count - 1);
+            string newWeather = weatherStates[randomWeatherIndex];
+            // apply newWeather to area
+            // decide on how weather effects things like combat, npcs, visibility, movement, etc.
+            // figure out how to implement those effects later, probably within combat and npc methods
+        }
+        //placeholder weather states, await build teams final choices
+        List<string> weatherStates = new List<string>()
+        {
+            "Sunny",
+            "Cloudy",
+            "Rainy",
+            "Stormy",
+            "Snowy",
+            "Windy"
+        };
+        #endregion
 
         #endregion --- Thread Methods ---
 

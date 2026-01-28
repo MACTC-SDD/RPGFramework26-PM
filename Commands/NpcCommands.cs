@@ -9,28 +9,19 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new MobBuilderCommand(),
                 // Add other Npc commands here as they are implemented
-            };
+            ];
         }
-        /*
-        public void NPCSpawnCommand()
-        {
-            NonPlayer n = new NonPlayer();
-            NPCList.Add(n);
-        }
-        */
-
     }
 
-    
-
+    #region MobBuilderCommand Class
     internal class MobBuilderCommand : ICommand
     {
         public string Name => "/mob";
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -40,19 +31,14 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 2)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return false;
             }
 
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    MobCreate(player, parameters);
-                    break;
-                case "set":
-                    // We'll move setting name and description into this
-                    //RoomSet(player, parameters);
-                    break;
+                    return MobCreate(player, parameters);
                 case "delete":
                     MobDelete(player, parameters);
                     break;
@@ -61,29 +47,32 @@ namespace RPGFramework.Commands
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
+                case "set":
+                    return MobSet(player, parameters);
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
             }
-            ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
             return false;
         }
 
-        private void MobCreate(Player player, List<string> parameters)
+        #region MobCreate Method
+        ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
+        private static bool MobCreate(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} already exists.");
-                return;
+                return false;
             }
 
-            Mob m = new Mob()
+            Mob m = new()
             {
                 Name = parameters[2],
                 Description = parameters[3]
@@ -91,25 +80,94 @@ namespace RPGFramework.Commands
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
+            return true;
         }
-        private void MobDelete(Player player, List<string> parameters)
+        #endregion
+
+        #region MobDelete Method
+        private static bool MobDelete(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} does not exist.");
-                return;
+                return false;
             }
             
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
             GameState.Instance.MobCatalog.Remove(m.Name);
             player.WriteLine($"{m.Name} was removed the mob catalog.");
+            return true;
         }
+        #endregion
+
+        #region MobSet Method
+        private static bool MobSet(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine("Usage: /mob set <mob name> <property name> <value>");
+                return false;
+            }
+
+            if (!GameState.Instance.MobCatalog.TryGetValue(parameters[2], out Mob? m) || m == null)
+            {
+                player.WriteLine($"The mob {parameters[2]} does not exist.");
+                return false;
+            }
+
+            string propName = parameters[3].ToLower();
+            string propValue = parameters[4];
+
+            switch (propName)
+            {
+                case "name":
+                    if (GameState.Instance.MobCatalog.ContainsKey(propValue))
+                    {
+                        player.WriteLine($"A mob with the name '{propValue}' already exists.");
+                        return false;
+                    }
+                    m.Name = propValue;
+                    GameState.Instance.MobCatalog.Remove(parameters[2]);
+                    GameState.Instance.MobCatalog.Add(m.Name, m);
+                    break;
+                case "description":
+                case "desc":
+                    m.Description = propValue;
+                    return true;
+                case "health":
+                case "maxhealth":
+                    if (!int.TryParse(propValue, out int health))
+                    {
+                        player.WriteLine("Health must be a valid integer.");
+                        return false;
+                    }
+
+                    m.SetMaxHealth(health);
+                    break;
+                case "gold":
+                    if (!int.TryParse(propValue, out int gold))
+                    {
+                        player.WriteLine("Gold must be a valid integer.");
+                        return false;
+                    }
+                    m.Gold = gold;
+                    break;
+                default:
+                    player.WriteLine($"Unknown property '{propName}'.");
+                    return false;
+            }
+
+            // Set properties of the mob here based on additional parameters
+            player.WriteLine($"{m.Name} {propName} was updated to {propValue} in the mob catalog.");
+            return true;
+        }
+        #endregion
         private void MobKill(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
@@ -123,16 +181,13 @@ namespace RPGFramework.Commands
                 player.WriteLine($"The mob {parameters[2]} is not alive or does not exist");
                 return;
             }
-            
+
             player.GetRoom
-            
+
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
-            
+
             player.WriteLine($"{m.Name} was removed the mob catalog.");
         }
-        // NpcList.Add(NonPlayer, Nonplayer.Name)
-
-
         // private  void Roomset(Player player, List<string> parameters)
         //{
         //mob.RoomID = player.GetRoom();
@@ -144,6 +199,8 @@ namespace RPGFramework.Commands
             player.WriteLine("/mob name '<set room name to this>'");
             player.WriteLine("/mob create '<name>' '<description>' <exit direction> '<exit description>'");
         }
+        #endregion
     }
+    #endregion
 
 }

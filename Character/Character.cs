@@ -1,7 +1,9 @@
 ﻿
+using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Combat;
+using RPGFramework.Workflows;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -14,12 +16,13 @@ namespace RPGFramework
     /// as needed. The class enforces valid ranges for skill attributes and manages health and alive status. Instances
     /// of this class are not created directly; instead, use a concrete subclass representing a specific character
     /// type.</remarks>
-    internal abstract class Character
+    internal abstract partial class Character
     {
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
-        public string Description { get; set; }
+        public CombatFaction CombatFaction { get; set; }
+        public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
         public int Health { get; protected set; } = 0;
@@ -30,7 +33,7 @@ namespace RPGFramework
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
         public CharacterClass Class { get; set; } = CharacterClass.None;
-        public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
+        public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
         public int Initiative { get; set; }
         #endregion
@@ -44,11 +47,13 @@ namespace RPGFramework
         public int Charisma { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
         #endregion
 
+        [JsonIgnore]
+        public IWorkflow? CurrentWorkflow { get; set; } = null;
 
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new Weapon() 
+            Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0 };
             PrimaryWeapon = w;
         }
@@ -97,6 +102,17 @@ namespace RPGFramework
             {
                 Alive = false;
             }
+        }
+
+        // Set Max Health to a specific value, use sparingly, mostly for creating characters
+        public void SetMaxHealth(int maxHealth)
+        {
+            if (maxHealth < 1)
+                maxHealth = 1;
+            MaxHealth = maxHealth;
+            // Ensure current health is not greater than new max health
+
+            Health = MaxHealth;            
         }
 
         // Remove some amount from health

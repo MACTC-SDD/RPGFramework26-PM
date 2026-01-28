@@ -1,0 +1,199 @@
+{
+  "Items": {
+    "/announce": {
+      "Name": "/announce",
+      "Category": "admin",
+      "Content": "Broadcast a server-wide announcement.\nUsage: /announce \u003Cmessage\u003E\nAlias: ann"
+    },
+    "goto": {
+      "Name": "goto",
+      "Category": "admin",
+      "Content": "Teleport a player to another player (admin-only).\nUsage: goto \u003CtargetPlayer\u003E \u003CplayerToMove\u003E\nNotes: Current implementation looks incomplete. It attempts to move \u003CplayerToMove\u003E to \u003CtargetPlayer\u003E."
+    },
+    "/help": {
+      "Name": "/help",
+      "Category": "admin",
+      "Content": "Create a new help entry (admin-only).\nUsage: /help create \u003Ctopic\u003E \u003Ccategory\u003E \u003Ccontent\u003E\nExample: /help create look core "
+    },
+    "kick": {
+      "Name": "kick",
+      "Category": "admin",
+      "Content": "Disconnect a player (admin-only).\nUsage: kick \u003CplayerName\u003E"
+    },
+    "/reloadseeddata": {
+      "Name": "/reloadseeddata",
+      "Category": "admin",
+      "Content": "Start the reload-seed-data workflow (admin-only).\nUsage: /reloadseeddata\nNotes: Prompts for confirmation (type YES) before overwriting with default seed files."
+    },
+    "rename": {
+      "Name": "rename",
+      "Category": "admin",
+      "Content": "Rename a player (admin-only).\nUsage: rename \u003CtargetPlayerName\u003E \u003CnewName\u003E"
+    },
+    "role": {
+      "Name": "role",
+      "Category": "admin",
+      "Content": "Change a player role (admin-only).\nUsage: role \u003CplayerName\u003E \u003Crole\u003E\nExample roles: Player, Builder, Admin (depends on your enum values)"
+    },
+    "/saveall": {
+      "Name": "/saveall",
+      "Category": "admin",
+      "Content": "Save all player data (admin-only).\nUsage: /saveall"
+    },
+    "/shutdown": {
+      "Name": "/shutdown",
+      "Category": "admin",
+      "Content": "Shut down the server safely (admin-only).\nUsage: /shutdown\nNotes: Broadcasts a warning and saves data before stopping the server."
+    },
+    "summon": {
+      "Name": "summon",
+      "Category": "admin",
+      "Content": "Teleport a target player to you, or to another player (admin-only).\nUsage:\n  summon \u003CtargetPlayerName\u003E\n  summon \u003CtargetPlayerName\u003E \u003CdestinationPlayerName\u003E\nExamples:\n  summon Alice\n  summon Alice Bob"
+    },
+    "where": {
+      "Name": "where",
+      "Category": "admin",
+      "Content": "Show where a player is (admin-only).\nUsage: where \u003CplayerName\u003E\nOutput: the target player"
+    },
+    "who": {
+      "Name": "who",
+      "Category": "admin",
+      "Content": "List all online players.\nUsage: who\nOutput: each player name, AFK status (if applicable), and their current room, plus a total count."
+    },
+    "/room": {
+      "Name": "/room",
+      "Category": "builder",
+      "Content": "Create and edit rooms (Builder\u002B).\nUsage:\n  /room show\n  /room create "
+    },
+    "/exit": {
+      "Name": "/exit",
+      "Category": "builder",
+      "Content": "Create and edit exits (Admin-only in current code).\nUsage:\n  /exit show\n  /exit create \u003Cname\u003E \u003Cdescription\u003E \u003Cdirection\u003E \u003CexitDescription\u003E\n  /exit set \u003CexitId\u003E \u003Cproperty\u003E \u003Cvalue\u003E\nProperties supported by the current code path:\n  description, name, icon\nNotes: Parts of the current implementation appear to be copied from /room and may still be in-progress."
+    },
+    "consider": {
+      "Name": "consider",
+      "Category": "combat",
+      "Content": "Inspect a target during combat.\nUsage: consider \u003CtargetName\u003E\nResult: prints details about the target (based on your combat system implementation)."
+    },
+    "combatstatus": {
+      "Name": "combatstatus",
+      "Category": "combat",
+      "Content": "Show current combat status.\nUsage: combatstatus\nResult: prints combat state/details to the player."
+    },
+    "attack": {
+      "Name": "attack",
+      "Category": "combat",
+      "Content": "Attack a target and/or start combat.\nUsage: attack \u003CtargetName\u003E\nAliases: /attack"
+    },
+    "/soc": {
+      "Name": "/soc",
+      "Category": "social",
+      "Content": "Social command (currently prints your IP address).\nUsage: /soc\nNotes: Likely a placeholder for future social features."
+    },
+    "afk": {
+      "Name": "afk",
+      "Category": "core",
+      "Content": "Toggle AFK status.\nUsage: afk\nNotes: Marks you as AFK or returns you from AFK (based on your AFK flag)."
+    },
+    "ip": {
+      "Name": "ip",
+      "Category": "core",
+      "Content": "Show your IP address.\nUsage: ip"
+    },
+    "look": {
+      "Name": "look",
+      "Category": "core",
+      "Content": "Look around your current room.\nUsage: look\nAliases: l\nNotes: Typically prints room name, description, exits, and visible entities (depending on your Look implementation)."
+    },
+    "quit": {
+      "Name": "quit",
+      "Category": "core",
+      "Content": "Log out / exit the game.\nUsage: quit\nAliases: exit"
+    },
+    "say": {
+      "Name": "say",
+      "Category": "communication",
+      "Content": "Say something to the room.\nUsage: say \u003Cmessage\u003E\nAliases: \u0022, "
+    },
+    "tell": {
+      "Name": "tell",
+      "Category": "communication",
+      "Content": "Send a private message to another player.\nUsage: tell \u003CplayerName\u003E \u003Cmessage\u003E\nAliases: msg, whisper"
+    },
+    "time": {
+      "Name": "time",
+      "Category": "core",
+      "Content": "Show the current in-game time.\nUsage: time"
+    },
+    "status": {
+      "Name": "status",
+      "Category": "core",
+      "Content": "Show server/system status.\nUsage: status\nOutput includes: server start time, thread count, memory usage, online player count, and in-game date."
+    },
+    "help": {
+      "Name": "help",
+      "Category": "core",
+      "Content": "View available help topics, or view a specific topic.\nUsage:\n  help\n  help \u003Ctopic\u003E\nNotes: topic matching is case-insensitive."
+    },
+    "weather": {
+      "Name": "weather",
+      "Category": "world",
+      "Content": "Check the current weather in your area.\nUsage: weather\nOutput: current area weather string."
+    },
+    "setweather": {
+      "Name": "setweather",
+      "Category": "world",
+      "Content": "Set the current weather for your area (admin-only).\nUsage: setweather \u003CweatherValue\u003E\nExample: setweather Rainy"
+    },
+    "map": {
+      "Name": "map",
+      "Category": "navigation",
+      "Content": "Render the local map.\nUsage: map\nNotes: Uses your current map radius setting."
+    },
+    "move": {
+      "Name": "move",
+      "Category": "navigation",
+      "Content": "Move in a direction.\nUsage:\n  move \u003Cdirection\u003E\n  \u003Cdirection\u003E\nDirections:\n  north (n), east (e), south (s), west (w), up (u), down (d)\nExamples:\n  move north\n  n"
+    },
+    "/mob": {
+      "Name": "/mob",
+      "Category": "npc",
+      "Content": "Create and edit mobs in the mob catalog.\nUsage:\n  /mob create \u003Cname\u003E "
+    },
+    "/ux": {
+      "Name": "/ux",
+      "Category": "ux",
+      "Content": "Show a menu of UX test commands.\nUsage: /ux\nRelated:\n  /uxpanel, /uxcolor, /uxdecoration, /uxtree, /uxbarchart, /uxcanvas"
+    },
+    "/uxpanel": {
+      "Name": "/uxpanel",
+      "Category": "ux",
+      "Content": "Render a test panel.\nUsage:\n  /uxpanel\n  /uxpanel "
+    },
+    "/uxcolor": {
+      "Name": "/uxcolor",
+      "Category": "ux",
+      "Content": "Show examples of Spectre.Console color markup.\nUsage: /uxcolor\nAliases: /uxcolors"
+    },
+    "/uxdecoration": {
+      "Name": "/uxdecoration",
+      "Category": "ux",
+      "Content": "Show examples of Spectre.Console text decorations.\nUsage: /uxdecoration\nAliases: /uxdec, /uxdecorations"
+    },
+    "/uxtree": {
+      "Name": "/uxtree",
+      "Category": "ux",
+      "Content": "Show an example tree UI.\nUsage: /uxtree"
+    },
+    "/uxbarchart": {
+      "Name": "/uxbarchart",
+      "Category": "ux",
+      "Content": "Show an example bar chart UI.\nUsage: /uxbarchart\nAliases: /uxbar"
+    },
+    "/uxcanvas": {
+      "Name": "/uxcanvas",
+      "Category": "ux",
+      "Content": "Show an example canvas drawing.\nUsage: /uxcanvas"
+    }
+  }
+}

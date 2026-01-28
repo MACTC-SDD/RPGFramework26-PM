@@ -8,8 +8,7 @@ namespace RPGFramework
     internal partial class Player
     {
         // Things to not save (don't serialize)
-        [JsonIgnore]
-        public IWorkflow? CurrentWorkflow { get; set; } = null;
+        
         [JsonIgnore]
         public PlayerNetwork? Network { get; set; }
 

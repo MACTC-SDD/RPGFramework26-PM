@@ -1,5 +1,7 @@
 ﻿
 using RPGFramework.Combat;
+using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 namespace RPGFramework
 {
@@ -13,7 +15,6 @@ namespace RPGFramework
         // npc team need to fill this method out with logic for npc actions
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
-        // DON'T RELY ON US TO DO IT FOR YOU, WE ARE NOT DESIGNING NPC BEHAVIOR (Logan)
 
         public bool IsAlive { get; set; } = false;
         public bool IsMagic { get; set; } = false;
@@ -21,8 +22,9 @@ namespace RPGFramework
         public bool IsRanged { get; set; } = false;
         public bool IsArmy { get; set; } = false;
         public bool IsUndead { get; set; } = false;
-        public bool Isvillager { get; set; } = false;
+        public bool IsVillager { get; set; } = false;
         public bool IsHumanoid { get; set; } = false;
+        public bool IsElf { get; set; } = false;
         public bool IsCreature { get; set; } = false;
         public bool IsHostile { get; set; } = false;
 
@@ -34,7 +36,7 @@ namespace RPGFramework
         public int AttackPower { get; set; } = 0;
 
 
-        public static void TakeTurn(NonPlayer npc, CombatObject combat)
+        public static void TakeTurn(NonPlayer npc, CombatWorkflow combat)
         {
             // NPC turn logic to be implemented
             int? action = null;
