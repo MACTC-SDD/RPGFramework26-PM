@@ -27,6 +27,7 @@ namespace RPGFramework.Commands
                 new XPCommand(),
                 new LevelCommand(),
                 new TrainCommand(),
+                
                 // Add other core commands here as they are implemented
             };
         }
