@@ -96,6 +96,7 @@ namespace RPGFramework
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
         /// </summary>
         [JsonIgnore] public Catalog<string, HelpEntry> HelpCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
 
@@ -110,6 +111,7 @@ namespace RPGFramework
             Catalogs.Add(HelpCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(NPCCatalog);
+            Catalogs.Add(ItemCatalog);
         }
 
         public void AddPlayer(Player player)

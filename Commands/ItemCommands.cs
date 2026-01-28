@@ -89,13 +89,13 @@ namespace RPGFramework.Commands
             //double =  Convert.ToDouble(parameters[+]);
 
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(i.Name))
+            if (GameState.Instance.ItemCatalog.ContainsKey(i.Name))
             {
                 player.WriteLine($"There is already an object named {i.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(i.Name, i);
+                GameState.Instance.ItemCatalog.Add(i.Name, i);
             }
         }
         #endregion ---

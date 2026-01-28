@@ -18,8 +18,6 @@ namespace RPGFramework.Geography
         public string Description { get; set; } = "";
         public List<Item> Items { get; set; } = new List<Item>();
 
-        // items
-        public List<string> Items { get; set; } = new List<string>();
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;

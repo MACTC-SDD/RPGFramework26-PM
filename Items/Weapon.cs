@@ -5,7 +5,7 @@ namespace RPGFramework
 {
     internal class Weapon : Item
     {
-        public double Damage { get; set; } = 0;
+        public int Damage { get; set; } = 0;
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
         public bool ammmoleft { get; set; } = true;

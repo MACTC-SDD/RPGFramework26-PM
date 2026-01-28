@@ -61,13 +61,13 @@ namespace RPGFramework.Commands
 
 
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(f.Name))
+            if (GameState.Instance.ItemCatalog.ContainsKey(f.Name))
             {
                 player.WriteLine($"There is already an object named {f.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(f.Name, f);
+                GameState.Instance.ItemCatalog.Add(f.Name, f);
             }
         }
 

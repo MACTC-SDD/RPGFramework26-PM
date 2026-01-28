@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Combat;
 using RPGFramework.Enums;
+using RPGFramework.Items;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
 using System.Text.Json.Serialization;
