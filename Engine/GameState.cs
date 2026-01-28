@@ -482,7 +482,7 @@ namespace RPGFramework
         }
         #endregion
 
-        #region RunCOmbatManagerLoopAsync Method
+        #region RunCombatManagerLoopAsync Method
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
