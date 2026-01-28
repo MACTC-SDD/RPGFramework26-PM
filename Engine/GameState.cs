@@ -504,7 +504,8 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
         }
-      
+        #endregion
+
         #region RunItemDecayLoopAsync Method
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
