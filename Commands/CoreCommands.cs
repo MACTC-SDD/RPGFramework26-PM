@@ -222,11 +222,23 @@ namespace RPGFramework.Commands
 
             // if no help topic given
             if (parameters.Count < 2)
-            {
+            {var table = new Table();
+                table.AddColumn("[mediumpurple2]Help Topics:[/]");
+                table.AddColumn("");
+                table.AddColumn("");
+                table.AddColumn("");
+                List<string> helpTopics = new List<string>();
                 foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
-                    player.WriteLine($"{he.Name}");
+                    //player.WriteLine($"{he.Name}");
+                    helpTopics.Add(he.Name);
+                    if (helpTopics.Count == 4)
+                    {
+                        table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
+                        helpTopics.Clear();
+                    }
                 }
+                player.Write(table);
             }
             else
             {
