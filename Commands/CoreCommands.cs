@@ -1,7 +1,9 @@
 ﻿
 using RPGFramework.Core;
 using RPGFramework.Display;
+using RPGFramework.Geography;
 using Spectre.Console;
+using RPGFramework.Enums;
 using System.Collections.Immutable;
 using System.ComponentModel;
 
@@ -23,6 +25,7 @@ namespace RPGFramework.Commands
                 new LookCommand(),
                 new QuitCommand(),
                 new SayCommand(),
+                new TellCommand(),
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
@@ -49,12 +52,13 @@ namespace RPGFramework.Commands
         }
     }
 
+
     internal class IpCommand : ICommand
     {
         public string Name => "ip";
         public IEnumerable<string> Aliases => new List<string> { };
         public bool Execute(Character character, List<string> parameters)
-        {
+        {           
             if (character is Player player)
             {
                 player.WriteLine($"Your IP address is {player.GetIPAddress()}");
@@ -83,6 +87,14 @@ namespace RPGFramework.Commands
                 content += $"{player.DisplayName()}";
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
+
+                var table = new Table();
+                table.AddColumn("[deepskyblue1]Items Here:[/]").Centered();
+
+                foreach (Item item in player.GetRoom().Items)
+                {
+                    table.AddRow($"{item.DisplayText}");
+                }
                 return true;
             }
             return false;
@@ -122,6 +134,39 @@ namespace RPGFramework.Commands
         }
     }
 
+    internal class TellCommand : ICommand
+    {
+        public string Name => "tell";
+        public IEnumerable<string> Aliases => new List<string> { "msg", "whisper" };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Tell whom what?");
+                return false;
+            }
+            string targetName = parameters[1];
+            string message = string.Join(' ', parameters.Skip(2));
+            Player? targetPlayer = GameState.Instance.GetPlayerByName(targetName);
+            
+            if (targetPlayer == null)
+            {
+                Comm.SendToIfPlayer(character, $"Player '{targetName}' not found.");
+
+                return false;
+            }
+
+            // Probably should check if target is online
+
+            targetPlayer.WriteLine($"{Messaging.CreateTellMessage(player.DisplayName(),message)}");
+            player.WriteLine($"You tell {targetPlayer.DisplayName()}: {message}");
+            return true;
+        }
+    }
+
     internal class TimeCommand : ICommand
     {
         public string Name => "time";
@@ -140,7 +185,7 @@ namespace RPGFramework.Commands
     internal class StatusCommand : ICommand
     {
         public string Name => "status";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -169,7 +214,7 @@ namespace RPGFramework.Commands
     internal class HelpCommand : ICommand
     {
         public string Name => "help";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -178,16 +223,16 @@ namespace RPGFramework.Commands
             // if no help topic given
             if (parameters.Count < 2)
             {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
                     player.WriteLine($"{he.Name}");
                 }
             }
             else
             {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
-                    if (he.Name.ToLower() == parameters[1].ToLower())
+                    if (he.Name.Equals(parameters[1], StringComparison.CurrentCultureIgnoreCase))
                     {
                         player.WriteLine($"{he.Name}");
                         player.WriteLine($"{he.Content}");
@@ -198,6 +243,57 @@ namespace RPGFramework.Commands
             return true;
         }
 
+    }
+
+    internal class CheckWeatherCommand : ICommand
+    {
+        public string Name => "weather";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                // make a weather property for areas later
+                Area area = player.GetArea();
+                player.WriteLine($"The current weather is {area.Weather}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+
+    internal class WeatherSetCommand : ICommand
+    {
+        public string Name => "setweather";
+        public IEnumerable<string> Aliases => [];
+        public bool Execute(Character character, List<string> parameters)
+        {
+
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Set weather to what?");
+                return true;
+            }
+            else
+            {
+                Area area = player.GetArea();
+                area.Weather = parameters[1];
+                player.WriteLine($"You set the weather to {area.Weather}");
+                return true;
+            }
+
+
+        }
     }
 }
 
