@@ -33,6 +33,7 @@ namespace RPGFramework
         public List<Armor> EquippedArmor { get; set; } = new List<Armor>();
         public Weapon PrimaryWeapon { get; set; }
         public int Initiative { get; set; }
+        public List<Item> BackPack { get; set; } = new List<Item>();
         #endregion
 
         #region --- Skill Attributes --- (0-20)

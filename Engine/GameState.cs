@@ -44,6 +44,8 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _itemCleanUpCts;
+        private Task? _itemCleanUpTask;
 
         private int _tickCount = 0;
         #endregion
@@ -325,7 +327,8 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
-
+            _itemCleanUpCts = new CancellationTokenSource();
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts);
 
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
@@ -414,6 +417,34 @@ namespace RPGFramework
             }
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
+        }
+
+        private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
+            while(ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    foreach (Area a in GameState.Instance.Areas.Values)
+                    {
+                        foreach (Room r in a.Rooms.Values)
+                        {
+                            foreach (Item i in r.Items)
+                            {
+                                if (i.IsDropped)
+                                    r.Items.Remove(i);
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during Item Clean Up: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.")
         }
 
         /// <summary>

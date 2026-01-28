@@ -8,15 +8,9 @@ namespace RPGFramework
     {
         public void DropItem(Character c, Item item)
         {
-            if (c is Player p)
-            {
-                p.Inventory.Remove(item);
-            }
-            else if (item is Armor a)
-                c.EquippedArmor.Remove(a);
-            else if (item is Weapon w)
-                c.PrimaryWeapon = null;
-
+            c.BackPack.Remove(item);
+            c.GetRoom().Items.Add(item);
+            item.IsDropped = true;
         }
     }
 }
