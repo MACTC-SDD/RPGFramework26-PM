@@ -75,7 +75,7 @@ namespace RPGFramework.Workflows
             return (ActiveFactions <= 1 && Miscellaneous.Count <= 0) || (ActiveFactions <= 0 && Miscellaneous.Count <= 1);
         }
 
-        private void EndCombat()
+        public void EndCombat()
         {
             foreach (Character c in Combatants)
             {
