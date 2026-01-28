@@ -1,7 +1,9 @@
 ﻿
+using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Combat;
+using RPGFramework.Workflows;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -14,11 +16,12 @@ namespace RPGFramework
     /// as needed. The class enforces valid ranges for skill attributes and manages health and alive status. Instances
     /// of this class are not created directly; instead, use a concrete subclass representing a specific character
     /// type.</remarks>
-    internal abstract class Character
+    internal abstract partial class Character
     {
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
@@ -44,6 +47,8 @@ namespace RPGFramework
         public int Charisma { get;  set { field = Math.Clamp(value, 0, 20); } } = 0;
         #endregion
 
+        [JsonIgnore]
+        public IWorkflow? CurrentWorkflow { get; set; } = null;
 
         public Character()
         {

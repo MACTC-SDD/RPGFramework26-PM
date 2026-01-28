@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using RPGFramework.Enums;
 using RPGFramework.Combat;
+using RPGFramework.Workflows;
 using RPGFramework.Core;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
@@ -50,6 +51,8 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _combatManagerCts;
+        private Task? _combatManagerTask;
 
         private int _tickCount = 0;
         #endregion
@@ -74,7 +77,7 @@ namespace RPGFramework
         [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
 
         // Relocate later
-        [JsonIgnore] public List<CombatObject> Combats = new List<CombatObject>();
+        [JsonIgnore] public List<CombatWorkflow> Combats = new List<CombatWorkflow>();
 
         [JsonIgnore] public DateTime ServerStartTime { get; private set; }
         
@@ -314,6 +317,8 @@ namespace RPGFramework
             _announcementsCts = new CancellationTokenSource();
             _announcementsTask = RunAnnouncementsLoopAsync(TimeSpan.FromSeconds(30), _announcementsCts.Token);
 
+            _combatManagerCts = new CancellationTokenSource();
+            _combatManagerTask = RunCombatManagerLoopAsync(TimeSpan.FromSeconds(1), _combatManagerCts.Token);
 
             _itemDecayCts = new CancellationTokenSource();
             _itemDecayTask = RunItemDecayLoopAsync(TimeSpan.FromMinutes(2), _itemDecayCts.Token);
@@ -375,7 +380,7 @@ namespace RPGFramework
             _npcCts?.Cancel();
             _itemDecayCts?.Cancel();
             _announcementsCts?.Cancel();
-
+            _combatManagerCts?.Cancel();
             // Exit program
             Environment.Exit(0);
         }
@@ -477,6 +482,105 @@ namespace RPGFramework
         }
         #endregion
 
+        private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    foreach (CombatWorkflow combat in Combats)
+                    {
+                        combat.Process();
+                        /* All of this is handled in CombatTurnManagingMethods.cs
+                        // remove dead combatants
+                        foreach (Character combatant in combat.Combatants)
+                        {
+                            if (!combatant.Alive)
+                            {
+                                combat.Combatants.Remove(combatant);
+                            }
+                        }
+                        // lists of factions
+                        // check if they have any characters in them, then increase the number of active factions 
+                        // based on that
+                        int activeFactions = 0;
+                        if (combat.Elf.Count > 0)
+                            activeFactions++;
+                        if (combat.Bandit.Count > 0)
+                            activeFactions++;
+                        if (combat.Monster.Count > 0)
+                            activeFactions++;
+                        if (combat.Construct.Count > 0)
+                            activeFactions++;
+                        if (combat.Army.Count > 0)
+                            activeFactions++;
+                        // miscellaneous is a list that contains creatures (like wolves based on npc team input)
+                        // and players that makes it so that any characters in that list (npc's in particular)
+                        // can attack anyone in the combat while also allowing for us to keep track of how many 
+                        // creatures should/would still be fighting
+                        if ((activeFactions <= 1 && combat.Miscellaneous.Count <= 0) || (activeFactions <= 0 && combat.Miscellaneous.Count <= 1))
+                        {
+                            // end combat if there is no more opposing characters
+                            foreach (Character c in combat.Combatants)
+                            {
+                                // removes the current workflow from every character and removes them before deleting the combat object
+                                c.CurrentWorkflow = null;
+                                combat.Combatants.Remove(c);
+                            }
+                            Combats.Remove(combat);
+                        }
+                        // at the start of combat assign first active combatant based on initiative order
+                        if (combat.ActiveCombatant == null)
+                            combat.ActiveCombatant = combat.Combatants[0];
+                        // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
+                        if (combat.ActiveCombatant is NonPlayer npc)
+                        {
+                            NonPlayer.TakeTurn(npc, combat);
+                            combat.TurnTimer++;
+                            continue;
+                        }
+                        else
+                        {
+                            if (combat.PreviousActingCharacter != null)
+                            {
+
+                                if (combat.PreviousActingCharacter == combat.ActiveCombatant)
+                                {
+                                    // update timer for player turns if it is the same player as the last run of this task
+                                    combat.TurnTimer++;
+                                    if (combat.TurnTimer >= 30)
+                                    {
+                                        // end player turn if 30 seconds have passed
+                                        int indexOfNextCombatant = combat.Combatants.IndexOf(combat.ActiveCombatant) + 1;
+                                        if (indexOfNextCombatant > combat.Combatants.Count - 1)
+                                            indexOfNextCombatant = 0;
+                                        combat.ActiveCombatant = combat.Combatants[indexOfNextCombatant];
+                                    }
+                                    else if (combat.PreviousActingCharacter != combat.ActiveCombatant)
+                                    {
+                                        // update so that new player gets full turn time
+                                        combat.PreviousActingCharacter = combat.ActiveCombatant;
+                                        combat.TurnTimer = 1;
+                                    }
+                                }
+
+                            }
+                        }
+                        */
+                    }
+                                                                  
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
+        }
+      
         #region RunItemDecayLoopAsync Method
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
@@ -618,7 +722,7 @@ namespace RPGFramework
                     /* CODE REVIEW: Rylan (PR #16)
                      * We don't have NonPlayers in GameState.
 
-                    foreach (var npc in GameState.Instance.NonPlayers)
+                    foreach (var npc in NPCCatalog)
                     {
                         if (npc.IsEngaged)
                         {
@@ -646,15 +750,13 @@ namespace RPGFramework
                                     // notify player of attack
                                     target.WriteLine($"The {npc.Name} attacks you!");
                                     // run combat initialization method(s)
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else if (npc.GetRoom().NPC.Count > 1)
                                 {
                                     List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
 
-                                    foreach (var otherNpc in npc.GetRoom().GetCharacters())
+                                    foreach (NonPlayer otherNpc in npc.GetRoom().GetCharacters())
                                     {
                                         if (otherNpc == npc || otherNpc.IsEngaged)
                                         {
@@ -665,23 +767,29 @@ namespace RPGFramework
                                             potentialNpcTargets.Add(otherNpc);
                                         }
                                     }
-                                    var target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
-                                    CombatObject combat = new CombatObject();
-                                    Combats.Add(combat);
-                                    combat.CombatInitialization(npc, target, combat);
+                                    Character target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
+                                    foreach (Player p in npc.GetRoom().GetPlayers())
+                                    {
+                                        p.WriteLine($"The {npc.Name} attacks {target.Name}");
+                                    }
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
 
                             }
                             else if (npc is Army)
                             {
-                                if (npc.GetRoom().NPC.Hostile.Count > 0)
+                                if (npc.GetRoom().NPCs.Hostile.Count > 0)
                                 {
-                                    foreach (var player in npc.GetRoom().Players)
+                                    Random rand = new Random();
+                                    NonPlayer target = npc.GetRoom().NPCs.Hostile.Count[rand.Next(0, npc.GetRoom().NPCs.Count - 1)];
+                                    foreach (Player player in npc.GetRoom().Players)
                                     {
                                         // notify player of attack
                                         player.WriteLine($"The {npc.Name} attacks an enemy!");
                                     }
                                     // run combat initialization method(s)
+                                    
+                                    CombatWorkflow.CreateCombat(npc, target);
                                 }
                                 else
                                 {

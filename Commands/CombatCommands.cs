@@ -1,7 +1,7 @@
 ﻿using RPGFramework.Combat;
-
 using RPGFramework;
 using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 
 namespace RPGFramework.Commands
@@ -131,8 +131,8 @@ namespace RPGFramework.Commands
             }
             private bool ShowCombatStatus(Player p, List<string> parameters)
             {
-                CombatObject currentCombat = null;
-                foreach (CombatObject combat in GameState.Instance.Combats)
+                CombatWorkflow currentCombat = null;
+                foreach (CombatWorkflow combat in GameState.Instance.Combats)
                 {
                     if (combat.Combatants.Contains(p))
                     {
@@ -203,12 +203,7 @@ namespace RPGFramework.Commands
                         if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                         {
                             Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
-                            CombatObject combat = new();
-                            GameState.Instance.Combats.Add(combat);
-                            character.EngageCombat(true);
-                            enemy.EngageCombat(true);
-                            combat.CombatInitialization(character, enemy, combat);
-                            CombatObject.RunCombat(combat);
+                            CombatWorkflow.CreateCombat(character, enemy);
                             return true;
                         }
                     }
@@ -217,4 +212,164 @@ namespace RPGFramework.Commands
             }
         }
     }
+
+    internal class CombatAdminControls : ICommand
+    {
+        public void AdminStartCombatUntargeted(Player player)
+        {
+            NonPlayer? target = null;
+            List<NonPlayer> possibleTargets = new List<NonPlayer>();
+            foreach (NonPlayer npc in player.GetRoom().GetNonPlayers())
+            {
+                if (npc.IsHostile)
+                {
+                    possibleTargets.Add(npc);
+                }
+            }
+            if (!possibleTargets.Any())
+            {
+                return;
+            }
+            Random random = new Random();
+            target = possibleTargets[random.Next(0, possibleTargets.Count - 1)];
+            CombatWorkflow.CreateCombat(player, target);
+            return;
+        }
+        public void AdminStartCombatTargeted(Character a, Character e)
+        {
+            CombatWorkflow.CreateCombat(a, e);
+        }
+        public string Name => "/combat";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            Player? p = null;
+            if (character is Player player)
+            {
+                p = character as Player;
+            }
+            else
+            {
+                return false;
+            }
+            if (Utility.CheckPermission(character as Player, PlayerRole.Admin) == false)
+            {
+                return false;
+            }
+
+            switch (parameters.Count)
+            {
+                case 1:
+                    player.WriteLine("The combat control command requires you to provide a subselect. (start, end, etc.)");
+                    return false;
+                case 2:
+                    if (parameters[1].ToLower() == "start")
+                    {
+                        p.WriteLine($"You need to provide a target player");
+                        return false;
+                    }
+                    else if (parameters[1].ToLower() == "end")
+                    {
+                        p.WriteLine("You need to provide a target player");
+                        return false;
+                    }
+                    else
+                    {
+                        p.WriteLine("You provided a subselect that does not exist");
+                        return false;
+                    }
+                case 3:
+                    Player? target = null;
+                    if (parameters[1].ToLower() == "start")
+                    {
+
+                        foreach (Player pl in GameState.Instance.Players.Values)
+                        {
+                            if (pl.Name == parameters[2])
+                            {
+                                target = pl;
+                                break;
+                            }
+                        }
+                        if (target == null)
+                            return false;
+                        AdminStartCombatUntargeted(target);
+                        return true;
+                    }
+                    else if (parameters[1].ToLower() == "end")
+                    {
+                        foreach (Player pl in GameState.Instance.Players.Values)
+                        {
+                            if (pl.Name == parameters[2])
+                            {
+                                target = pl;
+                            }
+                        }
+                        if (target == null)
+                            return false;
+                        foreach (CombatWorkflow c in GameState.Instance.Combats)
+                        {
+                            if (c.Combatants.Contains(target))
+                            {
+                                c.EndCombat();
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        p.WriteLine("You provided a subselect that does not exist");
+                        return false;
+                    }
+                case 4:
+                    Player? target1 = null;
+                    Character? target2 = null;
+                    if (parameters[1].ToLower() == "start")
+                    {
+
+                        foreach (Player pl in GameState.Instance.Players.Values)
+                        {
+                            if (pl.Name == parameters[2])
+                            {
+                                target1 = pl;
+                                break;
+                            }
+                        }
+                        foreach (Character c in target1.GetRoom().GetCharacters())
+                        {
+                            if (c.Name == parameters[3])
+                            {
+                                target2 = c;
+                                break;
+                            }
+                        }
+                        if (target2 != null && target1 != null)
+                        {
+                            AdminStartCombatTargeted(target1, target2);
+                            return true;
+                        }
+                        return false;
+                    }
+                    else if (parameters[1].ToLower() == "end")
+                    {
+                        p.WriteLine("You provided too many arguments, /combat end takes one target (e.g. /combat end player)");
+                        return false;
+                    }
+                    else
+                    {
+                        p.WriteLine("You provided a subselect that does not exist");
+                        return false;
+                    }
+                default:
+                    p.WriteLine("You provided inproper arguments, /combat only has two subselects, \n" +
+                        "start and end, start takes 1 or 2 arguments, a primary target and an optional secondary target,\n" +
+                        "end takes one argument, a target character");
+                    return false;
+            }
+        }
+
+    }
 }
+
+
