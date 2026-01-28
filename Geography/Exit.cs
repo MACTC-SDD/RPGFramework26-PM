@@ -10,8 +10,53 @@ namespace RPGFramework.Geography
         public ExitType ExitType { get; set; } = ExitType.Open;
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
+        public int SourceAreaId { get; set; } = 0;
         public int SourceRoomId { get; set; }
         public int DestinationRoomId { get; set; }
+        public int DestinationAreaId { get; set; } = 0;
+
+        // whether the exit is currently open (can be traversed)
+        public bool IsOpen { get; set; } = true;
+        #endregion
+
+        /// <summary>
+        /// Applies sensible default open/close state based on ExitType.
+        /// Open      -> IsOpen = true
+        /// Door      -> IsOpen = true
+        /// LockedDoor-> IsOpen = false
+        /// Impassable-> IsOpen = false
+        /// </summary>
+        public void ApplyDefaultsForType()
+        {
+            switch (ExitType)
+            {
+                case ExitType.Open:
+                    IsOpen = true;
+                    break;
+                case ExitType.Door:
+                    IsOpen = true;
+                    break;
+                case ExitType.LockedDoor:
+                    IsOpen = false;
+                    break;
+                case ExitType.Impassable:
+                default:
+                    IsOpen = false;
+                    break;
+            }
+        }
+
+        #region Delete Methods
+        public static void Delete(int exitId, int sourceRoom, int areaId)
+        {
+            GameState.Instance.Areas[areaId].Exits.Remove(exitId);
+            GameState.Instance.Areas[areaId].Rooms[sourceRoom].ExitIds.Remove(exitId);
+        }
+
+        public static void Delete(Exit exit)
+        {
+            Delete(exit.Id, exit.SourceRoomId, exit.SourceAreaId);
+        }
         #endregion
 
         /// <summary>
@@ -33,6 +78,8 @@ namespace RPGFramework.Geography
             return GameState.Instance.Areas[areaId].Exits.Keys.Max() + 1;
             // Return one higher
         }
+
+
     }
 
 }

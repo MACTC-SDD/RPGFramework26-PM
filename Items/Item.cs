@@ -26,5 +26,7 @@ namespace RPGFramework
             //};
 
 
+
+        public bool IsPerishable { get; set; } = false;
     }
 }

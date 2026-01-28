@@ -8,13 +8,12 @@ namespace RPGFramework
     internal partial class Player
     {
         // Things to not save (don't serialize)
-        [JsonIgnore]
-        public IWorkflow? CurrentWorkflow { get; set; } = null;
+        
         [JsonIgnore]
         public PlayerNetwork? Network { get; set; }
 
         [JsonIgnore]
-        public IAnsiConsole Console { get; set; }
+        public IAnsiConsole? Console { get; set; }
 
         #region --- Constructors ---
         // Constructor (creates a new player)
@@ -72,5 +71,6 @@ namespace RPGFramework
 
             return ((System.Net.IPEndPoint)Network.Client.Client.RemoteEndPoint).Address.ToString();
         }
+
     }
 }
