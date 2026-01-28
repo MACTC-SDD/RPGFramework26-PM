@@ -11,7 +11,7 @@
 
         public Dictionary<int, Room> Rooms { get; set; } = new();
 
-        public string Weather { get; set; } = "clear skies";
+        public string Weather { get; set; } = "Sunny";
         public void UpdateWeather()
         {
             // choose random from list(or enum), apply to area

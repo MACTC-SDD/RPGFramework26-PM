@@ -325,6 +325,8 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+
+
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
@@ -420,6 +422,7 @@ namespace RPGFramework
         /// and how much time should pass each time. For now it adds 1 hour / minute.
         /// </summary>
         /// <param name="interval"></param>
+        public int TimeRate { get; set; } = 60;
         private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Time of Day thread started.");
@@ -428,7 +431,7 @@ namespace RPGFramework
                 try
                 {
                     GameState.Log(DebugLevel.Debug, "Updating time...");
-                    double hours = interval.TotalMinutes * 60;
+                    double hours = interval.TotalMinutes * TimeRate;
                     GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
                 }
                 catch (Exception ex)

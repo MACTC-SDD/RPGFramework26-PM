@@ -261,5 +261,75 @@ namespace RPGFramework.Commands
 
         }
     }
+
+    internal class TimeRateCommand : ICommand
+    {
+        public string Name => "timerate";
+        public IEnumerable<string> Aliases => ["/timerate", "/tr"];
+        public bool Execute(Character character, List<string> parameters)
+        {
+            Player? p = null;
+            if (character is Player player)
+                p = character as Player;
+            else
+                return false;
+            if (!Utility.CheckPermission (p, PlayerRole.Admin))
+            {
+                p.WriteLine("You do not have permission to use this command");
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                p.WriteLine("You did not provide a new rate for time passage");
+                return false;
+            }
+            else if (parameters.Count == 2) 
+            {
+                GameState.Instance.TimeRate = int.Parse(parameters[1]);
+                p.WriteLine($"Time rate set to {GameState.Instance.TimeRate}");
+                return true;
+            }
+            else
+            {
+                p.WriteLine("Improper use of timerate command");
+                return false;
+            }
+        }
+    }
+
+    internal class ChangeTimeCommand : ICommand
+    {
+        public string Name => "changetime";
+        public IEnumerable<string> Aliases => ["/changetime"];
+        public bool Execute( Character character, List<string> parameters)
+        {
+            Player? p = null;
+            if (character is Player player)
+                p = character as Player;
+            else
+                return false;
+            if (!Utility.CheckPermission (p, PlayerRole.Admin))
+            {
+                p.WriteLine("You do not have permission to use this command");
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                p.WriteLine("You need to provide an amount of time to change by");
+                return false;
+            }
+            else if (parameters.Count == 2)
+            {
+                double timeToAdd = int.Parse(parameters[1]);
+                GameState.Instance.GameDate += TimeSpan.FromHours(timeToAdd);
+                return true;
+            }
+            else
+            {
+                p.WriteLine("Inocrrect usage of changetime command");
+                return false;
+            }
+        }
+    }
 }
 
