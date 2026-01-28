@@ -3,6 +3,8 @@ using RPGFramework.Core;
 using RPGFramework.Display;
 using RPGFramework.Enums;
 using RPGFramework.Workflows;
+using System.IO.Compression;
+using System.Numerics;
 
 
 namespace RPGFramework.Commands
@@ -25,7 +27,8 @@ namespace RPGFramework.Commands
                 new SaveAll(),
                 new WhereCommand(),
                 new WhoCommand(),
-                
+                new BackupCommand(),
+                new RestoreCommand(),
             ];
         }
     }
@@ -398,13 +401,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "summon";
 
-        // CODE REVIEW: Aidan - This should use Utility.CheckPermission for consistency.
-        // Once you've review, just delete this comment and the commented out method below.
-        /*public bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
+
         
         public IEnumerable<string> Aliases => [];
 
@@ -535,5 +532,80 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-}
+    #region BackupCommand Class
+    internal class BackupCommand : ICommand
+    {
+        public string Name => "backup";
 
+        public IEnumerable<string> Aliases => new List<string>();
+
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+         
+          
+            try
+            {
+                GameState.CreateBackup();
+                player.WriteLine("Backup created successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Backup failed: {ex.Message}");
+                return false;
+            }
+        }
+
+
+    }
+    #endregion
+    #region RestoreCommand
+    internal class RestoreCommand : ICommand
+    {
+        public string Name => "restore";
+
+        public IEnumerable<string> Aliases => new List<string>();
+
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count == 0)
+            {
+                player.WriteLine("Usage: /restore <backupName | latest>");
+                return false;
+            }
+
+            try
+            {
+                GameState.RestoreBackup(parameters[0]);
+                player.WriteLine("Restore completed successfully. Server restart recommended.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Restore failed: {ex.Message}");
+                return false;
+            }
+        }
+
+    }
+#endregion
+}
