@@ -400,6 +400,8 @@ namespace RPGFramework
         #endregion
 
         #region --- Thread Methods ---
+
+        #region RunAutosaveLoopAsync Method
         /// <summary>
         /// Things that need to be saved periodically
         /// </summary>
@@ -427,7 +429,9 @@ namespace RPGFramework
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
         }
+        #endregion
 
+        #region RunTimeOfDayLoopAsync Method
         /// <summary>
         /// Update the time periodically.
         /// We might want to create game variables that indicate how often this should run
@@ -454,7 +458,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
         }
+        #endregion
 
+        #region RunAnnouncementsLoopAsync Method
         private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Announcements thread started.");
@@ -474,6 +480,7 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
         }
+        #endregion
 
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
@@ -573,6 +580,8 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
         }
+      
+        #region RunItemDecayLoopAsync Method
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Decay thread started.");
@@ -603,7 +612,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
+        #endregion
 
+        #region RunTickLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // We should consider whether this is necessary.
         private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
@@ -625,7 +636,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
         }
+        #endregion
 
+        #region RunWeatherLoopAsync Method
         private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Weather thread started.");
@@ -652,7 +665,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
         }
+        #endregion
 
+        #region UpdateWeather Method
         // CODE REVIEW: Rylan (PR #16)
         // All of the weather code (UpdateWeather, weatherStates)
         // needs to be moved to its own class.
@@ -680,8 +695,9 @@ namespace RPGFramework
             "Snowy",
             "Windy"
         };
-        // end weather update method
+        #endregion
 
+        #region RunNPCLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
         // probably should live in the NonPlayer, Mob, etc. classes. 
@@ -801,6 +817,7 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
         }
+        #endregion
 
         #endregion --- Thread Methods ---
 
