@@ -328,7 +328,7 @@ namespace RPGFramework
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
             _itemCleanUpCts = new CancellationTokenSource();
-            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts);
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
 
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
@@ -444,7 +444,7 @@ namespace RPGFramework
                 }
                 await Task.Delay(interval, ct);
             }
-            GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.")
+            GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.");
         }
 
         /// <summary>
