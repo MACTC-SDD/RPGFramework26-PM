@@ -3,9 +3,10 @@ using RPGFramework.Geography;
 
 namespace RPGFramework.Workflows
 {
+    // probably move this and other partial classes for this class to the combat folder,
+    // this one may be fine to stay since its the main workflow
     internal partial class CombatWorkflow : IWorkflow
     {
-        public bool EndTurn { get; set; }
         public int CurrentStep { get; set; } = 0;
         public string Description { get; } = "Manages the sequence of actions during a combat turn.";
         public string Name { get; } = "Combat Turn Workflow";
@@ -37,12 +38,14 @@ namespace RPGFramework.Workflows
                 new UXPanelCommand(),
                 new UXTreeCommand(),
                 new UXBarChartCommand(),
-                new UXCanvasCommand()
-        ];
+                new UXCanvasCommand(),
+                new CombatAdminControlsCommand()
+        };
 
         public Dictionary<string, object> WorkflowData { get; set; } = [];
 
         public int TurnTimer { get; set; } = 0;
+        public int RoundCounter { get; set; } = 0;
 
         public Character? PreviousActingCharacter { get; set; }
         
@@ -250,16 +253,16 @@ namespace RPGFramework.Workflows
                     break;
                 case 4:
                     // second step of inventory action
-                    EndTurn = ChooseItem(player, parameters);
+                    ChooseItem(player, parameters);
                     break;
                 case 5:
                     // targeting phase for attack
 
-                    EndTurn = TargetWeapon(player, parameters);
+                    TargetWeapon(player, parameters);
                     break; 
                     case 6:
                     // targeting phase for spell
-                    EndTurn = TargetSpell(player, parameters);
+                    TargetSpell(player, parameters);
                     break;
                 default:
                     player.WriteLine("Invalid step in combat turn workflow.");

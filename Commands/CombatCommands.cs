@@ -7,17 +7,17 @@ namespace RPGFramework.Commands
 {
     internal class CombatCommands
     {
-        public static List<ICommand> GetAllCommands()
+        public static List<ICommand> GetCombatCommands()
         {
             return
-            [
-                new ConsiderCommand(),
-                // Add other communication commands here as they are implemented
-            ];
+                [
+                    new ConsiderCommand(),
+                    new CombatStatusCommand(),
+                    new StartCombatCommand(),
+                    new CombatAdminControlsCommand()
+                ];
         }
     }
-
-    #region ConsiderCommand Class
     internal class ConsiderCommand : ICommand
     {
         public string Name { get; set; } = "consider";
@@ -98,6 +98,7 @@ namespace RPGFramework.Commands
             }
             if (currentCombat != null)
             {
+                p.WriteLine($"Current round count: {currentCombat.TurnTimer}");
                 p.WriteLine("Combatants:");
                 foreach (Character c in currentCombat.Combatants)
                 {
@@ -111,37 +112,31 @@ namespace RPGFramework.Commands
 
             }
         }
-        #endregion
+    }
 
-    #region StartCombatCommand Class
-    // CODE REVIEW: Rylan - We do not want to have nested classes for commands.
-    /*internal class CombatCommands
-    {*/
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
-        public IEnumerable<string> Aliases => [ "/attack", "/a" ];
-        public string Help => "";
-            public bool Execute(Character character, List<string> parameters)
+        public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+        public bool Execute(Character character, List<string> parameters)
         {
-            Player? player = character as Player ?? null;
 
-            List<string> attackableNonPlayers = [];
+            List<string> attackableNonPlayers = new List<string>();
 
-            foreach (NonPlayer npc in character.GetRoom().NonPlayers)
+            foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
             {
                 attackableNonPlayers.Add(npc.Name);
             }
 
-            List<string> attackablePlayers = [];
+            List<string> attackablePlayers = new List<string>();
 
-            foreach (Player p in Room.GetPlayersInRoom(character.GetRoom()))
+            foreach (Player p in character.GetRoom().GetPlayers())
             {
                 attackablePlayers.Add(p.Name);
             }
             if (parameters.Count < 2)
             {
-                if (player != null)
+                if (character is Player player)
                 {
 
                     player.WriteLine("Attackable NonPlayers");
@@ -156,7 +151,6 @@ namespace RPGFramework.Commands
                     }
                 }
             }
-
             if (parameters.Count == 2)
             {
                 if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
@@ -164,14 +158,13 @@ namespace RPGFramework.Commands
                     Character? enemy = Room.GetCharactersInRoom(character.GetRoom())
                         .Find(Character => Character.Name == parameters[1]);
 
-                    if (enemy == null)
-                    {
-                        if (player != null)
-                        {
-                            player.WriteLine("That target is not valid.");
-                            return false;
-                        }
-                    }
+                }
+            }
+            if (parameters.Count == 2)
+            {
+                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
+                {
+                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
                     CombatWorkflow.CreateCombat(character, enemy);
                     return true;
                 }
@@ -181,8 +174,9 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-    #region CombatAdminControls Class
-    internal class CombatAdminControls : ICommand
+
+
+    internal class CombatAdminControlsCommand : ICommand
     {
         public string Name => "/combat";
         public IEnumerable<string> Aliases => [];
@@ -317,34 +311,14 @@ namespace RPGFramework.Commands
                     return false;
             }
         }
-        public void AdminStartCombatUntargeted(Player player)
-        {
-            NonPlayer? target = null;
-            List<NonPlayer> possibleTargets = [];
-            foreach (NonPlayer npc in player.GetRoom().NonPlayers)
-            {
-                if (npc.IsHostile)
-                {
-                    possibleTargets.Add(npc);
-                }
-            }
-            if (possibleTargets.Count == 0)
-            {
-                return;
-            }
-            Random random = new();
-            target = possibleTargets[random.Next(0, possibleTargets.Count - 1)];
-            CombatWorkflow.CreateCombat(player, target);
-            return;
-        }
-        public void AdminStartCombatTargeted(Character a, Character e)
-        {
-            CombatWorkflow.CreateCombat(a, e);
-        }
     }
 }
 #endregion
 }
+
+
+    
+
 
 
     

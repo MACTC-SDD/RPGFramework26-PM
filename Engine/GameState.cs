@@ -407,6 +407,7 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();

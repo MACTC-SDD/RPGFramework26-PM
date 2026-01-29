@@ -35,6 +35,7 @@ namespace RPGFramework.Workflows
                     Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }
@@ -71,6 +72,7 @@ namespace RPGFramework.Workflows
                     Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }
@@ -110,6 +112,7 @@ namespace RPGFramework.Workflows
                 player.Heal(chosenItem.HealAmount);
                 player.Inventory.Remove(chosenItem); // Remove used item from inventory
                 CurrentStep = 0; // End turn
+                EndTurn();
                 return true;
             }
             else
