@@ -36,6 +36,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "emote";
         public IEnumerable<string> Aliases => new List<string> {"smile","wave","laugh","nod", "shrug", "cheer", "cry", "dance", "bow", "yawn", "poke" };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)

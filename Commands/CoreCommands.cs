@@ -321,6 +321,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "xp";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -330,6 +331,7 @@ namespace RPGFramework.Commands
             }
             return false;
         }
+    }
 
     internal class WeatherSetCommand : ICommand
     {
@@ -371,7 +373,8 @@ namespace RPGFramework.Commands
     internal class LevelCommand : ICommand
     {
         public string Name => "level";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -383,10 +386,12 @@ namespace RPGFramework.Commands
         }
 
     }
+
     internal class TrainCommand : ICommand
     {
         public string Name => "train";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "Train your attributes using stat points you have earned from leveling up.\nUsage: train <attribute>";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
