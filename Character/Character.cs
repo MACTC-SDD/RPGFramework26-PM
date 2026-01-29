@@ -37,6 +37,7 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
+        public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
         #endregion
 

@@ -7,6 +7,8 @@ using RPGFramework.Enums;
 using System.Collections.Immutable;
 using RPGFramework.Items;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace RPGFramework.Commands
 {
@@ -30,6 +32,9 @@ namespace RPGFramework.Commands
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
+                new XPCommand(),
+                new LevelCommand(),
+                new TrainCommand(),                
                 new EquipmentCommand(),
                 // Add other core commands here as they are implemented
             ];
@@ -312,6 +317,19 @@ namespace RPGFramework.Commands
 
         }
     }
+    internal class XPCommand : ICommand
+    {
+        public string Name => "xp";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                return true;
+            }
+            return false;
+        }
 
     internal class WeatherSetCommand : ICommand
     {
@@ -347,5 +365,81 @@ namespace RPGFramework.Commands
 
         }
     }
-}
 
+
+    
+    internal class LevelCommand : ICommand
+    {
+        public string Name => "level";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"You are level {player.Level} you will gain an additional {player.Levels[player.Level].Health} health and you will have {player.Levels[player.Level].StatPoints} points upon level up.");
+                return true;
+            }
+            return false;
+        }
+
+    }
+    internal class TrainCommand : ICommand
+    {
+        public string Name => "train";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine($"to train you must type train and whatever you are trying to train for example, train strength.");
+                return true;
+            }
+            if (player.StatPoints < 1)
+            {
+                player.WriteLine($"you dont have enough stat points or attribute doesnt exist");
+                return true;
+            }
+           switch(parameters[1].ToLower())
+            {
+                case "Strength":
+                    player.Strength++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to strength");
+                    break;
+                case "dexterity":
+                    player.Dexterity++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to dexterity");
+                break;
+                case "constitution":
+                    player.Constitution++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to constitution");
+                break;
+                case "intelligence":
+                    player.Intelligence++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to intelligence");
+                break;
+                case "wisdom":
+                    player.Wisdom++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to wisdom");
+                break;
+                case "charisma":
+                    player.Charisma++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to charisma");
+                break;
+                default:
+                    player.WriteLine("unkown attribute");
+                break;
+            }
+            return false;
+        }
+    }
+}
