@@ -4,12 +4,12 @@
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new TestItemSizeCommand(),
                 new ExampleCommand()
                 // Add more test commands here as needed
-            };
+            ];
         }
     }
 
@@ -27,16 +27,19 @@
         public string Name => "example";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
-        public IEnumerable<string> Aliases => new List<string>() { "ex" };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // What will happen when the command is executed
         public bool Execute(Character character, List<string> parameters)
         { 
             // A lot of times we want to make sure it's a Player issuing the command, but not always
-            if (character is Player player)
+            if (character is not Player player)
             {
-                player.WriteLine("This is an example command.");
+                return false;               
             }
+
+            player.WriteLine("This is an example command.");
 
             // If the command failed to run for some reason, return false
             return true;
@@ -53,14 +56,15 @@
     internal class TestItemSizeCommand : ICommand
     {
         public string Name => "testitemsize";
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             long startMem = GC.GetTotalMemory(true);
-            List<Item> items = new List<Item>();
+            List<Item> items = [];
             for (int i = 0; i < 100000; i++)
             {
-                Item item = new Item
+                Item item = new()
                 {
                     Id = i,
                     Name = "Item " + i,

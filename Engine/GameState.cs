@@ -1,12 +1,13 @@
 ﻿
-using System.Text.Json.Serialization;
-using RPGFramework.Enums;
 using RPGFramework.Combat;
-using RPGFramework.Workflows;
 using RPGFramework.Core;
+using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Persistence;
 using RPGFramework.Interfaces;
+using RPGFramework.Persistence;
+using RPGFramework.Workflows;
+using System.IO.Compression;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -55,6 +56,7 @@ namespace RPGFramework
         private Task? _combatManagerTask;
 
         private int _tickCount = 0;
+        private int _logSuppressionSeconds = 30;
         #endregion
 
         #region --- Properties ---
@@ -96,6 +98,7 @@ namespace RPGFramework
         /// Gets or sets the collection of help entries, indexed by their name (must be unique).
         /// </summary>
         [JsonIgnore] public Catalog<string, HelpEntry> HelpCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
 
@@ -110,6 +113,7 @@ namespace RPGFramework
             Catalogs.Add(HelpCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(NPCCatalog);
+            Catalogs.Add(ItemCatalog);
         }
 
         public void AddPlayer(Player player)
@@ -278,7 +282,71 @@ namespace RPGFramework
             return Persistence.SavePlayerAsync(p);
         }
         #endregion
+        #region CreateBackup Method
+        public static void CreateBackup()
+        {
+            const string dataPath = "data";
+            const string backupPath = "backups";
 
+            if (!Directory.Exists(dataPath))
+                throw new DirectoryNotFoundException($"Missing data folder: {dataPath}");
+
+            Directory.CreateDirectory(backupPath);
+
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            string zipPath = Path.Combine(
+                backupPath,
+                $"backup_{timestamp}.zip"
+            );
+
+            ZipFile.CreateFromDirectory(
+                dataPath,
+                zipPath,
+                CompressionLevel.Optimal,
+                includeBaseDirectory: true
+            );
+        }
+        #endregion
+        #region RestoreBackup Method
+        public static void RestoreBackup(string backupName)
+        {
+            const string dataPath = "Data";
+            const string backupPath = "Backups";
+
+            if (!Directory.Exists(backupPath))
+                throw new DirectoryNotFoundException("No backups directory found.");
+
+            string zipPath;
+
+            if (backupName.Equals("latest", StringComparison.OrdinalIgnoreCase))
+            {
+                zipPath = new DirectoryInfo(backupPath)
+                    .GetFiles("backup_*.zip")
+                    .OrderByDescending(f => f.CreationTimeUtc)
+                    .FirstOrDefault()?.FullName
+                    ?? throw new FileNotFoundException("No backups available.");
+            }
+            else
+            {
+                if (!backupName.EndsWith(".zip"))
+                    backupName += ".zip";
+
+                zipPath = Path.Combine(backupPath, backupName);
+
+                if (!File.Exists(zipPath))
+                    throw new FileNotFoundException($"Backup not found: {backupName}");
+            }
+
+            // Safety: move current data out of the way
+            if (Directory.Exists(dataPath))
+            {
+                string oldPath = $"{dataPath}_old_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+                Directory.Move(dataPath, oldPath);
+            }
+
+            ZipFile.ExtractToDirectory(zipPath, dataPath);
+        }
+        #endregion
         #region Start Method (Async)
         /// <summary>
         /// Initializes and starts the game server 
@@ -389,12 +457,24 @@ namespace RPGFramework
         #endregion --- Methods ---
 
         #region --- Static Methods ---
-        internal static void Log(DebugLevel level, string message)
+        internal static bool Log(DebugLevel level, string message)
         {
             if (level <= GameState.Instance.DebugLevel)
             {
                 Console.WriteLine($"[{level}] {message}");
+                return true;
             }
+            return false;
+        }
+
+        internal static bool Log(DebugLevel level, string message, DateTime lastLog, int suppressionSeconds)
+        {
+            if ((DateTime.Now - lastLog).TotalSeconds >= suppressionSeconds)
+            {
+                return Log(level, message);
+            }
+
+            return false;
         }
 
         #endregion
@@ -456,11 +536,18 @@ namespace RPGFramework
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            DateTime lastLog = DateTime.Now;
+
             while (!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
-                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    // Only show log if enough time has passed
+                    if (Log(DebugLevel.Debug, "Managing combats...", lastLog, _logSuppressionSeconds))
+                    { 
+                        lastLog = DateTime.Now;                        
+                    }
+
                     foreach (CombatWorkflow combat in Combats)
                     {
                         combat.Process();

@@ -32,8 +32,7 @@ namespace RPGFramework.Workflows
         private void UpdatePlayerTurn()
         {
             // at the start of combat assign first active combatant based on initiative order
-            if (ActiveCombatant == null)
-                ActiveCombatant = Combatants[0];
+            ActiveCombatant ??= Combatants[0];
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
             if (ActiveCombatant is NonPlayer npc)
             {

@@ -1,7 +1,5 @@
-﻿using RPGFramework;
-using RPGFramework.Combat;
-using RPGFramework.Commands;
-using System.Numerics;
+﻿using RPGFramework.Commands;
+using RPGFramework.Geography;
 
 namespace RPGFramework.Workflows
 {
@@ -11,9 +9,9 @@ namespace RPGFramework.Workflows
         public int CurrentStep { get; set; } = 0;
         public string Description { get; } = "Manages the sequence of actions during a combat turn.";
         public string Name { get; } = "Combat Turn Workflow";
-        public List<ICommand> PreProcessCommands { get; private set; } = new List<ICommand>();
-        public List<ICommand> PostProcessCommands { get; private set; } = new List<ICommand>()
-        {
+        public List<ICommand> PreProcessCommands { get; private set; } = [];
+        public List<ICommand> PostProcessCommands { get; private set; } =
+        [
                 new AnnounceCommand(),
                 new ShutdownCommand(),
                 new WhereCommand(),
@@ -40,20 +38,20 @@ namespace RPGFramework.Workflows
                 new UXTreeCommand(),
                 new UXBarChartCommand(),
                 new UXCanvasCommand()
-        };
+        ];
 
-        public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> WorkflowData { get; set; } = [];
 
         public int TurnTimer { get; set; } = 0;
 
         public Character? PreviousActingCharacter { get; set; }
         
-        public List<Character> Combatants = new List<Character>();
+        public List<Character> Combatants = [];
         public async Task CombatInitialization(Character attacker, Character enemy)
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);
-            foreach (NonPlayer npc in attacker.GetRoom().GetNonPlayers())
+            foreach (NonPlayer npc in attacker.GetRoom().NonPlayers)
             {
                 //if (npc.Hostile == true || npc.Army == true)
                 {
@@ -62,7 +60,7 @@ namespace RPGFramework.Workflows
             }
             foreach (Character c in Combatants)
             {
-                Random rand = new Random();
+                Random rand = new();
                 int initiativeRoll = rand.Next(1, 20);
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
@@ -76,13 +74,13 @@ namespace RPGFramework.Workflows
         }
         public Character ActiveCombatant { get; set; } = null!;
 
-        public List<Character> Elf = new List<Character>();
-        public List<Character> Monster = new List<Character>();
-        public List<Character> Bandit = new List<Character>();
-        public List<Character> Construct = new List<Character>();
-        public List<Character> Army = new List<Character>();
-        public List<Character> Miscellaneous = new List<Character>();
-        public List<Character> Players = new List<Character>();
+        public List<Character> Elf = [];
+        public List<Character> Monster = [];
+        public List<Character> Bandit = [];
+        public List<Character> Construct = [];
+        public List<Character> Army = [];
+        public List<Character> Miscellaneous = [];
+        public List<Character> Players = [];
         public void SortCombatants()
         {
             foreach (Character c in Combatants)
@@ -138,11 +136,11 @@ namespace RPGFramework.Workflows
 
         public void InitiativeOrder(List<Character> combatants)
         {
-            Combatants = Combatants.OrderByDescending(c => c.Initiative).ToList();
+            Combatants = [.. Combatants.OrderByDescending(c => c.Initiative)];
         }
         public static CombatWorkflow CreateCombat(Character attacker, Character enemy)
         {
-            CombatWorkflow combat = new CombatWorkflow();
+            CombatWorkflow combat = new();
             GameState.Instance.Combats.Add(combat);
             combat.CombatInitialization(attacker, enemy);
             return combat;

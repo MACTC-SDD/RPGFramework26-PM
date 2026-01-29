@@ -5,6 +5,7 @@ using RPGFramework.Geography;
 using Spectre.Console;
 using RPGFramework.Enums;
 using System.Collections.Immutable;
+using RPGFramework.Items;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -20,8 +21,8 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new AFKCommand(),
                 new IpCommand(),
                 new LookCommand(),
@@ -33,19 +34,41 @@ namespace RPGFramework.Commands
                 new HelpCommand(),
                 new XPCommand(),
                 new LevelCommand(),
-                new TrainCommand(),
-                
+                new TrainCommand(),                
+                new EquipmentCommand(),
                 // Add other core commands here as they are implemented
-            };
+            ];
         }
 
 
     }
 
+    internal class EquipmentCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Equip an item, weapon or armor.\nUsage: equip <name>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            List<Armor> armorItems = [];
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Armor a)
+                { armorItems.Add(a); }
+            }
+            return false;
+        }
+    }
+
     internal class AFKCommand : ICommand
     {
         public string Name => "afk";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Toggles your AFK (Away From Keyboard) status. This just changes your display name.";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -62,7 +85,9 @@ namespace RPGFramework.Commands
     internal class IpCommand : ICommand
     {
         public string Name => "ip";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Show the IP address you are connecting to the server from.";
+
         public bool Execute(Character character, List<string> parameters)
         {           
             if (character is Player player)
@@ -77,7 +102,9 @@ namespace RPGFramework.Commands
     internal class LookCommand : ICommand
     {
         public string Name => "look";
-        public IEnumerable<string> Aliases => new List<string> { "l" };
+        public IEnumerable<string> Aliases => [ "l" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -110,7 +137,8 @@ namespace RPGFramework.Commands
     internal class QuitCommand : ICommand
     {
         public string Name => "quit";
-        public IEnumerable<string> Aliases => new List<string> { "exit" };
+        public IEnumerable<string> Aliases => [ "exit" ];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -126,7 +154,9 @@ namespace RPGFramework.Commands
     internal class SayCommand : ICommand
     {
         public string Name => "say";
-        public IEnumerable<string> Aliases => new List<string> { "\"".Normalize(), "'".Normalize() };
+        public IEnumerable<string> Aliases => [ "\"", "'" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             // If no message and it's a player, tell them to say something
@@ -143,7 +173,8 @@ namespace RPGFramework.Commands
     internal class TellCommand : ICommand
     {
         public string Name => "tell";
-        public IEnumerable<string> Aliases => new List<string> { "msg", "whisper" };
+        public IEnumerable<string> Aliases => [ "msg", "whisper" ];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -177,6 +208,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "time";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -192,6 +225,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "status";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -221,6 +255,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "help";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -228,11 +264,23 @@ namespace RPGFramework.Commands
 
             // if no help topic given
             if (parameters.Count < 2)
-            {
+            {var table = new Table();
+                table.AddColumn("[mediumpurple2]Help Topics:[/]");
+                table.AddColumn("");
+                table.AddColumn("");
+                table.AddColumn("");
+                List<string> helpTopics = new List<string>();
                 foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
-                    player.WriteLine($"{he.Name}");
+                    //player.WriteLine($"{he.Name}");
+                    helpTopics.Add(he.Name);
+                    if (helpTopics.Count == 4)
+                    {
+                        table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
+                        helpTopics.Clear();
+                    }
                 }
+                player.Write(table);
             }
             else
             {
@@ -255,6 +303,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "weather";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -286,10 +335,12 @@ namespace RPGFramework.Commands
     {
         public string Name => "setweather";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
 
             if (character is not Player player)
+
                 return false;
 
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
