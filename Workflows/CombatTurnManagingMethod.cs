@@ -80,6 +80,7 @@ namespace RPGFramework.Workflows
             foreach (Character c in Combatants)
             {
                 c.CurrentWorkflow = null;
+                c.EngageCombat(false);
                 Combatants.Remove(c);
             }
 

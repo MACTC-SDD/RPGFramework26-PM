@@ -25,7 +25,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; protected set; } = 0;
+        public int Health { get; set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
         public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;

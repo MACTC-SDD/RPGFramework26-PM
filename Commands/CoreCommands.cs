@@ -29,6 +29,11 @@ namespace RPGFramework.Commands
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
+                new CheckWeatherCommand(),
+                new WeatherSetCommand(),
+                new GoldCommand(),
+                new HealCommand(),
+                new DamageCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -292,6 +297,91 @@ namespace RPGFramework.Commands
                 return true;
             }
 
+
+        }
+    }
+    internal class GoldCommand : ICommand
+    {
+        public string Name => "gold";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                player.Gold += int.Parse(parameters[2]);
+                player.WriteLine($"you have added {parameters[2]} to {parameters[1]}" );
+                return true;
+            }
+            return false;
+
+        }
+    }
+    internal class HealCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No health amount stated.");
+                    return false;
+                }
+                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                Target.Health += int.Parse(parameters[2]);
+                player.WriteLine($"you have healed {Target} by {parameters[1]}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+    internal class DamageCommand : ICommand
+    {
+        public string Name => "damage";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No Damage amount stated.");
+                    return false;
+                }
+                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                Target.Health -= int.Parse(parameters[2]);
+                player.WriteLine($"you have damaged {Target} by {parameters[1]}");
+                return true;
+            }
+            return false;
 
         }
     }
