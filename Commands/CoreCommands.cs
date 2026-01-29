@@ -84,9 +84,9 @@ namespace RPGFramework.Commands
             else
             {
                 c = (Consumable)i;
-                if (c.usesLeft > 0)
+                if (c.UsesLeft > 0)
                 {
-                    c.usesLeft--;
+                    c.UsesLeft--;
                     //c.Use();
 
                 }
@@ -100,7 +100,7 @@ namespace RPGFramework.Commands
     }
 
 
-    }
+    
 
     internal class AFKCommand : ICommand
     {
