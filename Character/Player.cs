@@ -31,6 +31,7 @@ namespace RPGFramework
 
         }
 
+        #region Exists Method (Static)
         /// <summary>
         /// Checks if a player with the specified name exists in the provided dictionary. This is case-insensitive!
         /// That is why we don't just use players.ContainsKey.
@@ -43,7 +44,9 @@ namespace RPGFramework
             // Check dictionary keys in a case-insensitive manner
             return players.Keys.Any(name => string.Equals(name, playerName, StringComparison.OrdinalIgnoreCase));
         }
+        #endregion
 
+        #region FindPlayer and TryFindPlayer Methods (Static)
         /// <summary>
         /// Searches for a player by name in the specified collection and returns the corresponding player if found.
         /// This search is case-insensitive, which is why we should use this method instead of directly accessing the dictionary.
@@ -78,7 +81,9 @@ namespace RPGFramework
             player = FindPlayer(playerName, players);
             return player != null;
         }
+        #endregion
 
+        #region Login/Logout Methods
         /// <summary>
         /// Things that should happen when a player logs in.
         /// </summary>
@@ -104,7 +109,9 @@ namespace RPGFramework
             WriteLine("Bye!");
             Network?.Client.Close();
         }
+        #endregion
 
+        #region Save Method
         /// <summary>
         /// Save the player to the database.
         /// </summary>
@@ -112,7 +119,9 @@ namespace RPGFramework
         {
             GameState.Instance.SavePlayer(this);
         }
+        #endregion
 
+        #region SetPassword Method
         /// <summary>
         /// Sets the password to the specified value.
         /// </summary>
@@ -124,6 +133,9 @@ namespace RPGFramework
             Password = newPassword;
             return true;
         }
+        #endregion
+
+
         public void Write(string message)
         {
             WriteNewLineIfNeeded();
@@ -139,7 +151,6 @@ namespace RPGFramework
             var line = Network?.TelnetConnection?.CurrentLineText;
             Console?.Write(line ?? String.Empty); // Re-write current input line
         }
-
         
         /// <summary>
         /// Writes the specified message to the output, followed by a line terminator.
