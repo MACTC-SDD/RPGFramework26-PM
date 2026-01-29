@@ -1,7 +1,9 @@
 ﻿
+using RPGFramework.Display;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Combat;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace RPGFramework
 {
@@ -106,6 +108,19 @@ namespace RPGFramework
             SetHealth(Health + heal);
         }
 
+        public IRenderable ShowSummary()
+        { var table = new Table();
+            table.AddColumn("Background");
+            table.AddColumn("info");
+            table.AddRow("Name", "Gold");
+            table.AddRow("Class", "Inventory");
+            table.AddRow("Health", "XP");
+            table.AddRow("level", "LocationId");
+
+            string title = "Character Info";
+
+            return RPGPanel.GetPanel(table, title);
+        }
         
     }
 }
