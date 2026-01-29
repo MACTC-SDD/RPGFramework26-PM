@@ -22,6 +22,8 @@ namespace RPGFramework.Commands
     {
         public string Name { get; set; } = "consider";
         public IEnumerable<string> Aliases => ["/consider"];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             // CODE REVIEW: Rylan - I moved character finding to Room.FindCharacterInRoom
@@ -52,6 +54,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "combatstatus";
         public IEnumerable<string> Aliases => [ "/combatstatus", "/cs" ];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -118,7 +121,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "attack";
         public IEnumerable<string> Aliases => [ "/attack", "/a" ];
-        public bool Execute(Character character, List<string> parameters)
+        public string Help => "";
+            public bool Execute(Character character, List<string> parameters)
         {
             Player? player = character as Player ?? null;
 
@@ -182,11 +186,12 @@ namespace RPGFramework.Commands
     {
         public string Name => "/combat";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
-        // CODE REVIEW: Rylan - This method is quite long and complex.
-        // This should be broken down into smaller methods for better
-        // readability and maintainability.
-        public bool Execute(Character character, List<string> parameters)
+            // CODE REVIEW: Rylan - This method is quite long and complex.
+            // This should be broken down into smaller methods for better
+            // readability and maintainability.
+            public bool Execute(Character character, List<string> parameters)
         {
 
             if (character is not Player player)

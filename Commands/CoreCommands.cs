@@ -19,8 +19,8 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new AFKCommand(),
                 new IpCommand(),
                 new LookCommand(),
@@ -32,7 +32,7 @@ namespace RPGFramework.Commands
                 new HelpCommand(),
                 new EquipmentCommand(),
                 // Add other core commands here as they are implemented
-            };
+            ];
         }
 
 
@@ -41,13 +41,14 @@ namespace RPGFramework.Commands
     internal class EquipmentCommand : ICommand
     {
         public string Name => "equip";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
 
-            List<Armor> armorItems = new List<Armor>();
+            List<Armor> armorItems = [];
             foreach (Item i in player.BackPack.Items)
             {
                 if (i is Armor a)
@@ -64,7 +65,9 @@ namespace RPGFramework.Commands
     internal class AFKCommand : ICommand
     {
         public string Name => "afk";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -81,7 +84,9 @@ namespace RPGFramework.Commands
     internal class IpCommand : ICommand
     {
         public string Name => "ip";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {           
             if (character is Player player)
@@ -96,7 +101,9 @@ namespace RPGFramework.Commands
     internal class LookCommand : ICommand
     {
         public string Name => "look";
-        public IEnumerable<string> Aliases => new List<string> { "l" };
+        public IEnumerable<string> Aliases => [ "l" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -129,7 +136,8 @@ namespace RPGFramework.Commands
     internal class QuitCommand : ICommand
     {
         public string Name => "quit";
-        public IEnumerable<string> Aliases => new List<string> { "exit" };
+        public IEnumerable<string> Aliases => [ "exit" ];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -145,7 +153,9 @@ namespace RPGFramework.Commands
     internal class SayCommand : ICommand
     {
         public string Name => "say";
-        public IEnumerable<string> Aliases => new List<string> { "\"".Normalize(), "'".Normalize() };
+        public IEnumerable<string> Aliases => [ "\"", "'" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             // If no message and it's a player, tell them to say something
@@ -162,7 +172,8 @@ namespace RPGFramework.Commands
     internal class TellCommand : ICommand
     {
         public string Name => "tell";
-        public IEnumerable<string> Aliases => new List<string> { "msg", "whisper" };
+        public IEnumerable<string> Aliases => [ "msg", "whisper" ];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -196,6 +207,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "time";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -211,6 +224,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "status";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -240,6 +254,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "help";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -286,6 +302,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "weather";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -304,10 +321,12 @@ namespace RPGFramework.Commands
     {
         public string Name => "setweather";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
 
             if (character is not Player player)
+
                 return false;
 
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)

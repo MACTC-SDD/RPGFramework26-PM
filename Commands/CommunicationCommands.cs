@@ -18,6 +18,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/soc";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)

@@ -38,6 +38,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/announce";
         public IEnumerable<string> Aliases => [ "ann" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -62,8 +64,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "goto";
 
-
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -101,6 +103,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/help";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -173,6 +177,7 @@ namespace RPGFramework.Commands
         public string Name => "kick";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -214,6 +219,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/reloadseeddata";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -240,6 +246,7 @@ namespace RPGFramework.Commands
         public string Name => "rename";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - I un-nested this by moving character and permission checks to the 
         // beginning and exiting if they failed. This makes the code a lot more readable because we don't
@@ -295,6 +302,7 @@ namespace RPGFramework.Commands
         public string Name => "role";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -355,6 +363,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/saveall";
         public IEnumerable<string> Aliases => [  ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -377,6 +387,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/shutdown";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -399,11 +410,9 @@ namespace RPGFramework.Commands
     #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "summon";
-
-
-        
+        public string Name => "summon";        
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -473,6 +482,7 @@ namespace RPGFramework.Commands
         */
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -508,6 +518,7 @@ namespace RPGFramework.Commands
         public string Name => "who";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -537,8 +548,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "backup";
 
-        public IEnumerable<string> Aliases => new List<string>();
-
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -573,8 +584,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "restore";
 
-        public IEnumerable<string> Aliases => new List<string>();
-
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {

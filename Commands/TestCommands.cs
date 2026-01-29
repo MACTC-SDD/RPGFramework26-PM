@@ -28,6 +28,7 @@
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // What will happen when the command is executed
         public bool Execute(Character character, List<string> parameters)
@@ -56,6 +57,7 @@
     {
         public string Name => "testitemsize";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             long startMem = GC.GetTotalMemory(true);
