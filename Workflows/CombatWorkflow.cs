@@ -41,12 +41,14 @@ namespace RPGFramework.Workflows
                 new UXPanelCommand(),
                 new UXTreeCommand(),
                 new UXBarChartCommand(),
-                new UXCanvasCommand()
+                new UXCanvasCommand(),
+                new CombatAdminControlsCommand()
         };
 
         public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
 
         public int TurnTimer { get; set; } = 0;
+        public int RoundCounter { get; set; } = 0;
 
         public Character? PreviousActingCharacter { get; set; }
         

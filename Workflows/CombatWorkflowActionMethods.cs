@@ -35,6 +35,7 @@ namespace RPGFramework.Workflows
                     Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }
@@ -71,6 +72,7 @@ namespace RPGFramework.Workflows
                     Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }

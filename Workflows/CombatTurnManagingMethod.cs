@@ -15,7 +15,8 @@ namespace RPGFramework.Workflows
         /// <returns>true if the battle is still ongoing, otherwise, false</returns>
         public bool Process()
         {
-            TurnTimer++;
+            if (ActiveCombatant == Combatants[0])
+                RoundCounter++;
             BringOutYourDead();
             ActiveFactions = CountActiveFactions();
 
@@ -28,6 +29,16 @@ namespace RPGFramework.Workflows
             UpdatePlayerTurn();
 
             return true;
+        }
+
+        public void EndTurn()
+        {
+            int nextCombatantIndex = Combatants.IndexOf(ActiveCombatant) + 1;
+            if (nextCombatantIndex >= Combatants.Count)
+            {
+                nextCombatantIndex = 0;
+            }
+            ActiveCombatant = Combatants[nextCombatantIndex];
         }
 
         private void UpdatePlayerTurn()
