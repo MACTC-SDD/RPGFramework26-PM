@@ -7,7 +7,7 @@ namespace RPGFramework.Commands
 {
     internal class CombatCommands
     {
-        public static List<ICommand> GetCombatCommands()
+        public static List<ICommand> GetAllCommands()
         {
             return
                 [
@@ -18,6 +18,8 @@ namespace RPGFramework.Commands
                 ];
         }
     }
+
+    #region ConsiderCommand Class
     internal class ConsiderCommand : ICommand
     {
         public string Name { get; set; } = "consider";
@@ -117,20 +119,22 @@ namespace RPGFramework.Commands
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
-        public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+        public IEnumerable<string> Aliases => [ "/attack", "/a" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
 
             List<string> attackableNonPlayers = new List<string>();
 
-            foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
+            foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
                 attackableNonPlayers.Add(npc.Name);
             }
 
             List<string> attackablePlayers = new List<string>();
 
-            foreach (Player p in character.GetRoom().GetPlayers())
+            foreach (Player p in Room.GetPlayersInRoom(character.GetRoom()))
             {
                 attackablePlayers.Add(p.Name);
             }
@@ -164,7 +168,10 @@ namespace RPGFramework.Commands
             {
                 if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                 {
-                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
+                    Character? enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
+                    if (enemy == null)
+                        return false;
+
                     CombatWorkflow.CreateCombat(character, enemy);
                     return true;
                 }
@@ -174,8 +181,7 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-
-
+    #region CombatAdminControlsCommand Class
     internal class CombatAdminControlsCommand : ICommand
     {
         public string Name => "/combat";
@@ -233,7 +239,8 @@ namespace RPGFramework.Commands
                         }
                         if (target == null)
                             return false;
-                        AdminStartCombatUntargeted(target);
+                        // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
+                        // AdminStartCombatUntargeted(target); 
                         return true;
                     }
                     else if (parameters[1].ToLower() == "end")
@@ -289,7 +296,8 @@ namespace RPGFramework.Commands
                         }
                         if (target2 != null && target1 != null)
                         {
-                            AdminStartCombatTargeted(target1, target2);
+                            // CODE REVIEW: Rylan - The method AdminStartCombatTargeted is missing.
+                            //AdminStartCombatTargeted(target1, target2);
                             return true;
                         }
                         return false;
@@ -312,16 +320,17 @@ namespace RPGFramework.Commands
             }
         }
     }
+    #endregion
 }
-#endregion
-}
-
-
-    
 
 
 
-    
+
+
+
+
+
+
 
 
 

@@ -40,7 +40,7 @@ namespace RPGFramework.Workflows
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
                 new CombatAdminControlsCommand()
-        };
+        ];
 
         public Dictionary<string, object> WorkflowData { get; set; } = [];
 
@@ -48,7 +48,7 @@ namespace RPGFramework.Workflows
         public int RoundCounter { get; set; } = 0;
 
         public Character? PreviousActingCharacter { get; set; }
-        
+
         public List<Character> Combatants = [];
         public async Task CombatInitialization(Character attacker, Character enemy)
         {
@@ -99,8 +99,8 @@ namespace RPGFramework.Workflows
                         }
 
                         else
-                        { 
-                            npc.CombatFaction = Enums.CombatFaction.Bandit; 
+                        {
+                            npc.CombatFaction = Enums.CombatFaction.Bandit;
                             Bandit.Add(npc);
                         }
 
@@ -151,7 +151,7 @@ namespace RPGFramework.Workflows
         }
         public Weapon? selectedWeapon;
         public Spell? selectedSpell;
-        
+
 
         // CODE REVIEW: Rylan - This needs to be broken down into smaller chunks.        
         // Consider starting with a method for each case in the switch statement.
@@ -172,7 +172,7 @@ namespace RPGFramework.Workflows
             if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
                 return;
 
-            
+
             CombatWorkflow? currentCombat = this;
 
             switch (CurrentStep)
@@ -240,7 +240,7 @@ namespace RPGFramework.Workflows
                                 player.CurrentWorkflow = null;
                                 break;
                         }
-                        
+
                     }
                     break;
                 case 2:
@@ -248,7 +248,7 @@ namespace RPGFramework.Workflows
                     ChooseWeapon(player, parameters);
                     break;
                 case 3:
-                // second step of cast spell action
+                    // second step of cast spell action
                     ChooseSpell(player, parameters);
                     break;
                 case 4:
@@ -259,8 +259,8 @@ namespace RPGFramework.Workflows
                     // targeting phase for attack
 
                     TargetWeapon(player, parameters);
-                    break; 
-                    case 6:
+                    break;
+                case 6:
                     // targeting phase for spell
                     TargetSpell(player, parameters);
                     break;
@@ -275,3 +275,4 @@ namespace RPGFramework.Workflows
         }
     }
 }
+
