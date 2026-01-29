@@ -330,6 +330,7 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
@@ -465,7 +466,7 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
         }
-
+        
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");

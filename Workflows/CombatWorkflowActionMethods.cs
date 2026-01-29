@@ -112,6 +112,7 @@ namespace RPGFramework.Workflows
                 player.Heal(chosenItem.HealAmount);
                 player.Inventory.Remove(chosenItem); // Remove used item from inventory
                 CurrentStep = 0; // End turn
+                EndTurn();
                 return true;
             }
             else
