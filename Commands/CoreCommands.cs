@@ -1,7 +1,7 @@
 ﻿
 using RPGFramework.Core;
+using RPGFramework.Items;
 using System.ComponentModel;
-
 namespace RPGFramework.Commands
 {
     /// <summary>
@@ -22,12 +22,53 @@ namespace RPGFramework.Commands
                 new SayCommand(),
                 new TimeCommand(),
                 new HelpCommand(),
+                new UseCommand(),
                 // Add other core commands here as they are implemented
             };
         }
 
 
     }
+    internal class UseCommand : ICommand
+    {
+        public string Name => "use";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            // check if 2 params
+
+            // find obj in inv that matches p[1]
+
+            // is it consum
+
+            Item? i = player.BackPack.GetItemByName(parameters[1]);
+            Consumable? c = null;
+
+            if (i == null || i is not Consumable)
+            {
+                // not coukgt find
+            }
+            else
+            {
+                c = (Consumable)i;
+                if (c.usesLeft > 0)
+                {
+                    c.usesLeft--;
+                    //c.Use();
+
+                }
+            }
+
+            return true;
+
+
+
+        }
+    }
+
 
     internal class AFKCommand : ICommand
     {
