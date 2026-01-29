@@ -7,13 +7,7 @@ namespace RPGFramework.Display
     {
         public static string AnnouncementColor { get; set; } = "[yellow]";
 
-        public static string HeaderColor { get; set; } = "[deepskyblue1]";
-
-        public static string WarningColor { get; set; } = "[mediumpurple1]";
-
         public static string ErrorColor { get; set; } = "[red]";
-
-        public static string SuccessColor { get; set; } = "[green3]";
 
         public static string TellColor { get; set; } = "[darkorange]";
 
