@@ -260,13 +260,20 @@ namespace RPGFramework.Commands
             // if no help topic given
             if (parameters.Count < 2)
             {var table = new Table();
-                table.AddColumn("[mediumpurple2]Help Topics:[/]");
-                table.AddColumn("");
-                table.AddColumn("");
-                table.AddColumn("");
+                table.AddColumn("═════ ⋆★⋆ ═════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                //table.Title = new TableTitle("[mediumpurple2]Help Topics[/]");
+
+
                 List<string> helpTopics = new List<string>();
-                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
+                //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
+                List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
+                helpKeys.Sort();
+                foreach (string key in helpKeys)
                 {
+                    HelpEntry he = GameState.Instance.HelpCatalog[key];
                     //player.WriteLine($"{he.Name}");
                     helpTopics.Add(he.Name);
                     if (helpTopics.Count == 4)
@@ -274,8 +281,19 @@ namespace RPGFramework.Commands
                         table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
                         helpTopics.Clear();
                     }
+
                 }
-                player.Write(table);
+
+                if (helpTopics.Count > 0)
+                {
+                    table.AddRow(
+                    helpTopics.ElementAtOrDefault(0) ?? "",
+                    helpTopics.ElementAtOrDefault(1) ?? "",
+                    helpTopics.ElementAtOrDefault(2) ?? "",
+                    helpTopics.ElementAtOrDefault(3) ?? "");
+                    Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
+                    player.Write(panel);
+                }
             }
             else
             {
