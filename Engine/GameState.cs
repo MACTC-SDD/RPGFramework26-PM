@@ -22,6 +22,12 @@ namespace RPGFramework
     /// TODO: Given the number of properties that are not serialized, we should consider making a GameStateData DTO.
     internal sealed class GameState
     {
+        // IF YOU SET THIS TO TRUE, IT WILL OVERWRITE ALL DATA FILES DURING INITIALIZATION
+        // This is a good thing if you want to reset everything, like after world files
+        // have been updated in data_seed, but be careful as it will wipe out
+        // any existing area, room, and catalog (mob, item, etc.) data.
+        private bool _OVERWRITE_DATA = false;
+
         // Static Fields and Properties
         private static readonly Lazy<GameState> _instance = new(() => new GameState());
 
@@ -154,7 +160,7 @@ namespace RPGFramework
         /// For now useful primarily for reloading externally crearted changes
         /// </summary>
         /// <param name="areaName"></param>
-        private Task LoadArea(string areaName)
+        public Task LoadArea(string areaName)
         {
             Area? area = GameState.Persistence.LoadAreaAsync(areaName).Result;
             if (area != null)
@@ -172,7 +178,7 @@ namespace RPGFramework
 
         // Load all Area files from /data/areas. Each Area file will contain some
         // basic info and lists of rooms and exits.
-        private async Task LoadAllAreas()
+        public async Task LoadAllAreas()
         {
             Areas.Clear();
 
@@ -190,7 +196,7 @@ namespace RPGFramework
         /// Loads all player data from persistent storage and adds each player 
         /// to the <see cref="Players"/> collection.
         /// </summary>
-        private async Task LoadAllPlayers()
+        public async Task LoadAllPlayers()
         {
             Players.Clear();
 
@@ -211,7 +217,7 @@ namespace RPGFramework
         /// should be added to the Catalogs list during initialization.
         /// </summary>
         /// <returns></returns>
-        private async Task LoadCatalogs()
+        public async Task LoadCatalogs()
         {
             foreach (ICatalog catalog in Catalogs)
             {
@@ -296,7 +302,10 @@ namespace RPGFramework
             ServerStartTime = DateTime.Now;
 
             // Initialize game data if it doesn't exist
-            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions());
+            await Persistence.EnsureInitializedAsync(new GamePersistenceInitializationOptions()
+            {
+                CopyFilesFromDataSeedToRuntimeData = _OVERWRITE_DATA
+            });
 
             await LoadAllAreas();
             await LoadAllPlayers();
@@ -392,6 +401,8 @@ namespace RPGFramework
         #endregion
 
         #region --- Thread Methods ---
+
+        #region RunAutosaveLoopAsync Method
         /// <summary>
         /// Things that need to be saved periodically
         /// </summary>
@@ -419,7 +430,9 @@ namespace RPGFramework
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
         }
+        #endregion
 
+        #region RunTimeOfDayLoopAsync Method
         /// <summary>
         /// Update the time periodically.
         /// We might want to create game variables that indicate how often this should run
@@ -446,7 +459,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Time of Day thread stopping.");
         }
+        #endregion
 
+        #region RunAnnouncementsLoopAsync Method
         private async Task RunAnnouncementsLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Announcements thread started.");
@@ -466,7 +481,8 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
         }
-        
+        #endregion
+
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
@@ -565,6 +581,8 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Combat Manager thread stopping.");
         }
+      
+        #region RunItemDecayLoopAsync Method
         private async Task RunItemDecayLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Decay thread started.");
@@ -595,7 +613,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
+        #endregion
 
+        #region RunTickLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // We should consider whether this is necessary.
         private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
@@ -617,7 +637,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
         }
+        #endregion
 
+        #region RunWeatherLoopAsync Method
         private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Weather thread started.");
@@ -644,7 +666,9 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
         }
+        #endregion
 
+        #region UpdateWeather Method
         // CODE REVIEW: Rylan (PR #16)
         // All of the weather code (UpdateWeather, weatherStates)
         // needs to be moved to its own class.
@@ -672,8 +696,9 @@ namespace RPGFramework
             "Snowy",
             "Windy"
         };
-        // end weather update method
+        #endregion
 
+        #region RunNPCLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
         // probably should live in the NonPlayer, Mob, etc. classes. 
@@ -793,6 +818,7 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
         }
+        #endregion
 
         #endregion --- Thread Methods ---
 
