@@ -57,19 +57,22 @@ namespace RPGFramework.Commands
             Weapon w = new Weapon();
             w.Name = parameters[2];
             w.Description = parameters[3];
-            w.Damage = Convert.ToDouble(parameters[4]);
+            w.Damage = Convert.ToInt32(parameters[4]);
             w.Durability = Convert.ToInt32(parameters[5]);
-            //w.
+            w.range = Convert.ToInt32(parameters[6]);
+            w.Speed = Convert.ToDouble(parameters[7]);
+            w.weight = Convert.ToDouble(parameters[8]);
 
 
 
-            if (GameState.Instance.ItemsCatalog.ContainsKey(w.Name))
+
+            if (GameState.Instance.ItemCatalog.ContainsKey(w.Name))
             {
                 player.WriteLine($"There is already an object named {w.Name}");
             }
             else
             {
-                GameState.Instance.ItemsCatalog.Add(w.Name, w);
+                GameState.Instance.ItemCatalog.Add(w.Name, w);
             }
         }
         #endregion

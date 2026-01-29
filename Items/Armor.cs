@@ -6,6 +6,7 @@ namespace RPGFramework
         public int protection { get; set; } = 0;
         public int Durability { get; set; } = 20;
         public double weight { get; set; } = 0;
+        public bool Equipped { get; set; } = false;
         public ArmorType ArmorType { get; set; }
 
         public void ArmorDurablility()

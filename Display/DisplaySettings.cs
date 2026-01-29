@@ -1,9 +1,25 @@
 ﻿
+using System.Net.NetworkInformation;
+
 namespace RPGFramework.Display
 {
     internal static class DisplaySettings
     {
-        public static string AnnouncementColor { get; set; } = "[red]";
+        public static string AnnouncementColor { get; set; } = "[yellow]";
+
+        public static string HeaderColor { get; set; } = "[deepskyblue1]";
+
+        public static string WarningColor { get; set; } = "[mediumpurple1]";
+
+        public static string ErrorColor { get; set; } = "[red]";
+
+        public static string SuccessColor { get; set; } = "[green3]";
+
+        public static string TellColor { get; set; } = "[darkorange]";
+
+        public static string SystemMessageColor { get; set; } = "[deepskyblue1]";
+
+        public static string CombatMessageColor { get; set; } = "[green3]";
 
         #region Map Settings
         public static string RoomMapIcon { get; set; } = "■";

@@ -1,5 +1,7 @@
 ﻿using RPGFramework.Display;
 using RPGFramework.Enums;
+using System.ComponentModel;
+using System.Numerics;
 
 namespace RPGFramework.Geography
 {
@@ -14,6 +16,8 @@ namespace RPGFramework.Geography
 
         // Description of the room
         public string Description { get; set; } = "";
+        public List<Item> Items { get; set; } = new List<Item>();
+
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
@@ -26,6 +30,7 @@ namespace RPGFramework.Geography
 
         // List of exits from the room
         public List<int> ExitIds { get; set; } = new List<int>();
+
         #endregion --- Properties ---
 
         #region --- Methods ---
@@ -61,6 +66,10 @@ namespace RPGFramework.Geography
             exit.DestinationRoomId = destinationRoom.Id;
             exit.ExitDirection = direction;
             exit.Description = exitDescription;
+            // Keep ExitType default unless modified later.
+            // Apply sensible open/close defaults based on ExitType
+            exit.ApplyDefaultsForType();
+
             ExitIds.Add(exit.Id);
             GameState.Instance.Areas[AreaId].Exits.Add(exit.Id, exit);
 
@@ -73,11 +82,41 @@ namespace RPGFramework.Geography
                 exit1.DestinationRoomId = Id;
                 exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());
+                // Mirror the exit type and defaults
+                exit1.ExitType = exit.ExitType;
+                exit1.ApplyDefaultsForType();
+
                 destinationRoom.ExitIds.Add(exit1.Id);
                 GameState.Instance.Areas[destinationRoom.AreaId].Exits.Add(exit1.Id, exit1);
             }
         }
 
+        #region CheckForExit Methods (Static)
+        /// <summary>
+        /// Determines whether the specified room contains an exit in the given direction.
+        /// </summary>
+        /// <param name="room">The room to check for an exit. Cannot be null.</param>
+        /// <param name="exitDirection">The direction in which to check for an exit.</param>
+        /// <returns>true if the room contains an exit in the specified direction; otherwise, false.</returns>
+        public static bool CheckForExit(Room room, Direction exitDirection)
+        {
+            return room.GetExits().Any(e => e.ExitDirection == exitDirection);
+        }
+
+        /// <summary>
+        /// Determines whether the specified room contains an exit in the given direction, excluding the provided exit.
+        /// </summary>
+        /// <param name="room">The room to check for the presence of an exit.</param>
+        /// <param name="exitDirection">The direction in which to check for an existing exit.</param>
+        /// <param name="exit">The exit to exclude from the check. Typically, this is the exit being modified or considered for addition.</param>
+        /// <returns>true if the room contains an exit in the specified direction other than the provided exit; otherwise, false.</returns>
+        public static bool CheckForExit(Room room, Direction exitDirection, Exit exit)
+        {
+            return room.GetExits().Any(e => e.ExitDirection == exitDirection && e.Id != exit.Id);
+        }
+        #endregion
+
+        #region CreateRoom Methods (Static)
         /// <summary>
         /// Create a new room object in specified area and add it to GameState Area
         /// </summary>
@@ -99,6 +138,7 @@ namespace RPGFramework.Geography
         {
             return CreateRoom(area.Id, name, description);
         }
+        #endregion
 
         /// <summary>
         /// Delete a room (and its linked exits) from the specified area
@@ -138,6 +178,25 @@ namespace RPGFramework.Geography
         }
 
         /// <summary>
+        /// Returns the first exit in this room that matches the specified name.
+        /// </summary>
+        /// <returns></returns>
+        public Exit? GetExitByName(string name)
+        {
+            return GetExits().Find(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns the first exit in this room that matches the specified id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Exit? GetExitById(int id)
+        {
+            return GetExits().Find(e => e.Id == id);
+        }
+
+        /// <summary>
         /// Get the next available room ID for the specified area.
         /// </summary>
         /// <param name="areaId"></param>
@@ -163,7 +222,16 @@ namespace RPGFramework.Geography
         {
             return GetPlayersInRoom(this);
         }
+        public List<NonPlayer> GetNonPlayers()
+        {
+            return GetCharactersInRoom(this);
+        }
+        public List<Character> GetCharacters()
+        {
+            return GetPlayers().Cast<Character>().Concat(GetNonPlayers().Cast<Character>()).ToList();
+        }
 
+        #region GetPlayersInRoom Method (Static)
         /// <summary>
         /// Return a list of player objects that are in the specified room
         /// </summary>
@@ -185,10 +253,83 @@ namespace RPGFramework.Geography
 
             return playersInRoom;
         }
+        #endregion
+
+        public static List<NonPlayer> GetCharactersInRoom(Room room){ 
+            List<NonPlayer> charactersInRoom = [];
+
+            // CODE REVIEW: Rylan (PR #16)
+            // Since NPCs will be stored with the room, there will probably
+            // just be a loop through room.NPCs instead of GameState.
+            /*
+            foreach (NonPlayer npc in NPCList)
+            {
+                if (npc.AreaId == room.AreaId 
+                    && npc.LocationId == room.Id)
+                {
+                    charactersInRoom.Add(npc);
+                }
+            }
+            */
+            return charactersInRoom;
+        }
+
+        #region FindReturnExit Methods (Static)
+        public Exit? FindReturnExit(Exit exit)
+        {
+            return FindReturnExit(Id, AreaId, exit.DestinationRoomId);
+        }
+
+        public static Exit? FindReturnExit(int sourceRoomId, int sourceAreaId, int destinationRoomid)
+        {
+            // We want to find that goes from exit.DestinationRoomId back to e.SourceRoomId
+            foreach (var kvp in GameState.Instance.Areas)
+            {
+                if (kvp.Value.Rooms.ContainsKey(sourceRoomId))
+                {
+                    return kvp.Value.Exits.Values.FirstOrDefault(e =>
+                        e.SourceRoomId == destinationRoomid
+                        && e.DestinationRoomId == sourceRoomId
+                        && e.DestinationAreaId == sourceAreaId);
+                }
+            }
+            return null;
+        }
+        #endregion
+
+        #region TryParseId Method (Static)
+        public static bool TryParseId(string input, int defaultArea, out int roomId, out int areaId)
+        {
+            roomId = -1;
+            areaId = defaultArea;
+
+            // Check for area:room format
+            if (input.Contains(':'))
+            {
+                var parts = input.Split(':');
+                if (parts.Length != 2
+                    || !int.TryParse(parts[0], out areaId)
+                    || !int.TryParse(parts[1], out roomId))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            // No area specified, use default
+            if (!int.TryParse(input, out roomId))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
         #endregion --- Methods ---
 
         #region --- Methods (Events) ---
-        
+
         /// <summary>
         /// When a character enters a room, do this.
         /// </summary>
@@ -196,7 +337,7 @@ namespace RPGFramework.Geography
         public void EnterRoom(Character character, Room fromRoom)
         {
             // Send a message to the player
-            if (character is Player) ((Player)character).WriteLine(Description);
+            Comm.SendToIfPlayer(character, Description);
 
             // Send a message to all players in the room
             Comm.SendToRoomExcept(this, $"{character.Name} enters the room.", character);
