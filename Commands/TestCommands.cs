@@ -7,7 +7,7 @@
             return
             [
                 new TestItemSizeCommand(),
-                new ExampleCommand()
+                new ExampleCommand(),
                 // Add more test commands here as needed
             ];
         }
@@ -45,7 +45,6 @@
             return true;
         }
     }
-
 
     /// <summary>
     /// Measures the memory usage of creating a large number of <see cref="Item"/> instances.
