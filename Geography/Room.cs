@@ -23,6 +23,9 @@ namespace RPGFramework.Geography
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
 
+        public int MaxMobs {  get; set; } = 1; // Maximum number of Mob NPCs allowed in the room
+        public Dictionary<string, double> MobSpawnList { get; private set; } = []; // Mob name and spawn chance
+
         // Name of the room
         public string Name { get; set; } = "";
 
@@ -36,6 +39,24 @@ namespace RPGFramework.Geography
         #endregion --- Properties ---
 
         #region --- Methods ---
+
+        #region AddMobSpawn Method
+        public bool AddMobSpawn(string mobName, double spawnChance)
+        {
+            if (!GameState.Instance.MobCatalog.TryGetValue(mobName, out var mob))
+            {
+                return false; // Mob does not exist
+            }
+
+            if (mob == null || MobSpawnList.ContainsKey(mob.Name))
+            {
+                return false; // Mob already in spawn list
+            }
+
+            MobSpawnList.Add(mob.Name, spawnChance);
+            return true;
+        }
+        #endregion
 
         #region AddExits Method
         /// <summary>
