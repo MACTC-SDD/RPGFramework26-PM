@@ -4,9 +4,20 @@ using System.Text;
 
 namespace RPGFramework.Commands
 {
+    internal class ArmorCommands
+    {
+        public static List<ICommand> GetAllCommands()
+        {
+            return
+            [
+                new ArmorBuilderCommand(),
+            ];
+        }
+    }
+
     internal class ArmorBuilderCommand : ICommand
     {
-        public string Name => "/Armor";
+        public string Name => "/armor";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";

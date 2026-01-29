@@ -42,7 +42,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "equip";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Equip an item, weapon or armor.\nUsage: equip <name>";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -54,19 +54,15 @@ namespace RPGFramework.Commands
                 if (i is Armor a)
                 { armorItems.Add(a); }
             }
-            
-
-
             return false;
         }
-
     }
 
     internal class AFKCommand : ICommand
     {
         public string Name => "afk";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Toggles your AFK (Away From Keyboard) status. This just changes your display name.";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -85,7 +81,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "ip";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Show the IP address you are connecting to the server from.";
 
         public bool Execute(Character character, List<string> parameters)
         {           

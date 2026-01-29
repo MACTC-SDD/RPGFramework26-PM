@@ -56,6 +56,7 @@ namespace RPGFramework
         private Task? _combatManagerTask;
 
         private int _tickCount = 0;
+        private int _logSuppressionSeconds = 30;
         #endregion
 
         #region --- Properties ---
@@ -456,12 +457,24 @@ namespace RPGFramework
         #endregion --- Methods ---
 
         #region --- Static Methods ---
-        internal static void Log(DebugLevel level, string message)
+        internal static bool Log(DebugLevel level, string message)
         {
             if (level <= GameState.Instance.DebugLevel)
             {
                 Console.WriteLine($"[{level}] {message}");
+                return true;
             }
+            return false;
+        }
+
+        internal static bool Log(DebugLevel level, string message, DateTime lastLog, int suppressionSeconds)
+        {
+            if ((DateTime.Now - lastLog).TotalSeconds >= suppressionSeconds)
+            {
+                return Log(level, message);
+            }
+
+            return false;
         }
 
         #endregion
@@ -523,11 +536,18 @@ namespace RPGFramework
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            DateTime lastLog = DateTime.Now;
+
             while (!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
-                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    // Only show log if enough time has passed
+                    if (Log(DebugLevel.Debug, "Managing combats...", lastLog, _logSuppressionSeconds))
+                    { 
+                        lastLog = DateTime.Now;                        
+                    }
+
                     foreach (CombatWorkflow combat in Combats)
                     {
                         combat.Process();
