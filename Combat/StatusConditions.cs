@@ -1,12 +1,77 @@
-﻿using System;
+﻿using RPGFramework.Workflows;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RPGFramework.Combat
+namespace RPGFramework
 {
     // CODE REVIEW: Rylan - can this be removed?
-    internal class StatusConditions
+    // CODE REVIEW: Mr. Brown - no this cannot be removed as it is a stepping stool for both members of the combat team to work on the same thing
+    internal partial class Character
     {
-        public StatusConditions() { }
+        public void Poisoned()
+        {
+
+        }
+        public void Bleed()
+        {
+            this.TakeDamage((int)Math.Ceiling((double)this.MaxHealth / 100));
+            this.HealPenalty = (int)Math.Ceiling((double)this.MaxHealth / 20);
+        }
+        public void Stun()
+        {
+            CombatWorkflow c = this.FindCombat();
+            if (c != null)
+            {
+                c.EndTurn();
+            }
+            // this.IsStunned = false
+        }
+        public void Freightened()
+        {
+            // this.HitPenalty -= 7;
+        }
+        public void Incapacitated()
+        {
+            CombatWorkflow c = this.FindCombat();
+            if (c != null)
+            {
+                c.EndTurn();
+            }
+        }
+
+        public CombatWorkflow FindCombat()
+        {
+            CombatWorkflow? currentCombat = null;
+            foreach (CombatWorkflow c in GameState.Instance.Combats)
+            {
+                if (c.Combatants.Contains(this))
+                    currentCombat = c;
+            }
+            return currentCombat;
+        }
+
+        public void Petrified()
+        {
+            // this.IsIncapacitated = true;
+
+        }
+
+        /*Poisoned,
+        Bleed,
+        Burn,
+        Stun,
+        Blinded,
+        Charmed,
+        Deafend,
+        Frieghtened,
+        Grappled,
+        Incapacitated,
+        Invisibe,
+        Paralyzed,
+        Petrified,
+        Prone,
+        Restrained,
+        Unconscious,*/
     }
 }

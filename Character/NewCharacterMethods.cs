@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RPGFramework
 {
-    internal partial class Character
+    internal abstract partial class Character
     {
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {

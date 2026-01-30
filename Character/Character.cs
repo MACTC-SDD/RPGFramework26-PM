@@ -21,6 +21,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public int HealPenalty { get; set; } = 0;
         public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
@@ -124,7 +125,7 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal);
+            SetHealth(Health + heal - HealPenalty);
         }
 
         
