@@ -15,6 +15,8 @@ namespace RPGFramework.Workflows
         /// <returns>true if the battle is still ongoing, otherwise, false</returns>
         public bool Process()
         {
+            if (ActiveCombatant == Combatants[0])
+                RoundCounter++;
             BringOutYourDead();
             ActiveFactions = CountActiveFactions();
 
@@ -29,11 +31,20 @@ namespace RPGFramework.Workflows
             return true;
         }
 
+        public void EndTurn()
+        {
+            int nextCombatantIndex = Combatants.IndexOf(ActiveCombatant) + 1;
+            if (nextCombatantIndex >= Combatants.Count)
+            {
+                nextCombatantIndex = 0;
+            }
+            ActiveCombatant = Combatants[nextCombatantIndex];
+        }
+
         private void UpdatePlayerTurn()
         {
             // at the start of combat assign first active combatant based on initiative order
-            if (ActiveCombatant == null)
-                ActiveCombatant = Combatants[0];
+            ActiveCombatant ??= Combatants[0];
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
             if (ActiveCombatant is NonPlayer npc)
             {

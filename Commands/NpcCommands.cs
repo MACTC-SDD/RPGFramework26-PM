@@ -22,6 +22,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/mob";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
