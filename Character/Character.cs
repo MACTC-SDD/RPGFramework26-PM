@@ -1,8 +1,11 @@
 ﻿
+using RPGFramework.Display;
 using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 using RPGFramework.Workflows;
 using System.Text.Json.Serialization;
 
@@ -160,6 +163,19 @@ namespace RPGFramework
             SetHealth(Health + heal);
         }
 
+        public IRenderable ShowSummary()
+        { var table = new Table();
+            table.AddColumn("Background");
+            table.AddColumn("info");
+            table.AddRow($"Name: {Name}", $"Gold: {Gold}");
+            table.AddRow($"Class: {Class}", $"Weapon: {PrimaryWeapon.Name}");
+            table.AddRow($"Health: {Health}", $"XP: {XP}");
+            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+
+            string title = "Character Info";
+
+            return RPGPanel.GetPanel(table, title);
+        }
         
     }
 }

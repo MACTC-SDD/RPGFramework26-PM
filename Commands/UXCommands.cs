@@ -63,8 +63,8 @@ namespace RPGFramework.Commands
             string title = "UX Testing Commands";
 
             Panel panel = RPGPanel.GetPanel(table, title);
-            player.Write(panel);
-
+            //player.Write(panel);
+            player.Write(player.ShowSummary());
             return true;
         }
     }
