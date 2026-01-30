@@ -112,10 +112,10 @@ namespace RPGFramework
         { var table = new Table();
             table.AddColumn("Background");
             table.AddColumn("info");
-            table.AddRow("Name", "Gold");
-            table.AddRow("Class", "Inventory");
-            table.AddRow("Health", "XP");
-            table.AddRow("level", "LocationId");
+            table.AddRow($"Name: {Name}", $"Gold: {Gold}");
+            table.AddRow($"Class: {Class}", $"Weapon: {PrimaryWeapon.Name}");
+            table.AddRow($"Health: {Health}", $"XP: {XP}");
+            table.AddRow($"level: {Level}", $"Location: {LocationId}");
 
             string title = "Character Info";
 
