@@ -52,6 +52,8 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _itemCleanUpCts;
+        private Task? _itemCleanUpTask;
         private CancellationTokenSource? _combatManagerCts;
         private Task? _combatManagerTask;
 
@@ -409,6 +411,8 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+            _itemCleanUpCts = new CancellationTokenSource();
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
 
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
@@ -505,11 +509,40 @@ namespace RPGFramework
         }
         #endregion
 
-        #region RunAutosaveLoopAsync Method
+        private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
+            while(ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    foreach (Area a in GameState.Instance.Areas.Values)
+                    {
+                        foreach (Room r in a.Rooms.Values)
+                        {
+                            foreach (Item i in r.Items)
+                            {
+                                if (i.IsDropped)
+                                    r.Items.Remove(i);
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during Item Clean Up: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.");
+        }
+
         /// <summary>
         /// Things that need to be saved periodically
         /// </summary>
         /// <param name="interval"></param>
+        public int TimeRate { get; set; } = 60;
+        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
         private async Task RunAutosaveLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Autosave thread started.");
@@ -517,6 +550,9 @@ namespace RPGFramework
             {
                 try
                 {
+                    GameState.Log(DebugLevel.Debug, "Updating time...");
+                    double hours = interval.TotalMinutes * TimeRate;
+                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
                     await SaveAllPlayers();
                     await SaveAllAreas();
                     await SaveCatalogsAsync();
@@ -578,7 +614,7 @@ namespace RPGFramework
                     /* CODE REVIEW: Rylan (PR #16)
                      * This doesn't exist yet, and isn't where instances of items will be stored anyway
                      * 
-                    foreach (var item in GameState.Instance.Items.Values)
+                    foreach (Item item in ItemsCatalog)
                     {
 
                         if (item.IsPerishable)
@@ -599,7 +635,65 @@ namespace RPGFramework
         }
         #endregion
 
-        #region RunNPCLoopAsync Method
+        // CODE REVIEW: Rylan (PR #16)
+        // We should consider whether this is necessary.
+        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Tick thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
+                    _tickCount++;
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
+        }
+
+        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Weather thread started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Updating the weather...");
+                    // Update weather in all areas
+                    //choose random from list, apply to area
+                    //repeat for every area
+                    //await build team for areas/weather types
+                    foreach (Area area in Areas.Values)
+                    {
+                        area.UpdateWeather();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
+        }
+
+        // CODE REVIEW: Rylan (PR #16)
+        // All of the weather code (UpdateWeather, weatherStates)
+        // needs to be moved to its own class.
+        // An enum for WeatherState would be better than a list of strings.
+        //   It should go in the enums folder.
+        // / <summary> weather update method, move later
+        // / </summary>
+        
+        // end weather update method
+
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
         // probably should live in the NonPlayer, Mob, etc. classes. 

@@ -7,6 +7,7 @@ namespace RPGFramework
         public string Description { get; set; } = ""; // What you see when you look at it
         public string DisplayText { get; set; } = ""; // How it appears when in a room
         public bool IsDroppable { get; set; } // Can the item be dropped
+        public bool IsDropped { get; set; }
         public bool IsGettable { get; set; } // Can the item be picked up
 
         public int Level { get; set; } = 0;
