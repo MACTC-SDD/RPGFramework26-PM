@@ -101,6 +101,7 @@ namespace RPGFramework
         [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
@@ -114,6 +115,7 @@ namespace RPGFramework
             Catalogs.Add(MobCatalog);
             Catalogs.Add(NPCCatalog);
             Catalogs.Add(ItemCatalog);
+            Catalogs.Add(MessageCatalog);
         }
 
         public void AddPlayer(Player player)
