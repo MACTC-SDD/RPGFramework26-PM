@@ -161,7 +161,7 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal - healPenalty);
+            SetHealth(Health + heal - HealPenalty);
         }
 
         public IRenderable ShowSummary()

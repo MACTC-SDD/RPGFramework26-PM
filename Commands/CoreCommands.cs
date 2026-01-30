@@ -9,6 +9,7 @@ using RPGFramework.Items;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace RPGFramework.Commands
 {
@@ -395,6 +396,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "gold";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -415,7 +417,8 @@ namespace RPGFramework.Commands
     internal class HealCommand : ICommand
     {
         public string Name => "heal";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -447,7 +450,8 @@ namespace RPGFramework.Commands
     internal class DamageCommand : ICommand
     {
         public string Name => "damage";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -480,8 +484,12 @@ namespace RPGFramework.Commands
     {
         public string Name => "purge room";
         public IEnumerable<string> Aliases => new List<string> { };
-        public Execute(Character character, List<string> parameters)
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
         {
+            if (character is not Player player)
+                return false;
+
               if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
               {
                   player.WriteLine("You do not have permission to run this command");
@@ -499,13 +507,15 @@ namespace RPGFramework.Commands
                       }
                   }
               }
+            return true;
             }
+        
         }
                 
     internal class TimeRateCommand : ICommand
     {
-        public string Name => "timerate";
-        public IEnumerable<string> Aliases => ["/timerate", "/tr"];
+        public string Name => "/timerate";
+        public IEnumerable<string> Aliases => ["/tr"];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -594,22 +604,25 @@ namespace RPGFramework.Commands
     internal class SpawnCommand : ICommand
     {
         public string Name => "spawn";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
+            if (character is not Player player)
+                return false;
+
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                Item item = new Item { };
-                item.Id = int.Parse(parameters[1]);
-                player.GetRoom().Items.Add(item); // once item preconstruction exists come back to this
-                return true;
+                player.WriteLine("You do not have permission to run this command");
+                return false;
             }
 
+            Item item = new Item { };
+            item.Id = int.Parse(parameters[1]);
+            player.GetRoom().Items.Add(item); // once item preconstruction exists come back to this
+            return true;
+        }
     }
 
     internal class TrainCommand : ICommand

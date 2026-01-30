@@ -12,7 +12,7 @@ namespace RPGFramework.Commands
             return
             [
                 new ConsiderCommand(),
-                new ComabtStatusCommand(),
+                new CombatStatusCommand(),
                 new StartCombatCommand(),
                 new CombatAdminControlsCommand()
             ];
@@ -50,43 +50,44 @@ namespace RPGFramework.Commands
         }
     }
 
-    internal class ComabtStatusCommand : ICommand
+    internal class CombatStatusCommand : ICommand
     {
 
         public string Name => "combatstatus";
-        public IEnumerable<string> Aliases => new List<string> { "/combatstatus", "/cs" };
+        public IEnumerable<string> Aliases => new List<string> { "cs" };
+        public string Help => "Shows the combat status of all combatants in your current combat.";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
 
-
-            if (Utility.CheckPermission(player, PlayerRole.Admin))
-            {
-                switch (parameters.Count)
-                {
-                    case 1:
-                        player.WriteLine("Must choose a character to see the combat status");
-                        return false;
-
-                    case 2:
-
-                        return ShowCombatStatus(player, parameters);
-
-                    default:
-
-                        player.WriteLine("Must choose a character to see the combat status");
-                        return false;
-                }
-            }
-            else
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
             {
                 player.WriteLine("You do not have permission to use this command.");
                 return false;
             }
 
 
+            switch (parameters.Count)
+            {
+                case 1:
+                    player.WriteLine("Must choose a character to see the combat status");
+                    return false;
+
+                case 2:
+
+                    return ShowCombatStatus(player, parameters);
+
+                default:
+
+                    player.WriteLine("Must choose a character to see the combat status");
+                    return false;
+            }
         }
+
+
+
+        
         private bool ShowCombatStatus(Player p, List<string> parameters)
         {
             CombatWorkflow currentCombat = null;
@@ -148,35 +149,7 @@ namespace RPGFramework.Commands
             {
                 if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                 {
-                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
-                    CombatWorkflow.CreateCombat(character, enemy);
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-
-    internal class CombatAdminControlsCommand : ICommand
-    {
-        public void AdminStartCombatUntargeted(Player player)
-        {
-            NonPlayer? target = null;
-            List<NonPlayer> possibleTargets = new List<NonPlayer>();
-            foreach (NonPlayer npc in player.GetRoom().GetNonPlayers())
-            {
-                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
-                {
-                    Character? enemy = Room.GetCharactersInRoom(character.GetRoom())
-                        .Find(Character => Character.Name == parameters[1]);
-
-                }
-            }
-            if (parameters.Count == 2)
-            {
-                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
-                {
+                    
                     Character? enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
                     if (enemy == null)
                         return false;
@@ -188,6 +161,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+
     #endregion
 
     #region CombatAdminControlsCommand Class
