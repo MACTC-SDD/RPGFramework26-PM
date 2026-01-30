@@ -57,7 +57,8 @@ namespace RPGFramework.Persistence
 
 
             string jsonString = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<T>(jsonString);
+            return JsonSerializer.Deserialize<T>(jsonString)
+                    ?? throw new InvalidDataException($"Failed to deserialize file '{fileName}' to type '{typeof(T).FullName}'");
         }
 
         /// <summary>
@@ -79,8 +80,10 @@ namespace RPGFramework.Persistence
             foreach (string file in Directory.EnumerateFiles(path))
             {
                 string jsonString = File.ReadAllText(file);
-                //Console.WriteLine(jsonString);
-                objects.Add(JsonSerializer.Deserialize<T>(jsonString));
+                objects.Add(
+                    JsonSerializer.Deserialize<T>(jsonString)
+                    ?? throw new InvalidDataException($"Failed to deserialize file '{file}' to type '{typeof(T).FullName}'")
+                );
             }
 
             return objects;

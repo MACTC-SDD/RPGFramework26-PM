@@ -37,6 +37,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
@@ -78,6 +79,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
@@ -115,6 +117,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { "/uxcolors" };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
@@ -147,6 +150,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { "/uxdec", "/uxdecorations" };
+        public string Help => "";
 
         // Change code in here to experiment with different text decorations
         public bool Execute(Character character, List<string> parameters)
@@ -180,6 +184,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
@@ -208,6 +213,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { "/uxbar" };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
@@ -237,6 +243,7 @@ namespace RPGFramework.Commands
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
+        public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)

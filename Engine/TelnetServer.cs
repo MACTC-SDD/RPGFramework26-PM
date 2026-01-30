@@ -51,7 +51,13 @@ internal class TelnetServer
 
 
             pn.Writer.WriteLine("Username: ");
-            //string? playerName = pn.Reader.ReadLine();
+
+            if (pn.TelnetConnection == null)
+            {
+                GameState.Log(DebugLevel.Error, "Telnet connection is null (disconnect?).");
+                return;
+            }
+
             string? playerName = await pn.TelnetConnection.ReadLineAsync();
 
             while (string.IsNullOrEmpty(playerName))
@@ -61,29 +67,33 @@ internal class TelnetServer
             }
 
             GameState.Log(DebugLevel.Debug, $"Player '{playerName}' is connecting...");
-            Player player;
 
             // If existing player
-            if (GameState.Instance.Players.ContainsKey(playerName))
+            if (Player.TryFindPlayer(playerName, GameState.Instance.Players, out Player? player))
             {
                 GameState.Log(DebugLevel.Debug, $"Existing player '{playerName}' found, loading data...");
-                player = GameState.Instance.Players[playerName];
             }
             else
             {
                 GameState.Log(DebugLevel.Debug, $"No existing player '{playerName}' found, creating new player...");
                 // New player creation (class, etc)
-                player = new Player(client, playerName);
-                player.CurrentWorkflow = new WorkflowOnboarding();
+                player = new(client, playerName)
+                {
+                    CurrentWorkflow = new WorkflowOnboarding()
+                };
                 GameState.Instance.AddPlayer(player);
                 player.WriteLine("Welcome, new adventurer! Type start and hit enter to get going");
             }
 
-            player.Network = pn;
+            player!.Network = pn;
             player.Login();
 
             // MOTD Should Be Settable in Game Settings
-            player.Write(RPGPanel.GetPanel("Welcome to the game!", "Welcome!"));
+            player.Write(RPGPanel.GetPanel(
+
+                GameState.Instance.MessageCatalog.ContainsKey("motd")
+                ? GameState.Instance.MessageCatalog["motd"]
+                : "welcome to the game!", "Welcome!"));
             MapRenderer.RenderLocalMap(player);
 
             GameState.Log(DebugLevel.Alert, $"Player '{playerName}' has connected successfully.");

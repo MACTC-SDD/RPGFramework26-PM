@@ -1,9 +1,14 @@
 ﻿
 using RPGFramework.Core;
 using RPGFramework.Display;
+using RPGFramework.Geography;
 using Spectre.Console;
+using RPGFramework.Enums;
 using System.Collections.Immutable;
+using RPGFramework.Items;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace RPGFramework.Commands
 {
@@ -16,27 +21,54 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new AFKCommand(),
                 new IpCommand(),
                 new LookCommand(),
                 new QuitCommand(),
                 new SayCommand(),
+                new TellCommand(),
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
+                new XPCommand(),
+                new LevelCommand(),
+                new TrainCommand(),                
+                new EquipmentCommand(),
                 // Add other core commands here as they are implemented
-            };
+            ];
         }
 
 
     }
 
+    internal class EquipmentCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Equip an item, weapon or armor.\nUsage: equip <name>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            List<Armor> armorItems = [];
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Armor a)
+                { armorItems.Add(a); }
+            }
+            return false;
+        }
+    }
+
     internal class AFKCommand : ICommand
     {
         public string Name => "afk";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Toggles your AFK (Away From Keyboard) status. This just changes your display name.";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -48,14 +80,16 @@ namespace RPGFramework.Commands
             return false;
         }
     }
-    
+
 
     internal class IpCommand : ICommand
     {
         public string Name => "ip";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Show the IP address you are connecting to the server from.";
+
         public bool Execute(Character character, List<string> parameters)
-        {
+        {           
             if (character is Player player)
             {
                 player.WriteLine($"Your IP address is {player.GetIPAddress()}");
@@ -68,7 +102,9 @@ namespace RPGFramework.Commands
     internal class LookCommand : ICommand
     {
         public string Name => "look";
-        public IEnumerable<string> Aliases => new List<string> { "l" };
+        public IEnumerable<string> Aliases => [ "l" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -84,6 +120,14 @@ namespace RPGFramework.Commands
                 content += $"{player.DisplayName()}";
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
+
+                var table = new Table();
+                table.AddColumn("[deepskyblue1]Items Here:[/]").Centered();
+
+                foreach (Item item in player.GetRoom().Items)
+                {
+                    table.AddRow($"{item.DisplayText}");
+                }
                 return true;
             }
             return false;
@@ -93,7 +137,8 @@ namespace RPGFramework.Commands
     internal class QuitCommand : ICommand
     {
         public string Name => "quit";
-        public IEnumerable<string> Aliases => new List<string> { "exit" };
+        public IEnumerable<string> Aliases => [ "exit" ];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -109,7 +154,9 @@ namespace RPGFramework.Commands
     internal class SayCommand : ICommand
     {
         public string Name => "say";
-        public IEnumerable<string> Aliases => new List<string> { "\"".Normalize(), "'".Normalize() };
+        public IEnumerable<string> Aliases => [ "\"", "'" ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             // If no message and it's a player, tell them to say something
@@ -123,10 +170,46 @@ namespace RPGFramework.Commands
         }
     }
 
+    internal class TellCommand : ICommand
+    {
+        public string Name => "tell";
+        public IEnumerable<string> Aliases => [ "msg", "whisper" ];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Tell whom what?");
+                return false;
+            }
+            string targetName = parameters[1];
+            string message = string.Join(' ', parameters.Skip(2));
+            Player? targetPlayer = GameState.Instance.GetPlayerByName(targetName);
+            
+            if (targetPlayer == null)
+            {
+                Comm.SendToIfPlayer(character, $"Player '{targetName}' not found.");
+
+                return false;
+            }
+
+            // Probably should check if target is online
+
+            targetPlayer.WriteLine($"{Messaging.CreateTellMessage(player.DisplayName(),message)}");
+            player.WriteLine($"You tell {targetPlayer.DisplayName()}: {message}");
+            return true;
+        }
+    }
+
     internal class TimeCommand : ICommand
     {
         public string Name => "time";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -141,7 +224,8 @@ namespace RPGFramework.Commands
     internal class StatusCommand : ICommand
     {
         public string Name => "status";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
@@ -170,7 +254,9 @@ namespace RPGFramework.Commands
     internal class HelpCommand : ICommand
     {
         public string Name => "help";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -178,17 +264,47 @@ namespace RPGFramework.Commands
 
             // if no help topic given
             if (parameters.Count < 2)
-            {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+            {var table = new Table();
+                table.AddColumn("═════ ⋆★⋆ ═════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                table.AddColumn("════ ⋆★⋆ ════");
+                //table.Title = new TableTitle("[mediumpurple2]Help Topics[/]");
+
+
+                List<string> helpTopics = new List<string>();
+                //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
+                List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
+                helpKeys.Sort();
+                foreach (string key in helpKeys)
                 {
-                    player.WriteLine($"{he.Name}");
+                    HelpEntry he = GameState.Instance.HelpCatalog[key];
+                    //player.WriteLine($"{he.Name}");
+                    helpTopics.Add(he.Name);
+                    if (helpTopics.Count == 4)
+                    {
+                        table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
+                        helpTopics.Clear();
+                    }
+
+                }
+
+                if (helpTopics.Count > 0)
+                {
+                    table.AddRow(
+                    helpTopics.ElementAtOrDefault(0) ?? "",
+                    helpTopics.ElementAtOrDefault(1) ?? "",
+                    helpTopics.ElementAtOrDefault(2) ?? "",
+                    helpTopics.ElementAtOrDefault(3) ?? "");
+                    Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
+                    player.Write(panel);
                 }
             }
             else
             {
-                foreach (HelpEntry he in GameState.Instance.HelpEntries.Values)
+                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 {
-                    if (he.Name.ToLower() == parameters[1].ToLower())
+                    if (he.Name.Equals(parameters[1], StringComparison.CurrentCultureIgnoreCase))
                     {
                         player.WriteLine($"{he.Name}");
                         player.WriteLine($"{he.Content}");
@@ -200,5 +316,153 @@ namespace RPGFramework.Commands
         }
 
     }
-}
 
+    internal class CheckWeatherCommand : ICommand
+    {
+        public string Name => "weather";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                // make a weather property for areas later
+                Area area = player.GetArea();
+                player.WriteLine($"The current weather is {area.Weather}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+    internal class XPCommand : ICommand
+    {
+        public string Name => "xp";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                return true;
+            }
+            return false;
+        }
+    }
+
+    internal class WeatherSetCommand : ICommand
+    {
+        public string Name => "setweather";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+
+            if (character is not Player player)
+
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Set weather to what?");
+                return true;
+            }
+            else
+            {
+                Area area = player.GetArea();
+                area.Weather = parameters[1];
+                player.WriteLine($"You set the weather to {area.Weather}");
+                return true;
+            }
+
+
+        }
+    }
+
+
+    
+    internal class LevelCommand : ICommand
+    {
+        public string Name => "level";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"You are level {player.Level} you will gain an additional {player.Levels[player.Level].Health} health and you will have {player.Levels[player.Level].StatPoints} points upon level up.");
+                return true;
+            }
+            return false;
+        }
+
+    }
+
+    internal class TrainCommand : ICommand
+    {
+        public string Name => "train";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "Train your attributes using stat points you have earned from leveling up.\nUsage: train <attribute>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine($"to train you must type train and whatever you are trying to train for example, train strength.");
+                return true;
+            }
+            if (player.StatPoints < 1)
+            {
+                player.WriteLine($"you dont have enough stat points or attribute doesnt exist");
+                return true;
+            }
+           switch(parameters[1].ToLower())
+            {
+                case "Strength":
+                    player.Strength++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to strength");
+                    break;
+                case "dexterity":
+                    player.Dexterity++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to dexterity");
+                break;
+                case "constitution":
+                    player.Constitution++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to constitution");
+                break;
+                case "intelligence":
+                    player.Intelligence++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to intelligence");
+                break;
+                case "wisdom":
+                    player.Wisdom++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to wisdom");
+                break;
+                case "charisma":
+                    player.Charisma++;
+                    player.StatPoints--;
+                    player.WriteLine($"added 1 point to charisma");
+                break;
+                default:
+                    player.WriteLine("unkown attribute");
+                break;
+            }
+            return false;
+        }
+    }
+}
