@@ -390,6 +390,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "timerate";
         public IEnumerable<string> Aliases => ["/timerate", "/tr"];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             Player? p = null;
@@ -425,6 +426,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "changetime";
         public IEnumerable<string> Aliases => ["/changetime"];
+        public string Help => "";
+
         public bool Execute( Character character, List<string> parameters)
         {
             Player? p = null;
@@ -455,8 +458,6 @@ namespace RPGFramework.Commands
             }
         }
     }
-}
-
 
     
     internal class LevelCommand : ICommand

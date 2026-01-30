@@ -71,6 +71,8 @@ namespace RPGFramework
 
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
+        public int TimeRate { get; set; } = 60;
+
 
         #region --- Unserialized Properties ---
         [JsonIgnore] public bool IsRunning { get; private set; } = false;
@@ -509,6 +511,7 @@ namespace RPGFramework
         }
         #endregion
 
+        #region RunItemCleanUpLoopAsync Method
         private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
@@ -536,13 +539,13 @@ namespace RPGFramework
             }
             GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.");
         }
+        #endregion
 
+        #region RunAutosaveLoopAsync Method
         /// <summary>
         /// Things that need to be saved periodically
         /// </summary>
         /// <param name="interval"></param>
-        public int TimeRate { get; set; } = 60;
-        private async Task RunTimeOfDayLoopAsync(TimeSpan interval, CancellationToken ct)
         private async Task RunAutosaveLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Autosave thread started.");
@@ -550,9 +553,6 @@ namespace RPGFramework
             {
                 try
                 {
-                    GameState.Log(DebugLevel.Debug, "Updating time...");
-                    double hours = interval.TotalMinutes * TimeRate;
-                    GameState.Instance.GameDate = GameState.Instance.GameDate.AddHours(hours);
                     await SaveAllPlayers();
                     await SaveAllAreas();
                     await SaveCatalogsAsync();
@@ -634,66 +634,8 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
         #endregion
-
-        // CODE REVIEW: Rylan (PR #16)
-        // We should consider whether this is necessary.
-        private async Task RunTickLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Tick thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    //GameState.Log(DebugLevel.Debug, "Updating tick...");
-                    _tickCount++;
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during tick update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Tick thread stopping.");
-        }
-
-        private async Task RunWeatherLoopAsync(TimeSpan interval, CancellationToken ct)
-        {
-            GameState.Log(DebugLevel.Alert, "Weather thread started.");
-            while (!ct.IsCancellationRequested && IsRunning)
-            {
-                try
-                {
-                    GameState.Log(DebugLevel.Debug, "Updating the weather...");
-                    // Update weather in all areas
-                    //choose random from list, apply to area
-                    //repeat for every area
-                    //await build team for areas/weather types
-                    foreach (Area area in Areas.Values)
-                    {
-                        area.UpdateWeather();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    GameState.Log(DebugLevel.Error, $"Error during weather update: {ex.Message}");
-                }
-
-                await Task.Delay(interval, ct);
-            }
-            GameState.Log(DebugLevel.Alert, "Weather thread stopping.");
-        }
-
-        // CODE REVIEW: Rylan (PR #16)
-        // All of the weather code (UpdateWeather, weatherStates)
-        // needs to be moved to its own class.
-        // An enum for WeatherState would be better than a list of strings.
-        //   It should go in the enums folder.
-        // / <summary> weather update method, move later
-        // / </summary>
         
-        // end weather update method
-
+        #region RunNPCLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
         // probably should live in the NonPlayer, Mob, etc. classes. 
@@ -706,103 +648,6 @@ namespace RPGFramework
                 try
                 {
                     GameState.Log(DebugLevel.Debug, "Playing NPCs...");
-                    // run command to check for players, then choose NPC actions
-                    // hostile/agro prioritize attacking players, then other NPCs, then wandering
-                    // friendly prioritize helping players, then other NPCs, then wandering
-                    // neutral prioritize wandering, then attacking hostile NPCs
-                    // repeat for every NPC
-                    // await NPC team for behaviors/actions and NPCs
-                    // make sure to include some randomness so NPCs don't all act at once
-                    // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
-
-                    /* CODE REVIEW: Rylan (PR #16)
-                     * We don't have NonPlayers in GameState.
-
-                    foreach (var npc in NPCCatalog)
-                    {
-                        if (npc.IsEngaged)
-                        {
-                            continue;
-                        }
-                        if (npc is Hostile)
-                        {
-
-                            if (npc.GetRoom().Players.Count > 0)
-                            {
-                                List<Player> potentialTargets = new List<Player>();
-                                // run combat initializtion method(s)
-                                foreach (Player player in npc.GetRoom().Players)
-                                {
-                                    // notify player of attack
-                                    if (player.IsEngaged)
-                                    {
-                                        continue;
-                                    }
-                                    potentialTargets.Add(player);
-                                }
-                                if (potentialTargets.Count > 0)
-                                {
-                                    Player target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
-                                    // notify player of attack
-                                    target.WriteLine($"The {npc.Name} attacks you!");
-                                    // run combat initialization method(s)
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-                                else if (npc.GetRoom().NPC.Count > 1)
-                                {
-                                    List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
-
-                                    foreach (NonPlayer otherNpc in npc.GetRoom().GetCharacters())
-                                    {
-                                        if (otherNpc == npc || otherNpc.IsEngaged)
-                                        {
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            potentialNpcTargets.Add(otherNpc);
-                                        }
-                                    }
-                                    Character target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
-                                    foreach (Player p in npc.GetRoom().GetPlayers())
-                                    {
-                                        p.WriteLine($"The {npc.Name} attacks {target.Name}");
-                                    }
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-
-                            }
-                            else if (npc is Army)
-                            {
-                                if (npc.GetRoom().NPCs.Hostile.Count > 0)
-                                {
-                                    Random rand = new Random();
-                                    NonPlayer target = npc.GetRoom().NPCs.Hostile.Count[rand.Next(0, npc.GetRoom().NPCs.Count - 1)];
-                                    foreach (Player player in npc.GetRoom().Players)
-                                    {
-                                        // notify player of attack
-                                        player.WriteLine($"The {npc.Name} attacks an enemy!");
-                                    }
-                                    // run combat initialization method(s)
-                                    
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-                                else
-                                {
-                                    npc.DoGuardAction();
-                                }
-
-                            }
-                            else if (npc is NonHostile)
-                            {
-                                if (npc.GetRoom().Players.Count > 0)
-                                {
-                                    npc.DoNPCAction();
-                                }
-                            }
-                        }
-                    }
-                    */
                 }
                 catch (Exception ex)
                 {
