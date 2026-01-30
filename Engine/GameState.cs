@@ -27,7 +27,7 @@ namespace RPGFramework
         // This is a good thing if you want to reset everything, like after world files
         // have been updated in data_seed, but be careful as it will wipe out
         // any existing area, room, and catalog (mob, item, etc.) data.
-        private bool _OVERWRITE_DATA = false;
+        private readonly bool _OVERWRITE_DATA = false;
 
         // Static Fields and Properties
         private static readonly Lazy<GameState> _instance = new(() => new GameState());
@@ -58,7 +58,7 @@ namespace RPGFramework
         private Task? _combatManagerTask;
 
         private int _tickCount = 0;
-        private int _logSuppressionSeconds = 30;
+        private readonly int _logSuppressionSeconds = 30;
         #endregion
 
         #region --- Properties ---
@@ -83,7 +83,7 @@ namespace RPGFramework
         [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
 
         // Relocate later
-        [JsonIgnore] public List<CombatWorkflow> Combats = new List<CombatWorkflow>();
+        [JsonIgnore] public List<CombatWorkflow> Combats = [];
 
         [JsonIgnore] public DateTime ServerStartTime { get; private set; }
         
@@ -129,7 +129,7 @@ namespace RPGFramework
 
         public List<Player> GetPlayersOnline()
         {
-            return Players.Values.Where(o => o.IsOnline).ToList();
+            return [.. Players.Values.Where(o => o.IsOnline)];
         }
 
         #region GetPlayerByName Method
@@ -175,11 +175,8 @@ namespace RPGFramework
             Area? area = GameState.Persistence.LoadAreaAsync(areaName).Result;
             if (area != null)
             {
-                if (Areas.ContainsKey(area.Id))
+                if (!Areas.TryAdd(area.Id, area))
                     Areas[area.Id] = area;
-                else
-                    Areas.Add(area.Id, area);
-
                 GameState.Log(DebugLevel.Alert, $"Area '{area.Name}' loaded successfully.");
             }
 
@@ -761,15 +758,15 @@ namespace RPGFramework
             // figure out how to implement those effects later, probably within combat and npc methods
         }
         //placeholder weather states, await build teams final choices
-        List<string> weatherStates = new List<string>()
-        {
+        List<string> weatherStates =
+        [
             "Sunny",
             "Cloudy",
             "Rainy",
             "Stormy",
             "Snowy",
             "Windy"
-        };
+        ];
         #endregion
 
         #endregion --- Thread Methods ---

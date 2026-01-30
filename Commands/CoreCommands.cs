@@ -272,7 +272,7 @@ namespace RPGFramework.Commands
                 //table.Title = new TableTitle("[mediumpurple2]Help Topics[/]");
 
 
-                List<string> helpTopics = new List<string>();
+                List<string> helpTopics = [];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
                 List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
                 helpKeys.Sort();
@@ -320,7 +320,7 @@ namespace RPGFramework.Commands
     internal class CheckWeatherCommand : ICommand
     {
         public string Name => "weather";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -338,7 +338,7 @@ namespace RPGFramework.Commands
     internal class XPCommand : ICommand
     {
         public string Name => "xp";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -393,30 +393,30 @@ namespace RPGFramework.Commands
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
-            Player? p = null;
-            if (character is Player player)
-                p = character as Player;
-            else
+
+            if (character is not Player player)
                 return false;
-            if (!Utility.CheckPermission (p, PlayerRole.Admin))
+
+            if (!Utility.CheckPermission (player, PlayerRole.Admin))
             {
-                p.WriteLine("You do not have permission to use this command");
+                player.WriteLine("You do not have permission to use this command");
                 return false;
             }
             if (parameters.Count < 2)
             {
-                p.WriteLine("You did not provide a new rate for time passage");
+                player.WriteLine("You did not provide a new rate for time passage");
                 return false;
             }
-            else if (parameters.Count == 2) 
+            
+            if (parameters.Count == 2) 
             {
                 GameState.Instance.TimeRate = int.Parse(parameters[1]);
-                p.WriteLine($"Time rate set to {GameState.Instance.TimeRate}");
+                player.WriteLine($"Time rate set to {GameState.Instance.TimeRate}");
                 return true;
             }
             else
             {
-                p.WriteLine("Improper use of timerate command");
+                player.WriteLine("Improper use of timerate command");
                 return false;
             }
         }
@@ -424,28 +424,28 @@ namespace RPGFramework.Commands
 
     internal class ChangeTimeCommand : ICommand
     {
-        public string Name => "changetime";
-        public IEnumerable<string> Aliases => ["/changetime"];
+        public string Name => "/changetime";
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute( Character character, List<string> parameters)
         {
-            Player? p = null;
-            if (character is Player player)
-                p = character as Player;
-            else
+            if (character is not Player player)
                 return false;
-            if (!Utility.CheckPermission (p, PlayerRole.Admin))
+
+            if (!Utility.CheckPermission (player, PlayerRole.Admin))
             {
-                p.WriteLine("You do not have permission to use this command");
+                player.WriteLine("You do not have permission to use this command");
                 return false;
             }
+
             if (parameters.Count < 2)
             {
-                p.WriteLine("You need to provide an amount of time to change by");
+                player.WriteLine("You need to provide an amount of time to change by");
                 return false;
             }
-            else if (parameters.Count == 2)
+
+            if (parameters.Count == 2)
             {
                 double timeToAdd = int.Parse(parameters[1]);
                 GameState.Instance.GameDate += TimeSpan.FromHours(timeToAdd);
@@ -453,7 +453,7 @@ namespace RPGFramework.Commands
             }
             else
             {
-                p.WriteLine("Inocrrect usage of changetime command");
+                player.WriteLine("Inocrrect usage of changetime command");
                 return false;
             }
         }
@@ -480,7 +480,7 @@ namespace RPGFramework.Commands
     internal class TrainCommand : ICommand
     {
         public string Name => "train";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "Train your attributes using stat points you have earned from leveling up.\nUsage: train <attribute>";
         public bool Execute(Character character, List<string> parameters)
         {

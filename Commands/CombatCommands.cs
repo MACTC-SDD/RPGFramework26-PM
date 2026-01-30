@@ -125,7 +125,7 @@ namespace RPGFramework.Commands
         public bool Execute(Character character, List<string> parameters)
         {
 
-            List<string> attackableNonPlayers = new List<string>();
+            List<string> attackableNonPlayers = [];
 
             foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
