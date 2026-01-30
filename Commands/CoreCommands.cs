@@ -32,6 +32,12 @@ namespace RPGFramework.Commands
                 new TimeCommand(),
                 new StatusCommand(),
                 new HelpCommand(),
+                new CheckWeatherCommand(),
+                new WeatherSetCommand(),
+                new GoldCommand(),
+                new HealCommand(),
+                new DamageCommand(),
+                new PurgeRoomCommand(),
                 new XPCommand(),
                 new LevelCommand(),
                 new TrainCommand(),                
@@ -89,7 +95,7 @@ namespace RPGFramework.Commands
         public string Help => "Show the IP address you are connecting to the server from.";
 
         public bool Execute(Character character, List<string> parameters)
-        {           
+        {
             if (character is Player player)
             {
                 player.WriteLine($"Your IP address is {player.GetIPAddress()}");
@@ -188,7 +194,7 @@ namespace RPGFramework.Commands
             string targetName = parameters[1];
             string message = string.Join(' ', parameters.Skip(2));
             Player? targetPlayer = GameState.Instance.GetPlayerByName(targetName);
-            
+
             if (targetPlayer == null)
             {
                 Comm.SendToIfPlayer(character, $"Player '{targetName}' not found.");
@@ -198,7 +204,7 @@ namespace RPGFramework.Commands
 
             // Probably should check if target is online
 
-            targetPlayer.WriteLine($"{Messaging.CreateTellMessage(player.DisplayName(),message)}");
+            targetPlayer.WriteLine($"{Messaging.CreateTellMessage(player.DisplayName(), message)}");
             player.WriteLine($"You tell {targetPlayer.DisplayName()}: {message}");
             return true;
         }
@@ -385,7 +391,117 @@ namespace RPGFramework.Commands
 
         }
     }
+    internal class GoldCommand : ICommand
+    {
+        public string Name => "gold";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                player.Gold += int.Parse(parameters[2]);
+                player.WriteLine($"you have added {parameters[2]} to {parameters[1]}");
+                return true;
+            }
+            return false;
 
+        }
+    }
+    internal class HealCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No health amount stated.");
+                    return false;
+                }
+                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                Target.Health += int.Parse(parameters[2]);
+                player.WriteLine($"you have healed {Target} by {parameters[1]}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+    internal class DamageCommand : ICommand
+    {
+        public string Name => "damage";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No Damage amount stated.");
+                    return false;
+                }
+                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                Target.Health -= int.Parse(parameters[2]);
+                player.WriteLine($"you have damaged {Target} by {parameters[1]}");
+                return true;
+            }
+            return false;
+
+        }
+    }
+    internal class PurgeRoomCommand : ICommand
+    {
+        public string Name => "purge room";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public Execute(Character character, List<string> parameters)
+        {
+              if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+              {
+                  player.WriteLine("You do not have permission to run this command");
+                  return false;
+              }
+
+              foreach (Area a in GameState.Instance.Areas.Values)
+              {
+                  foreach (Room r in a.Rooms.Values)
+                  {
+                      foreach (Item i in r.Items)
+                      {
+                          if (i.IsDropped) // this was added through the weather finalization, once it is pulled it will work, probably
+                              r.Items.Remove(i);
+                      }
+                  }
+              }
+            }
+        }
+                
     internal class TimeRateCommand : ICommand
     {
         public string Name => "timerate";
@@ -474,6 +590,25 @@ namespace RPGFramework.Commands
             }
             return false;
         }
+    }
+    internal class SpawnCommand : ICommand
+    {
+        public string Name => "spawn";
+        public IEnumerable<string> Aliases => new List<string> { };
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                Item item = new Item { };
+                item.Id = int.Parse(parameters[1]);
+                player.GetRoom().Items.Add(item); // once item preconstruction exists come back to this
+                return true;
+            }
 
     }
 

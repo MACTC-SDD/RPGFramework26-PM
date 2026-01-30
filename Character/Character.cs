@@ -29,7 +29,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; protected set; } = 0;
+        public int Health { get; set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
         public Inventory BackPack { get; protected set; } = new Inventory();
         public int Level { get; protected set; } = 1;
@@ -42,6 +42,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        public StatusCondition StatusConditon = StatusCondition.None;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -160,7 +161,7 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal);
+            SetHealth(Health + heal - healPenalty);
         }
 
         public IRenderable ShowSummary()
