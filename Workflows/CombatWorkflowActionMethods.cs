@@ -32,7 +32,7 @@ namespace RPGFramework.Workflows
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
                     // Here you would add logic to apply the attack or spell effects to the chosen target
-                    Player.RollToHitS(player, selectedSpell, chosenTarget);
+                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                     CurrentStep = 0;
                     EndTurn();
@@ -69,7 +69,7 @@ namespace RPGFramework.Workflows
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
                     // Here you would add logic to apply the attack or spell effects to the chosen target
-                    Player.RollToHitW(player, selectedWeapon, chosenTarget);
+                    // TODO Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
                     EndTurn();

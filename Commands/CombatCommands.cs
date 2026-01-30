@@ -132,7 +132,7 @@ namespace RPGFramework.Commands
                 attackableNonPlayers.Add(npc.Name);
             }
 
-            List<string> attackablePlayers = new List<string>();
+            List<string> attackablePlayers = [];
 
             foreach (Player p in Room.GetPlayersInRoom(character.GetRoom()))
             {
@@ -203,57 +203,42 @@ namespace RPGFramework.Commands
                     return false;
             }
 
+            string subcommand = parameters.ElementAt(1) ?? "";
+
             switch (parameters.Count)
             {
                 case 1:
                     player.WriteLine("The combat control command requires you to provide a subselect. (start, end, etc.)");
                     return false;
                 case 2:
-                    if (parameters[1].ToLower() == "start")
+                    if (subcommand == "start" || subcommand == "end")
                     {
                         player.WriteLine($"You need to provide a target player");
                         return false;
                     }
-                    else if (parameters[1].ToLower() == "end")
-                    {
-                        player.WriteLine("You need to provide a target player");
-                        return false;
-                    }
-                    else
-                    {
-                        player.WriteLine("You provided a subselect that does not exist");
-                        return false;
-                    }
+
+                    player.WriteLine("You provided a subselect that does not exist");
+                    return false;
                 case 3:
                     Player? target = null;
-                    if (parameters[1].ToLower() == "start")
+                    if (subcommand == "start")
                     {
+                        target = GameState.Instance.GetPlayerByName(parameters[2]);
 
-                        foreach (Player pl in GameState.Instance.Players.Values)
-                        {
-                            if (pl.Name == parameters[2])
-                            {
-                                target = pl;
-                                break;
-                            }
-                        }
                         if (target == null)
                             return false;
                         // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
                         // AdminStartCombatUntargeted(target); 
                         return true;
                     }
-                    else if (parameters[1].ToLower() == "end")
+
+                    if (subcommand == "end")
                     {
-                        foreach (Player pl in GameState.Instance.Players.Values)
-                        {
-                            if (pl.Name == parameters[2])
-                            {
-                                target = pl;
-                            }
-                        }
+                        target = GameState.Instance.GetPlayerByName(parameters[2]);
+
                         if (target == null)
                             return false;
+
                         foreach (CombatWorkflow c in GameState.Instance.Combats)
                         {
                             if (c.Combatants.Contains(target))
@@ -264,54 +249,32 @@ namespace RPGFramework.Commands
                         }
                         return false;
                     }
-                    else
-                    {
-                        player.WriteLine("You provided a subselect that does not exist");
-                        return false;
-                    }
+
+                    player.WriteLine("You provided a subselect that does not exist");
+                    return false;                
                 case 4:
                     Player? target1 = null;
                     Character? target2 = null;
-                    if (parameters[1].ToLower() == "start")
+                    if (subcommand == "start")
                     {
-
-                        foreach (Player pl in GameState.Instance.Players.Values)
-                        {
-                            if (pl.Name == parameters[2])
-                            {
-                                target1 = pl;
-                                break;
-                            }
-                        }
-
+                        target1 = GameState.Instance.GetPlayerByName(parameters[2]);
                         if (target1 == null) return false;
 
-                        foreach (Character c in Room.GetCharactersInRoom(target1.GetRoom()))
-                        {
-                            if (c.Name == parameters[3])
-                            {
-                                target2 = c;
-                                break;
-                            }
-                        }
+                        target2 = GameState.Instance.GetPlayerByName(parameters[3]);
                         if (target2 != null && target1 != null)
                         {
-                            // CODE REVIEW: Rylan - The method AdminStartCombatTargeted is missing.
-                            //AdminStartCombatTargeted(target1, target2);
                             return true;
                         }
                         return false;
                     }
-                    else if (parameters[1].ToLower() == "end")
+                    
+                    if (subcommand == "end")
                     {
                         player.WriteLine("You provided too many arguments, /combat end takes one target (e.g. /combat end player)");
                         return false;
                     }
-                    else
-                    {
-                        player.WriteLine("You provided a subselect that does not exist");
-                        return false;
-                    }
+                    player.WriteLine("You provided a subselect that does not exist");
+                    return false;
                 default:
                     player.WriteLine("You provided inproper arguments, /combat only has two subselects, \n" +
                         "start and end, start takes 1 or 2 arguments, a primary target and an optional secondary target,\n" +

@@ -11,7 +11,7 @@ namespace RPGFramework
     {
         public void DropItem(Character c, Item item)
         {
-            c.BackPack.Remove(item);
+            c.BackPack.Items.Remove(item);
             c.GetRoom().Items.Add(item);
             item.IsDropped = true;
         }
