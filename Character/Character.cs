@@ -36,6 +36,7 @@ namespace RPGFramework
         public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
         public int Initiative { get; set; }
+        public StatusConditions StatusConditon = StatusConditions.None;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
