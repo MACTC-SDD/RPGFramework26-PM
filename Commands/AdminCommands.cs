@@ -1,166 +1,73 @@
 ﻿
-using RPGFramework;
 using RPGFramework.Core;
 using RPGFramework.Display;
 using RPGFramework.Enums;
-using System.Collections.Generic;
-using System.ComponentModel;
+using RPGFramework.Persistence;
+using RPGFramework.Workflows;
+using System.IO.Compression;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
+
 
 namespace RPGFramework.Commands
 {
     internal class AdminCommands
     {
-        /* internal enum PlayerRole
-         {
-             Player,
-             Builder,
-             Admin,
-             God
-         }*/
-        public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>()
-            {
+            return
+            [
                 new AnnounceCommand(),
+                new GoToCommand(),
+                new HelpEditCommand(),
+                new KickCommand(),
+                new ReloadSeedDataCommand(),
+                new RenameCommand(),
+                new RoleCommand(),
+                new SummonCommand(),
                 new ShutdownCommand(),
+                new SaveAll(),
                 new WhereCommand(),
                 new WhoCommand(),
-                new GoToCommand(),
-                new SaveAll(),
-                new SummonCommand(),
-                new KickCommand(),
-                new RoleCommand(),
-                new RenameCommand(),
-                new HelpEditCommand(),
-                // Add more builder commands here as needed
-            };
+                new BackupCommand(),
+                new RestoreCommand(),
+                new MotdCommand(),
+            ];
         }
     }
 
+    #region AnnounceCommand Class
     internal class AnnounceCommand : ICommand
     {
-        public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        public string Name => "announce";
-        public IEnumerable<string> Aliases => new List<string>() { "ann" };
+        public string Name => "/announce";
+        public IEnumerable<string> Aliases => [ "/ann" ];
+        public string Help => "Make an annoucement to all connected players.";
+
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
-                if (CheckPermission(PlayerRole.Player) == true)
-                {
-                    Comm.Broadcast(Messaging.CreateAnnouncementMessage(string.Join(' ', parameters.Skip(1))));
-                    
-                    return true;
-                }
+                player.WriteLine("You don't have permission to use this command.");
                 return false;
             }
-            return false;
+
+            Comm.Broadcast(Messaging.CreateAnnouncementMessage(string.Join(' ', parameters.Skip(1))));
+
+            return true;
         }
     }
-    internal class SaveAll : ICommand
+    #endregion
+
+    #region GoToCommand Class
+    internal class GoToCommand : ICommand
     {
-        public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        public string Name => "saveall";
-        public IEnumerable<string> Aliases => new List<string>() { "ann" };
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is Player player)
-            {
-                if (CheckPermission(PlayerRole.Admin) == true)
-                {
-                    GameState.Instance.SaveAllPlayers();
-                }
-                return false;
-            }
-            return false;
-        }
-    }
-
-    internal class ShutdownCommand : ICommand
-    {
-        public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-
-        public string Name => "shutdown";
-        public IEnumerable<string> Aliases => new List<string>() { };
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is Player player)
-            {
-                if (CheckPermission(PlayerRole.Admin) == true)
-                {
-                    Comm.Broadcast($"{DisplaySettings.AnnouncementColor}[[WARNING]]: [/][white]" +
-                    $"Server is shutting down. All data will be saved.[/]");
-
-                    GameState.Instance.Stop();
-                    return true;
-                }
-                return false;
-            }
-            return false;
-        }
-    }
-
-    internal class WhoCommand : ICommand
-    {
-        public string Name => "who";
-
-        public IEnumerable<string> Aliases => new List<string>() { };
-
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is Player player)
-            {
-                //List<Player> = new List<Player>;
-                int onlineCount = 0;
-                foreach (Player playerc in GameState.Instance.GetPlayersOnline())
-                {
-                    string name = playerc.DisplayName();
-                    player.WriteLine(name + " is online.");
-                    onlineCount++;
-                    if (playerc.IsAFK == true)
-                    {
-                        player.WriteLine(name + " is AFK.");
-                    }
-                    player.WriteLine(playerc.GetRoom().ToString());
-
-
-
-                }
-                player.WriteLine($"Total online players: {onlineCount}.");
-                return true;
-            }
-            return false;
-        }
-    }
-    internal class WhereCommand : ICommand
-    {
-        public string Name => "where";
-        // CODE REVIEW: Aidan - This method should use Utility.CheckPermission for consistency.
-        /*public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
+        public string Name => "/goto";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "Jump to a specific player:\n/goto <player name>";
 
-        // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
-        // Also un-nested the code for better readability by moving checks to the start and exiting early.
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -174,25 +81,103 @@ namespace RPGFramework.Commands
 
             Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
 
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
             if (target == null)
             {
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            player.WriteLine("That Player is in " + target.GetRoom());
+            // CODE REVIEW: Aidan - This looks incomplete, maybe you were just using summon?
+            // You should be able to use the example there to revise this command.
+            Player? playerc = GameState.Instance.GetPlayerByName(parameters[2]);                        
+            playerc.AreaId = target.AreaId;
+
+            player.WriteLine($"You have been teleported to {target.DisplayName()}.");
             return true;
         }
     }
+    #endregion
 
-    // CODE REVIEW: Aidan - The GoToCommand had several issues similar to those I addressed in SummonCommand.
-    internal class GoToCommand : ICommand
+    #region HelpEditCommand Class
+    internal class HelpEditCommand : ICommand
     {
-        public string Name => "goto";
+        public string Name => "/help";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Usage: /help create <name> <category> <content>";
 
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return true;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    CreateHelp(player, parameters);
+                    break;
+                default:
+                    ShowHelp(player);
+                    break;
+            }
+
+            return true;
+        }
+
+        public bool CreateHelp(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            if (GameState.Instance.HelpCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine("A help entry with that name already exists.");
+                return false;
+            }        
+            
+            HelpEntry h = new()
+            {
+                Name = parameters[2],
+                Category = parameters[3],
+                Content = parameters[4]
+            };
+
+            GameState.Instance.HelpCatalog.Add(h.Name, h);
+            return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
+        }
+    }
+    #endregion
+
+    #region KickCommand Class
+    // CODE REVIEW: Aidan - The KickCommand had several issues similar to those I addressed in SummonCommand.
+    internal class KickCommand : ICommand
+    {
+        public string Name => "/kick";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "Disconnect a player from the server. This does NOT ban them.";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -211,33 +196,218 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            // CODE REVIEW: Aidan - This looks incomplete, maybe you were just using summon?
-            // You should be able to use the example there to revise this command.
-            Player target = GameState.Instance.GetPlayerByName(parameters[1]);
-            Player playerc = GameState.Instance.GetPlayerByName(parameters[2]);
-            playerc.AreaId = target.AreaId;
+            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            
+            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
+            if (target == null)
+            {
+                player.WriteLine($"Player ({parameters[1]}) not found.");
+                return false;
+            }
 
-            player.WriteLine($"You have been teleported to {target.DisplayName()}.");
+            if (target.IsOnline == true)
+                target.Logout();
+
+            player.WriteLine($"You have disconnected {target.DisplayName()}.");
             return true;
-
-
         }
     }
+    #endregion
+
+    #region ReloadSeedDataCommand Class
+    internal class ReloadSeedDataCommand : ICommand
+    {
+        public string Name => "/reloadseeddata";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Reload all seed data files. This won't delete existing files, but it will OVERWRITE them if they exist in seed_data. Use this with caution!";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            
+            player.CurrentWorkflow = new WorkflowReloadSeedData();
+            player.WriteLine("Watch out, you're about to overwrite your data with the default seed files. If that's what you want, type YES!");
+            return true;
+        }
+    }
+    #endregion
+
+    #region RenameCommand Class
+    // CODE REVIEW: Aidan - The renameCommand had several issues similar to those I addressed in SummonCommand.
+    // Also, class names should be PascalCase, so I've renamed it to RenameCommand.
+    internal class RenameCommand : ICommand
+    {
+        public string Name => "/rename";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Change a player's username.";
+
+        // CODE REVIEW: Aidan - I un-nested this by moving character and permission checks to the 
+        // beginning and exiting if they failed. This makes the code a lot more readable because we don't
+        // have so many nested blocks.
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                return false;
+
+            // CODE REVIEW: Aidan - We should check if parameters has enough elements to avoid index out of range exceptions.
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Usage: rename <targetPlayerName> <newName>");
+                return false;
+            }
 
 
+            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            if (target == null)
+            {
+                player.WriteLine("Player not found.");
+                return false;
+            }
+
+            if (Player.Exists(parameters[1], GameState.Instance.Players))
+            {
+                player.WriteLine("That name is already taken.");
+                return false;
+            }
+
+            GameState.Instance.Players.Remove(target.Name);
+            target.Name = parameters[2];
+            GameState.Instance.Players.Add(target.Name, target);
+
+            player.WriteLine($"You have changed their name to {target.Name}");
+            return true;
+        }
+    }
+    #endregion
+
+    #region RoleCommand Class
+    // CODE REVIEW: Aidan - The RoleCommand had several issues similar to those I addressed in SummonCommand.
+    internal class RoleCommand : ICommand
+    {
+        public string Name => "role";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            // CODE REVIEW: Aidan - We should check if parameters has enough elements to avoid index out of range exceptions.
+            // We don't need null checking here
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Usage: role <playerName> <role>");
+                return false;
+            }
+
+            /*if (parameters[1] == null)
+            {
+                player.WriteLine("Player not found.");
+                return false;
+            }
+            if (parameters[2] == null)
+            {
+                player.WriteLine("Role not found.");
+                return false;
+            }*/
+
+            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
+            if (target == null)
+            {
+                player.WriteLine($"Player ({parameters[1]}) not found.");
+                return false;
+            }
+
+            // GameState.Instance.Players.Keys.Contains(parameters[1]);
+            if (!Enum.TryParse(parameters[2], true, out PlayerRole pr))
+            {
+                target.PlayerRole = pr;
+                player.WriteLine($"You have changed {target.Name}'s role to {target.PlayerRole}.");
+                return true;
+            }
+            else
+            {
+                player.WriteLine("Role not found.");
+                return false;
+            }
+        }
+    }
+    #endregion
+
+    #region SaveAll Class
+    internal class SaveAll : ICommand
+    {
+        public string Name => "/saveall";
+        public IEnumerable<string> Aliases => [  ];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You don't have permission to use this command.");
+            }
+
+
+            GameState.Instance.SaveAllPlayers();
+            return true;
+        }
+    }
+    #endregion
+
+    #region ShutdownCommand Class
+    internal class ShutdownCommand : ICommand
+    {
+        public string Name => "/shutdown";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            Comm.Broadcast($"{DisplaySettings.AnnouncementColor}[[WARNING]]: [/][white]" +
+            $"Server is shutting down. All data will be saved.[/]");
+
+            GameState.Instance.Stop();
+            return true;
+        }        
+    }
+    #endregion
+
+    #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "summon";
-
-        // CODE REVIEW: Aidan - This should use Utility.CheckPermission for consistency.
-        // Once you've review, just delete this comment and the commented out method below.
-        /*public bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
-
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public string Name => "summon";        
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -293,14 +463,24 @@ namespace RPGFramework.Commands
             return true;
         }
     }
+    #endregion
 
-    // CODE REVIEW: Aidan - The KickCommand had several issues similar to those I addressed in SummonCommand.
-    internal class KickCommand : ICommand
+    #region WhereCommand Class
+    internal class WhereCommand : ICommand
     {
-        public string Name => "kick";
+        public string Name => "where";
+        // CODE REVIEW: Aidan - This method should use Utility.CheckPermission for consistency.
+        /*public static bool CheckPermission(PlayerRole role)
+        {
+            return PlayerRole.Player >= role;
+        }
+        */
 
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
+        // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
+        // Also un-nested the code for better readability by moving checks to the start and exiting early.
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -312,186 +492,155 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (parameters[1] == null)
+            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+
+            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
+            if (target == null)
             {
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
-            if (target == null)
-            {
-                player.WriteLine($"Player ({parameters[1]}) not found.");
-                return false;
-            }
-
-            if (target.IsOnline == true)
-                target.Logout();
-
-            player.WriteLine($"You have disconnected {target.DisplayName()}.");
+            player.WriteLine("That Player is in " + target.GetRoom());
             return true;
         }
     }
+    #endregion
 
-    // CODE REVIEW: Aidan - The RoleCommand had several issues similar to those I addressed in SummonCommand.
-    internal class RoleCommand : ICommand
+    #region WhoCommand Class
+    internal class WhoCommand : ICommand
     {
-        public string Name => "role";
+        public string Name => "who";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
 
-            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            int onlineCount = 0;
+            foreach (Player playerc in GameState.Instance.GetPlayersOnline())
             {
-                player.WriteLine("You do not have permission to use this command.");
-                return false;
-            }
-
-            // CODE REVIEW: Aidan - We should check if parameters has enough elements to avoid index out of range exceptions.
-            // We don't need null checking here
-            if (parameters.Count < 3)
-            {
-                player.WriteLine("Usage: role <playerName> <role>");
-                return false;
-            }
-
-            /*if (parameters[1] == null)
-            {
-                player.WriteLine("Player not found.");
-                return false;
-            }
-            if (parameters[2] == null)
-            {
-                player.WriteLine("Role not found.");
-                return false;
-            }*/
-
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
-            if (target == null)
-            {
-                player.WriteLine($"Player ({parameters[1]}) not found.");
-                return false;
-            }
-
-            // GameState.Instance.Players.Keys.Contains(parameters[1]);
-            if (!Enum.TryParse(parameters[2], true, out PlayerRole pr))
-            {
-                target.PlayerRole = pr;
-                player.WriteLine($"You have changed {target.Name}'s role to {target.PlayerRole}.");
-                return true;
-            }
-            else
-            {
-                player.WriteLine("Role not found.");
-                return false;
-            }
-        }
-    }
-
-    // CODE REVIEW: Aidan - The renameCommand had several issues similar to those I addressed in SummonCommand.
-    // Also, class names should be PascalCase, so I've renamed it to RenameCommand.
-    internal class RenameCommand : ICommand
-    {
-        public string Name => "rename";
-
-        public IEnumerable<string> Aliases => [];
-
-        // CODE REVIEW: Aidan - I un-nested this by moving character and permission checks to the 
-        // beginning and exiting if they failed. This makes the code a lot more readable because we don't
-        // have so many nested blocks.
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is not Player player)
-                return false;
-
-            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                return false;
-
-            // CODE REVIEW: Aidan - We should check if parameters has enough elements to avoid index out of range exceptions.
-            if (parameters.Count < 3)
-            {
-                player.WriteLine("Usage: rename <targetPlayerName> <newName>");
-                return false;
-            }
-
-            /*if (parameters[1] == null)
-            {
-                player.WriteLine("Player not found.");
-                return false;
-            }            
-            */
-
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
-            if (target == null)
-            {
-                player.WriteLine("Player not found.");
-                return false;
-            }
-
-            // CODE REVIEW: Aidan - We don't need to check IsOnline here unless there's some specific reason
-            if (target.IsOnline == true)
-            {
-                target.Name = parameters[2];
-
-                player.WriteLine($"You have changed their name to {target.Name}");
-                return true;
-            }
-
-            return false;
-        }
-    }
-
-
-    internal class HelpEditCommand : ICommand
-    {
-        public string Name => "/help";
-        public IEnumerable<string> Aliases => new List<string>() { };
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is not Player player)
-            {
-                return false;
-            }
-
-            if (parameters.Count > 1)
-            {
-                switch (parameters[1].ToLower())
+                string name = playerc.DisplayName();
+                player.WriteLine(name + " is online.");
+                onlineCount++;
+                if (playerc.IsAFK == true)
                 {
-                    case "create":
-                        CreateHelp(player, parameters);
-                        break;
-
-
+                    player.WriteLine(name + " is AFK.");
                 }
+                player.WriteLine(playerc.GetRoom().Name);
             }
-            else
-            {
-                // Show usage message
-            }
-
-            // Do stuff
+            player.WriteLine($"Total online players: {onlineCount}.");
             return true;
         }
+    }
+    #endregion
 
-        public void CreateHelp(Player player, List<string> parameters)
+    #region BackupCommand Class
+    internal class BackupCommand : ICommand
+    {
+        public string Name => "backup";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
         {
-            HelpEntry h = new HelpEntry()
-            {
-                Name = parameters[2],
-                Category = parameters[3],
-                Content = parameters[4]
-            };
+            if (character is not Player player)
+                return false;
 
-            GameState.Instance.HelpCatalog.Add(h.Name, h);
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+         
+          
+            try
+            {
+                GameState.CreateBackup();
+                player.WriteLine("Backup created successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Backup failed: {ex.Message}");
+                return false;
+            }
+        }
+
+
+    }
+    #endregion
+    #region RestoreCommand
+    internal class RestoreCommand : ICommand
+    {
+        public string Name => "restore";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count == 0)
+            {
+                player.WriteLine("Usage: /restore <backupName | latest>");
+                return false;
+            }
+
+            try
+            {
+                GameState.RestoreBackup(parameters[0]);
+                player.WriteLine("Restore completed successfully. Server restart recommended.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Restore failed: {ex.Message}");
+                return false;
+            }
+        }
+
+    }
+    #endregion
+    internal class MotdCommand : ICommand
+    {
+        public string Name => "/motd";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine(GameState.Instance.MessageCatalog.ContainsKey("motd")
+                    ? GameState.Instance.MessageCatalog["motd"]
+                    : "nothing");
+                return false;
+            }
+            player.WriteLine($"successfully set motd");
+            GameState.Instance.MessageCatalog["motd"] = parameters[1];
+            return true;
         }
     }
 }
-
