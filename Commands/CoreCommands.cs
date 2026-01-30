@@ -395,7 +395,7 @@ namespace RPGFramework.Commands
     internal class GoldCommand : ICommand
     {
         public string Name => "gold";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -438,9 +438,9 @@ namespace RPGFramework.Commands
                     player.WriteLine("No health amount stated.");
                     return false;
                 }
-                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
-                Target.Health += int.Parse(parameters[2]);
-                player.WriteLine($"you have healed {Target} by {parameters[1]}");
+                Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+                target.Health += int.Parse(parameters[2]);
+                player.WriteLine($"you have healed {target} by {parameters[1]}");
                 return true;
             }
             return false;
@@ -483,7 +483,7 @@ namespace RPGFramework.Commands
     internal class PurgeRoomCommand : ICommand
     {
         public string Name => "purge room";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -618,8 +618,10 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            Item item = new Item { };
-            item.Id = int.Parse(parameters[1]);
+            Item item = new()
+            {
+                Id = int.Parse(parameters[1])
+            };
             player.GetRoom().Items.Add(item); // once item preconstruction exists come back to this
             return true;
         }

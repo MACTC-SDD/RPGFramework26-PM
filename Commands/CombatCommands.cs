@@ -54,7 +54,7 @@ namespace RPGFramework.Commands
     {
 
         public string Name => "combatstatus";
-        public IEnumerable<string> Aliases => new List<string> { "cs" };
+        public IEnumerable<string> Aliases => [ "cs" ];
         public string Help => "Shows the combat status of all combatants in your current combat.";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -90,7 +90,7 @@ namespace RPGFramework.Commands
         
         private bool ShowCombatStatus(Player p, List<string> parameters)
         {
-            CombatWorkflow currentCombat = null;
+            CombatWorkflow? currentCombat = null;
             foreach (CombatWorkflow combat in GameState.Instance.Combats)
             {
                 if (combat.Combatants.Contains(p))
@@ -236,14 +236,14 @@ namespace RPGFramework.Commands
                     player.WriteLine("You provided a subselect that does not exist");
                     return false;                
                 case 4:
-                    Player? target1 = null;
-                    Character? target2 = null;
                     if (subcommand == "start")
                     {
-                        target1 = GameState.Instance.GetPlayerByName(parameters[2]);
+                        Player? target1 = GameState.Instance.GetPlayerByName(parameters[2]);
                         if (target1 == null) return false;
 
-                        target2 = GameState.Instance.GetPlayerByName(parameters[3]);
+                        // Find the first matching character in the room
+                       
+                        Character? target2 = Room.FindCharacterInRoom(player.GetRoom(), parameters[3]);
                         if (target2 != null && target1 != null)
                         {
                             return true;

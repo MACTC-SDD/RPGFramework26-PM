@@ -85,7 +85,7 @@ namespace RPGFramework.Workflows
         }
         private bool ChooseItem(Player player, List<string> parameters)
         {
-            List<Consumable> consumables = new List<Consumable>();
+            List<Consumable> consumables = [];
             foreach (Consumable item in player.Inventory)
             {
                 consumables.Add(item);
