@@ -36,7 +36,7 @@ namespace RPGFramework
         public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
         public int Initiative { get; set; }
-        public StatusConditions StatusConditon = StatusConditions.None;
+        public StatusCondition StatusConditon = StatusCondition.None;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -125,7 +125,7 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal);
+            SetHealth(Health + heal - healPenalty);
         }
 
         

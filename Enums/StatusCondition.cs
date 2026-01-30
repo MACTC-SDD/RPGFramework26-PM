@@ -22,5 +22,6 @@ namespace RPGFramework.Enums
         Prone,
         Restrained,
         Unconscious,
+        None,
     }
 }
