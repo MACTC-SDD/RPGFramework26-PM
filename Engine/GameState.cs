@@ -105,19 +105,21 @@ namespace RPGFramework
         [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, CharacterClass> CCCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
         #endregion --- Unserialized Properties ---
         #endregion --- Properties ---
-        
+
         #region --- Methods ---
         private GameState()
         {
             Catalogs.Add(HelpCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(NPCCatalog);
+            Catalogs.Add(CCCatalog);
             Catalogs.Add(ItemCatalog);
             Catalogs.Add(MessageCatalog);
         }

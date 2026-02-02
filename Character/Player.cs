@@ -41,7 +41,7 @@ namespace RPGFramework
             new LevelEntry () {RequiredXp = 3500, StatPoints = 1, Health = 25}
         };
         #endregion
-
+       
         public string DisplayName()
         {
             // We could add colors and other things later, for now, just afk
@@ -110,6 +110,11 @@ namespace RPGFramework
             IsOnline = true;
             LastLogin = DateTime.Now; 
             Console = CreateAnsiConsole();
+            if (Class != null 
+                && GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c))
+            {
+                Class = c ?? null;
+            }
         }
 
         
