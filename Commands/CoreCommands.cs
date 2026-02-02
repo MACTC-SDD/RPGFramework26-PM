@@ -247,6 +247,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "use";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
