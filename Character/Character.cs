@@ -22,7 +22,6 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
-        public int HealPenalty { get; set; } = 0;
         public double DamageResistance { get; set; } = 1.0;
         public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
@@ -41,7 +40,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
-        public int HitPenalty { get; set; } = 0;
+        
         #endregion
 
         #region --- Skill Attributes --- (0-20)

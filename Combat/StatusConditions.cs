@@ -5,13 +5,10 @@ using System.Text;
 
 namespace RPGFramework
 {
-    // CODE REVIEW: Rylan - can this be removed?
-    // CODE REVIEW: Mr. Brown - no this cannot be removed as it is a stepping stool for both members of the combat team to work on the same thing
     internal partial class Character
     {
         public void Poisoned()
         {
-            // add a way to grant disadvantage or -7 to attack rolls
             if (this.CountPoisoned == 0)
             {
                 this.Disadvantage += 5;
@@ -160,6 +157,7 @@ namespace RPGFramework
         public void Deafened()
         {
             // once spells are more fleshed out add a way to grant disadvantage to saves
+            // this is impractical as of now, ignore
             if (this.CountDeafened == 0)
             {
                 this.Disadvantage += 5;
@@ -201,6 +199,23 @@ namespace RPGFramework
             // attackers have advantage
             // fail strength and dex saves
             // all attacks that hit are a critical hit
+            if (this.CountParalyzed == 0)
+            {
+                this.Disadvantage += 5;
+                this.DamageResistance = 0.5;
+            }
+            if (this.CountParalyzed < 3)
+            {
+                this.CountParalyzed++;
+                this.IsIncapacitated = true;
+            }
+            else
+            {
+                this.Disadvantage -= 5;
+                this.IsParalyzed = false;
+                this.CountParalyzed = 0;
+                this.DamageResistance = 1;
+            }
         }
 
         public void Unconscious()

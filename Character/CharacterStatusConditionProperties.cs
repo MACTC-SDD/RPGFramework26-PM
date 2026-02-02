@@ -34,5 +34,7 @@ namespace RPGFramework
         public int CountUnconcious { get; set; } = 0;
         public int Disadvantage { get; set; } = 0;
         public int Advantage { get; set; } = 0;
+        public int HealPenalty { get; set; } = 0;
+        public int HitPenalty { get; set; } = 0;
     }
 }
