@@ -84,6 +84,7 @@ namespace RPGFramework
                 if (a is Player player)
                     player.WriteLine($"You missed {t.Name} and hit yourself in the face!");
                 totalAttack = 0;
+                a.DropItem(weapon);
                 a.TakeDamage(1);
             }
             else if (totalAttack >= tAC)
