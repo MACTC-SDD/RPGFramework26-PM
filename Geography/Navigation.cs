@@ -22,37 +22,20 @@ namespace RPGFramework.Geography
             Exit? exit = currentRoom.GetExits().FirstOrDefault(e => e.ExitDirection == direction);
 
             // If invalid exit, send error message (if player)
-            if (exit == null)
+            if (exit == null || exit.ExitType == ExitType.Impassable)
             {
-                if (character is Player)
-                {
-                    Player p = (Player)character;
-                    p.WriteLine("You can't go that way.");
-                }
-                return;
-            }
-
-            // Block impassable exits
-            if (exit.ExitType == ExitType.Impassable)
-            {
-                if (character is Player p)
-                {
-                    p.WriteLine("You can't go that way.");
-                }
+                Comm.SendToIfPlayer(character, "You can't go that way.");
                 return;
             }
 
             // Block closed exits
             if (!exit.IsOpen)
             {
-                if (character is Player p)
-                {
-                    // Provide a slightly different message for closed doors
-                    p.WriteLine("The way is closed.");
-                }
+                Comm.SendToIfPlayer(character, "The way is closed.");
                 return;
             }
 
+            // CODE REVIEW: Ashten - Is there a reason we need to make them confirm area travel?
             // If this exit crosses areas, require confirmation
             if (exit.DestinationAreaId != exit.SourceAreaId && character is Player pChar)
             {

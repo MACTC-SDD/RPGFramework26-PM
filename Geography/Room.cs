@@ -85,15 +85,17 @@ namespace RPGFramework.Geography
             }
 
             // Create a new Exit object from this room
-            Exit exit = new Exit();
-            exit.Id = Exit.GetNextId(AreaId);
-            // Set area ids so cross-area exits keep their origin/destination areas
-            exit.SourceAreaId = AreaId;
-            exit.SourceRoomId = Id;
-            exit.DestinationAreaId = destinationRoom.AreaId;
-            exit.DestinationRoomId = destinationRoom.Id;
-            exit.ExitDirection = direction;
-            exit.Description = exitDescription;
+            Exit exit = new()
+            {
+                Id = Exit.GetNextId(AreaId),
+                // Set area ids so cross-area exits keep their origin/destination areas
+                SourceAreaId = AreaId,
+                SourceRoomId = Id,
+                DestinationAreaId = destinationRoom.AreaId,
+                DestinationRoomId = destinationRoom.Id,
+                ExitDirection = direction,
+                Description = exitDescription
+            };
             // Keep ExitType default unless modified later.
             // Apply sensible open/close defaults based on ExitType
             exit.ApplyDefaultsForType();
@@ -104,14 +106,16 @@ namespace RPGFramework.Geography
             // Create a new exit from the destination room back to this room
             if (returnExit)
             {
-                Exit exit1 = new Exit();
-                exit1.Id = Exit.GetNextId(destinationRoom.AreaId);
-                // set area ids for the return exit as well
-                exit1.SourceAreaId = destinationRoom.AreaId;
-                exit1.SourceRoomId = destinationRoom.Id;
-                exit1.DestinationAreaId = AreaId;
-                exit1.DestinationRoomId = Id;
-                exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
+                Exit exit1 = new()
+                {
+                    Id = Exit.GetNextId(destinationRoom.AreaId),
+                    // set area ids for the return exit as well
+                    SourceAreaId = destinationRoom.AreaId,
+                    SourceRoomId = destinationRoom.Id,
+                    DestinationAreaId = AreaId,
+                    DestinationRoomId = Id,
+                    ExitDirection = Navigation.GetOppositeDirection(direction)
+                };
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());
                 // Mirror the exit type and defaults
                 exit1.ExitType = exit.ExitType;

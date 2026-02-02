@@ -6,7 +6,7 @@ namespace RPGFramework.Items
 {
     internal class Inventory
     {
-        public List<Item> Items { get; set; } = new List<Item>();
+        public List<Item> Items { get; set; } = [];
 
         public Item? GetItemByName(string name)
         {

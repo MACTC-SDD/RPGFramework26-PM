@@ -7,9 +7,9 @@
         public string Name { get; set; } = "Void Area";
         public string Description { get; set; } = "Start Area";
 
-        public Dictionary<int, Exit> Exits { get; set; } = new();
+        public Dictionary<int, Exit> Exits { get; set; } = [];
 
-        public Dictionary<int, Room> Rooms { get; set; } = new();
+        public Dictionary<int, Room> Rooms { get; set; } = [];
 
         public string Weather { get; set; } = "Sunny";
         public void UpdateWeather()
@@ -24,15 +24,15 @@
         }
         //placeholder weather states, await build teams final choices
         // maybe make an enum instead
-        List<string> weatherStates = new List<string>()
-        {
+        List<string> weatherStates =
+        [
             "Sunny",
             "Cloudy",
             "Rainy",
             "Stormy",
             "Snowy",
             "Windy"
-        };
+        ];
         #endregion
     }
 }

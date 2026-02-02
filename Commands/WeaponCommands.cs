@@ -64,7 +64,7 @@ namespace RPGFramework.Commands
                 Durability = Convert.ToInt32(parameters[5]),
                 Range = Convert.ToInt32(parameters[6]),
                 Speed = Convert.ToDouble(parameters[7]),
-                weight = Convert.ToDouble(parameters[8])
+                Weight = Convert.ToDouble(parameters[8])
             };
 
             
