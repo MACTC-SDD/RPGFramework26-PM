@@ -521,9 +521,9 @@ namespace RPGFramework.Commands
                     helpTopics.ElementAtOrDefault(1) ?? "",
                     helpTopics.ElementAtOrDefault(2) ?? "",
                     helpTopics.ElementAtOrDefault(3) ?? "");
-                    Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
-                    player.Write(panel);
                 }
+                Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
+                player.Write(panel);
             }
             else
             {
