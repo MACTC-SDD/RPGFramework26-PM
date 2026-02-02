@@ -25,6 +25,7 @@ namespace RPGFramework.Commands
             return
             [
                 new AFKCommand(),
+                new ExamineCommand(),
                 new IpCommand(),
                 new LookCommand(),
                 new QuitCommand(),
@@ -902,6 +903,35 @@ namespace RPGFramework.Commands
                 break;
             }
             return false;
+        }
+    }
+    internal class ExamineCommand : ICommand
+    {         public string Name => "examine";
+        public IEnumerable<string> Aliases => [ "ex", "exa" ];
+        public string Help => "Examine an item in detail.\nUsage: examine <item name>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Examine what?");
+                return false;
+            }
+            string itemName = parameters[1];
+            //if (player.GetRoom().Find TODO: implement FindItem method
+            Item? item = player.GetRoom().Items
+                .FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.CurrentCultureIgnoreCase));
+            if (item == null)
+            {
+                player.WriteLine($"There is no '{itemName}' here to examine.");
+                return false;
+            }
+            Panel panel = RPGPanel.GetPanel(item.Description, item.Name);
+            player.Write(panel);
+            return true;
         }
     }
 }
