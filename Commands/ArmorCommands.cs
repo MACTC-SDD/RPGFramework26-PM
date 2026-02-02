@@ -4,11 +4,23 @@ using System.Text;
 
 namespace RPGFramework.Commands
 {
+    internal class ArmorCommands
+    {
+        public static List<ICommand> GetAllCommands()
+        {
+            return
+            [
+                new ArmorBuilderCommand(),
+            ];
+        }
+    }
+
     internal class ArmorBuilderCommand : ICommand
     {
-        public string Name => "/Armor";
+        public string Name => "/armor";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -49,12 +61,14 @@ namespace RPGFramework.Commands
         {
             // Make sure not < 4
 
-            Armor a = new Armor();
-            a.Name = parameters[2];
-            a.Description = parameters[3];
-            a.protection = Convert.ToInt32(parameters[4]);
-            a.Durability = Convert.ToInt32(parameters[5]);
-            a.weight = Convert.ToInt32(parameters[6]);
+            Armor a = new()
+            {
+                Name = parameters[2],
+                Description = parameters[3],
+                protection = Convert.ToInt32(parameters[4]),
+                Durability = Convert.ToInt32(parameters[5]),
+                weight = Convert.ToInt32(parameters[6])
+            };
 
 
 

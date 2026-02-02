@@ -1,12 +1,13 @@
 ﻿
-using System.Text.Json.Serialization;
-using RPGFramework.Enums;
 using RPGFramework.Combat;
-using RPGFramework.Workflows;
 using RPGFramework.Core;
+using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Persistence;
 using RPGFramework.Interfaces;
+using RPGFramework.Persistence;
+using RPGFramework.Workflows;
+using System.IO.Compression;
+using System.Text.Json.Serialization;
 
 namespace RPGFramework
 {
@@ -26,7 +27,7 @@ namespace RPGFramework
         // This is a good thing if you want to reset everything, like after world files
         // have been updated in data_seed, but be careful as it will wipe out
         // any existing area, room, and catalog (mob, item, etc.) data.
-        private bool _OVERWRITE_DATA = false;
+        private readonly bool _OVERWRITE_DATA = false;
 
         // Static Fields and Properties
         private static readonly Lazy<GameState> _instance = new(() => new GameState());
@@ -51,10 +52,13 @@ namespace RPGFramework
         private Task? _itemDecayTask;
         private CancellationTokenSource? _announcementsCts;
         private Task? _announcementsTask;
+        private CancellationTokenSource? _itemCleanUpCts;
+        private Task? _itemCleanUpTask;
         private CancellationTokenSource? _combatManagerCts;
         private Task? _combatManagerTask;
 
         private int _tickCount = 0;
+        private readonly int _logSuppressionSeconds = 30;
         #endregion
 
         #region --- Properties ---
@@ -67,6 +71,8 @@ namespace RPGFramework
 
         public int StartAreaId { get; set; } = 0;
         public int StartRoomId { get; set; } = 0;
+        public int TimeRate { get; set; } = 60;
+
 
         #region --- Unserialized Properties ---
         [JsonIgnore] public bool IsRunning { get; private set; } = false;
@@ -77,7 +83,7 @@ namespace RPGFramework
         [JsonIgnore] public Dictionary<int, Area> Areas { get; set; } = [];
 
         // Relocate later
-        [JsonIgnore] public List<CombatWorkflow> Combats = new List<CombatWorkflow>();
+        [JsonIgnore] public List<CombatWorkflow> Combats = [];
 
         [JsonIgnore] public DateTime ServerStartTime { get; private set; }
         
@@ -99,6 +105,7 @@ namespace RPGFramework
         [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
@@ -112,6 +119,7 @@ namespace RPGFramework
             Catalogs.Add(MobCatalog);
             Catalogs.Add(NPCCatalog);
             Catalogs.Add(ItemCatalog);
+            Catalogs.Add(MessageCatalog);
         }
 
         public void AddPlayer(Player player)
@@ -121,7 +129,7 @@ namespace RPGFramework
 
         public List<Player> GetPlayersOnline()
         {
-            return Players.Values.Where(o => o.IsOnline).ToList();
+            return [.. Players.Values.Where(o => o.IsOnline)];
         }
 
         #region GetPlayerByName Method
@@ -167,11 +175,8 @@ namespace RPGFramework
             Area? area = GameState.Persistence.LoadAreaAsync(areaName).Result;
             if (area != null)
             {
-                if (Areas.ContainsKey(area.Id))
+                if (!Areas.TryAdd(area.Id, area))
                     Areas[area.Id] = area;
-                else
-                    Areas.Add(area.Id, area);
-
                 GameState.Log(DebugLevel.Alert, $"Area '{area.Name}' loaded successfully.");
             }
 
@@ -280,7 +285,71 @@ namespace RPGFramework
             return Persistence.SavePlayerAsync(p);
         }
         #endregion
+        #region CreateBackup Method
+        public static void CreateBackup()
+        {
+            const string dataPath = "data";
+            const string backupPath = "backups";
 
+            if (!Directory.Exists(dataPath))
+                throw new DirectoryNotFoundException($"Missing data folder: {dataPath}");
+
+            Directory.CreateDirectory(backupPath);
+
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            string zipPath = Path.Combine(
+                backupPath,
+                $"backup_{timestamp}.zip"
+            );
+
+            ZipFile.CreateFromDirectory(
+                dataPath,
+                zipPath,
+                CompressionLevel.Optimal,
+                includeBaseDirectory: true
+            );
+        }
+        #endregion
+        #region RestoreBackup Method
+        public static void RestoreBackup(string backupName)
+        {
+            const string dataPath = "Data";
+            const string backupPath = "Backups";
+
+            if (!Directory.Exists(backupPath))
+                throw new DirectoryNotFoundException("No backups directory found.");
+
+            string zipPath;
+
+            if (backupName.Equals("latest", StringComparison.OrdinalIgnoreCase))
+            {
+                zipPath = new DirectoryInfo(backupPath)
+                    .GetFiles("backup_*.zip")
+                    .OrderByDescending(f => f.CreationTimeUtc)
+                    .FirstOrDefault()?.FullName
+                    ?? throw new FileNotFoundException("No backups available.");
+            }
+            else
+            {
+                if (!backupName.EndsWith(".zip"))
+                    backupName += ".zip";
+
+                zipPath = Path.Combine(backupPath, backupName);
+
+                if (!File.Exists(zipPath))
+                    throw new FileNotFoundException($"Backup not found: {backupName}");
+            }
+
+            // Safety: move current data out of the way
+            if (Directory.Exists(dataPath))
+            {
+                string oldPath = $"{dataPath}_old_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+                Directory.Move(dataPath, oldPath);
+            }
+
+            ZipFile.ExtractToDirectory(zipPath, dataPath);
+        }
+        #endregion
         #region Start Method (Async)
         /// <summary>
         /// Initializes and starts the game server 
@@ -341,6 +410,9 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+            _itemCleanUpCts = new CancellationTokenSource();
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
+
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
             await this.TelnetServer.StartAsync();
@@ -391,12 +463,24 @@ namespace RPGFramework
         #endregion --- Methods ---
 
         #region --- Static Methods ---
-        internal static void Log(DebugLevel level, string message)
+        internal static bool Log(DebugLevel level, string message)
         {
             if (level <= GameState.Instance.DebugLevel)
             {
                 Console.WriteLine($"[{level}] {message}");
+                return true;
             }
+            return false;
+        }
+
+        internal static bool Log(DebugLevel level, string message, DateTime lastLog, int suppressionSeconds)
+        {
+            if ((DateTime.Now - lastLog).TotalSeconds >= suppressionSeconds)
+            {
+                return Log(level, message);
+            }
+
+            return false;
         }
 
         #endregion
@@ -421,6 +505,36 @@ namespace RPGFramework
                 await Task.Delay(interval, ct);
             }
             GameState.Log(DebugLevel.Alert, "Announcements thread stopping.");
+        }
+        #endregion
+
+        #region RunItemCleanUpLoopAsync Method
+        private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
+            while(ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    foreach (Area a in GameState.Instance.Areas.Values)
+                    {
+                        foreach (Room r in a.Rooms.Values)
+                        {
+                            foreach (Item i in r.Items)
+                            {
+                                if (i.IsDropped)
+                                    r.Items.Remove(i);
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during Item Clean Up: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Item CLean Up thread stopping.");
         }
         #endregion
 
@@ -458,11 +572,18 @@ namespace RPGFramework
         private async Task RunCombatManagerLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            DateTime lastLog = DateTime.Now;
+
             while (!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
-                    GameState.Log(DebugLevel.Debug, "Managing combats...");
+                    // Only show log if enough time has passed
+                    if (Log(DebugLevel.Debug, "Managing combats...", lastLog, _logSuppressionSeconds))
+                    { 
+                        lastLog = DateTime.Now;                        
+                    }
+
                     foreach (CombatWorkflow combat in Combats)
                     {
                         combat.Process();
@@ -490,7 +611,7 @@ namespace RPGFramework
                     /* CODE REVIEW: Rylan (PR #16)
                      * This doesn't exist yet, and isn't where instances of items will be stored anyway
                      * 
-                    foreach (var item in GameState.Instance.Items.Values)
+                    foreach (Item item in ItemsCatalog)
                     {
 
                         if (item.IsPerishable)
@@ -510,7 +631,7 @@ namespace RPGFramework
             GameState.Log(DebugLevel.Alert, "Item Decay thread stopping.");
         }
         #endregion
-
+        
         #region RunNPCLoopAsync Method
         // CODE REVIEW: Rylan (PR #16)
         // I think this section needs to be heavily refactored. The functionality itself
@@ -524,103 +645,6 @@ namespace RPGFramework
                 try
                 {
                     GameState.Log(DebugLevel.Debug, "Playing NPCs...");
-                    // run command to check for players, then choose NPC actions
-                    // hostile/agro prioritize attacking players, then other NPCs, then wandering
-                    // friendly prioritize helping players, then other NPCs, then wandering
-                    // neutral prioritize wandering, then attacking hostile NPCs
-                    // repeat for every NPC
-                    // await NPC team for behaviors/actions and NPCs
-                    // make sure to include some randomness so NPCs don't all act at once
-                    // don't allow for NPCs to leave tasks when engaged (e.g., attacking, helping)
-
-                    /* CODE REVIEW: Rylan (PR #16)
-                     * We don't have NonPlayers in GameState.
-
-                    foreach (var npc in NPCCatalog)
-                    {
-                        if (npc.IsEngaged)
-                        {
-                            continue;
-                        }
-                        if (npc is Hostile)
-                        {
-
-                            if (npc.GetRoom().Players.Count > 0)
-                            {
-                                List<Player> potentialTargets = new List<Player>();
-                                // run combat initializtion method(s)
-                                foreach (Player player in npc.GetRoom().Players)
-                                {
-                                    // notify player of attack
-                                    if (player.IsEngaged)
-                                    {
-                                        continue;
-                                    }
-                                    potentialTargets.Add(player);
-                                }
-                                if (potentialTargets.Count > 0)
-                                {
-                                    Player target = potentialTargets[new Random().Next(0, potentialTargets.Count - 1)];
-                                    // notify player of attack
-                                    target.WriteLine($"The {npc.Name} attacks you!");
-                                    // run combat initialization method(s)
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-                                else if (npc.GetRoom().NPC.Count > 1)
-                                {
-                                    List<NonPlayer> potentialNpcTargets = new List<NonPlayer>();
-
-                                    foreach (NonPlayer otherNpc in npc.GetRoom().GetCharacters())
-                                    {
-                                        if (otherNpc == npc || otherNpc.IsEngaged)
-                                        {
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            potentialNpcTargets.Add(otherNpc);
-                                        }
-                                    }
-                                    Character target = potentialTargets[new Random().Next(0, potentialNpcTargets.Count - 1)];
-                                    foreach (Player p in npc.GetRoom().GetPlayers())
-                                    {
-                                        p.WriteLine($"The {npc.Name} attacks {target.Name}");
-                                    }
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-
-                            }
-                            else if (npc is Army)
-                            {
-                                if (npc.GetRoom().NPCs.Hostile.Count > 0)
-                                {
-                                    Random rand = new Random();
-                                    NonPlayer target = npc.GetRoom().NPCs.Hostile.Count[rand.Next(0, npc.GetRoom().NPCs.Count - 1)];
-                                    foreach (Player player in npc.GetRoom().Players)
-                                    {
-                                        // notify player of attack
-                                        player.WriteLine($"The {npc.Name} attacks an enemy!");
-                                    }
-                                    // run combat initialization method(s)
-                                    
-                                    CombatWorkflow.CreateCombat(npc, target);
-                                }
-                                else
-                                {
-                                    npc.DoGuardAction();
-                                }
-
-                            }
-                            else if (npc is NonHostile)
-                            {
-                                if (npc.GetRoom().Players.Count > 0)
-                                {
-                                    npc.DoNPCAction();
-                                }
-                            }
-                        }
-                    }
-                    */
                 }
                 catch (Exception ex)
                 {
@@ -734,15 +758,15 @@ namespace RPGFramework
             // figure out how to implement those effects later, probably within combat and npc methods
         }
         //placeholder weather states, await build teams final choices
-        List<string> weatherStates = new List<string>()
-        {
+        List<string> weatherStates =
+        [
             "Sunny",
             "Cloudy",
             "Rainy",
             "Stormy",
             "Snowy",
             "Windy"
-        };
+        ];
         #endregion
 
         #endregion --- Thread Methods ---

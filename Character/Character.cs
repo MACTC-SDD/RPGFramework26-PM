@@ -1,8 +1,11 @@
 ﻿
+using RPGFramework.Display;
 using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 using RPGFramework.Workflows;
 using System.Text.Json.Serialization;
 
@@ -26,7 +29,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; protected set; } = 0;
+        public int Health { get; set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
         public Inventory BackPack { get; protected set; } = new Inventory();
         public int Level { get; protected set; } = 1;
@@ -37,7 +40,9 @@ namespace RPGFramework
         public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = [];
         public Weapon PrimaryWeapon { get; set; }
+        public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        public StatusCondition StatusConditon = StatusCondition.None;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -55,10 +60,40 @@ namespace RPGFramework
         public Character()
         {
             Health = MaxHealth;
-            Weapon w = new Weapon() 
+            Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
         }
+
+        #region Consider Method
+        // Consider another character and return a string describing how they compare
+        public string Consider(Character targetCharacter)
+        {
+            string output;
+            int levelDifference = targetCharacter.Level - this.Level;
+
+            switch (levelDifference)
+            {
+                case int n when (n >= 5):
+                    output = $"{targetCharacter.Name} looks like a formidable opponent.";
+                    break;
+                case int n when (n >= 2):
+                    output = $"{targetCharacter.Name} looks slightly stronger than you.";
+                    break;
+                case int n when (n >= -1 && n <= 1):
+                    output = $"{targetCharacter.Name} appears to be evenly matched with you.";
+                    break;
+                case int n when (n >= -4):
+                    output = $"{targetCharacter.Name} seems a bit weaker than you.";
+                    break;
+                default:
+                    output = $"{targetCharacter.Name} looks like an easy target.";
+                    break;
+            }
+
+            return output;
+        }
+        #endregion
 
         // Things to do when a character engages in combat. This may be overridden by subclasses.
         public void EngageCombat(bool inCombat)
@@ -126,7 +161,7 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal);
+            SetHealth(Health + heal - HealPenalty);
         }
 
         public Item? FindItem(string itemName)
@@ -151,5 +186,19 @@ namespace RPGFramework
             && x is Consumable);
         }
 
+        public IRenderable ShowSummary()
+        { var table = new Table();
+            table.AddColumn("Background");
+            table.AddColumn("info");
+            table.AddRow($"Name: {Name}", $"Gold: {Gold}");
+            table.AddRow($"Class: {Class}", $"Weapon: {PrimaryWeapon.Name}");
+            table.AddRow($"Health: {Health}", $"XP: {XP}");
+            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+
+            string title = "Character Info";
+
+            return RPGPanel.GetPanel(table, title);
+        }
+        
     }
 }

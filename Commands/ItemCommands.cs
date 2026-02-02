@@ -8,13 +8,13 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new ItemBuilderCommand(),
                 new WeaponBuilderCommand(),
             
                 // Add more builder commands here as needed
-            };
+            ];
         }
     }
 
@@ -27,6 +27,7 @@ namespace RPGFramework.Commands
         public string Name => "/item";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {

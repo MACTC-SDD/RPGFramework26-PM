@@ -11,6 +11,7 @@ namespace RPGFramework.Commands
         public string Name => "/Food";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
