@@ -12,8 +12,8 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new UXCommand(),
                 new UXColorCommand(),
                 new UXDecorationCommand(),
@@ -22,7 +22,7 @@ namespace RPGFramework.Commands
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
                 // Add more test commands here as needed
-            };
+            ];
         }
     }
 

@@ -9,7 +9,7 @@ namespace RPGFramework
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
         public bool ammmoleft { get; set; } = true;
-        public int range { get; set; } = 0;
+        public int Range { get; set; } = 0;
         public double Speed { get; set; } = 0;
         public double weight { get; set; } = 0;
         // TODO
@@ -111,43 +111,43 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    range = 2;
+                    Range = 2;
                     break;
                 case WeaponType.Bow:
-                    range = 15;
+                    Range = 15;
                     break;
                 case WeaponType.Crossbow:
-                    range = 20;
+                    Range = 20;
                     break;
                 case WeaponType.Flail:
-                    range = 5;
+                    Range = 5;
                     break;
                 case WeaponType.Knife:
-                    range = 2;
+                    Range = 2;
                     break;
                 case WeaponType.LongSword:
-                    range = 7;
+                    Range = 7;
                     break;
                 case WeaponType.ShortSword:
-                    range = 4;
+                    Range = 4;
                     break;
                 case WeaponType.Sword:
-                    range = 5;
+                    Range = 5;
                     break;
                 case WeaponType.Mace:
-                    range = 4;
+                    Range = 4;
                     break;
                 case WeaponType.Musket:
-                    range = 35;
+                    Range = 35;
                     break;
                 case WeaponType.Rock:
-                    range = 10;
+                    Range = 10;
                     break;
                 case WeaponType.Spear:
-                    range = 15;
+                    Range = 15;
                     break;
                 case WeaponType.WarAxe:
-                    range = 5;
+                    Range = 5;
                     break;
             }
         }

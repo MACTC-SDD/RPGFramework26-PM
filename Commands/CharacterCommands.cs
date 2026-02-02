@@ -8,11 +8,11 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new CCCommand(),
                 // Add more test commands here as needed
-            };
+            ];
         }
     }
 
@@ -29,23 +29,23 @@ namespace RPGFramework.Commands
         // What will happen when the command is executed
         public bool Execute(Character character, List<string> parameters)
         {
-            //CharacterClass c = new CharacterClass();
-            //c.Name = character.Name;
+            if (character is not Player player)
+                return false;
 
-            // A lot of times we want to make sure it's a Player issuing the command, but not always
-            if (character is Player player)
+            if (character.Class == null)
             {
-                player.WriteLine($"Your character class is: {character.Class.Name}");
-                player.WriteLine($"Description: {character.Class.Description}");
-                player.WriteLine($"Strength Modifier:{character.Class.StrengthMod}");
-                player.WriteLine($"Dexterity Modifier:{character.Class.DexterityMod}");
-                player.WriteLine($"Constitution Modifier:{character.Class.ConstitutionMod}");
-                player.WriteLine($"Inteligence Modifier:{character.Class.IntelligenceMod}");
-                player.WriteLine($"Wisdom Modifier:{character.Class.WisdomMod}");
-                player.WriteLine($"Charisma Modifier:{character.Class.CharismaMod}");
+                player.WriteLine("You have not selected a character class yet.");
+                return true;
             }
 
-            // If the command failed to run for some reason, return false
+            player.WriteLine($"Your character class is: {character.Class.Name}");
+            player.WriteLine($"Description: {character.Class.Description}");
+            player.WriteLine($"Strength Modifier:{character.Class.StrengthMod}");
+            player.WriteLine($"Dexterity Modifier:{character.Class.DexterityMod}");
+            player.WriteLine($"Constitution Modifier:{character.Class.ConstitutionMod}");
+            player.WriteLine($"Inteligence Modifier:{character.Class.IntelligenceMod}");
+            player.WriteLine($"Wisdom Modifier:{character.Class.WisdomMod}");
+            player.WriteLine($"Charisma Modifier:{character.Class.CharismaMod}");
             return true;
         }
     }

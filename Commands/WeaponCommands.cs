@@ -54,20 +54,21 @@ namespace RPGFramework.Commands
         private void WeaponCreate(Player player, List<string> parameters)
         {
             // Make sure not < 4
+            // CODE REVIEW: Brayden, Tyler
+            // Make sure that the int and double conversions here could throw exceptions if the input is invalid.
+            Weapon w = new()
+            {
+                Name = parameters[2],
+                Description = parameters[3],
+                Damage = Convert.ToInt32(parameters[4]),
+                Durability = Convert.ToInt32(parameters[5]),
+                Range = Convert.ToInt32(parameters[6]),
+                Speed = Convert.ToDouble(parameters[7]),
+                weight = Convert.ToDouble(parameters[8])
+            };
 
-            Weapon w = new Weapon();
-            w.Name = parameters[2];
-            w.Description = parameters[3];
-            w.Damage = Convert.ToInt32(parameters[4]);
-            w.Durability = Convert.ToInt32(parameters[5]);
-            w.range = Convert.ToInt32(parameters[6]);
-            w.Speed = Convert.ToDouble(parameters[7]);
-            w.weight = Convert.ToDouble(parameters[8]);
-
-
-
-
-            if (GameState.Instance.ItemCatalog.ContainsKey(w.Name))
+            
+            if (GameState.Instance.ItemCatalog.TryGetValue(w.Name, out _))
             {
                 player.WriteLine($"There is already an object named {w.Name}");
             }

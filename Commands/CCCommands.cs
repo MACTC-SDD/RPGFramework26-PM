@@ -10,11 +10,11 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new CCBuilderCommand(),
                 // Add more test commands here as needed
-            };
+            ];
         }
     }
     internal class CCBuilderCommand : ICommand
@@ -233,12 +233,12 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            CharacterClass newClass = new CharacterClass
+            CharacterClass newClass = new()
             {
                 Name = parameters[2],
                 Description = parameters[3],
                 StrengthMod = str,
-                CharismaMod = str,
+                CharismaMod = cha,
                 IntelligenceMod = intel,
                 DexterityMod = dex,
                 ConstitutionMod = con,
@@ -670,7 +670,7 @@ namespace RPGFramework.Commands
             int destAreaId = player.AreaId;
             int destRoomId;
             string destParam = parameters[3];
-            if (destParam.Contains(":"))
+            if (destParam.Contains(':'))
             {
                 string[] parts = destParam.Split(':');
                 if (parts.Length != 2

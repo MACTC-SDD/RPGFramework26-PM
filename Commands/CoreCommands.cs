@@ -220,24 +220,27 @@ namespace RPGFramework.Commands
                 if (i is Armor a)
                 { armorItems.Add(a); }
             }
-            List<Weapon> weaponItems = new List<Weapon>();
+            List<Weapon> weaponItems = [];
             foreach (Item i in player.BackPack.Items)
             {
                 if (i is Weapon a)
                 { weaponItems.Add(a); }
             }
-            List <Food> foodItems = new List<Food>();
+            List <Food> foodItems = [];
             foreach (Item i in player.BackPack.Items)
             {
                 if (i is Food a)
                 { foodItems.Add(a); }
             }
-            List<Potion> potionItems = new List<Potion>();
-            foreach (Item i in player.BackPack.Items)
+
+            // Another shorter way to write this:
+            List<Potion> potionItems = [.. player.BackPack.Items.OfType<Potion>()];
+            /*foreach (Item i in player.BackPack.Items)
             {
                 if (i is Potion a)
                 { potionItems.Add(a); }
-            }
+            }*/
+
 
 
 
@@ -247,7 +250,7 @@ namespace RPGFramework.Commands
     internal class UseCommand : ICommand
     {
         public string Name => "use";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -261,20 +264,17 @@ namespace RPGFramework.Commands
             // is it consum
 
             Item? i = player.BackPack.GetItemByName(parameters[1]);
-            Consumable? c = null;
 
-            if (i == null || i is not Consumable)
+            if (i == null || i is not Consumable c)
             {
                 // not coukgt find
             }
             else
             {
-                c = (Consumable)i;
                 if (c.UsesLeft > 0)
                 {
                     c.UsesLeft--;
                     //c.Use();
-
                 }
             }
 
@@ -432,14 +432,14 @@ namespace RPGFramework.Commands
     internal class TimeCommand : ICommand
     {
         public string Name => "time";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
             {
-                player.WriteLine($"The time is {GameState.Instance.GameDate.ToShortTimeString()}");
+                player.WriteLine($"The time is {GameState.Instance.GameDate:t}");
                 return true;
             }
             return false;
@@ -499,7 +499,7 @@ namespace RPGFramework.Commands
 
                 List<string> helpTopics = [];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
+                List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
                 helpKeys.Sort();
                 foreach (string key in helpKeys)
                 {
@@ -569,7 +569,7 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                player.WriteLine($"You have {player.XP} XP. You need  {Player.Levels[player.Level].RequiredXp - player.XP} XP");
                 return true;
             }
             return false;
@@ -813,7 +813,9 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You are level {player.Level} you will gain an additional {player.Levels[player.Level].Health} health and you will have {player.Levels[player.Level].StatPoints} points upon level up.");
+                player.WriteLine($"You are level {player.Level} you will gain an additional "
+                    + $"{Player.Levels[player.Level].Health} health and you will have " + 
+                    $"{Player.Levels[player.Level].StatPoints} points upon level up.");
                 return true;
             }
             return false;

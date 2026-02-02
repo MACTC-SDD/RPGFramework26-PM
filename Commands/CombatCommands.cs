@@ -84,9 +84,6 @@ namespace RPGFramework.Commands
                     return false;
             }
         }
-
-
-
         
         private bool ShowCombatStatus(Player p, List<string> parameters)
         {
@@ -116,6 +113,7 @@ namespace RPGFramework.Commands
         }
     }
 
+    // CODE REVIEW: Rylan - I think the logic here could be simplified a bit.
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
@@ -124,8 +122,19 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
+            if (parameters.Count < 2)
+                return false; // Need a target to attack
 
-            List<string> attackableNonPlayers = [];
+            Character? target = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
+            if (target == null)
+            {
+                Comm.SendToIfPlayer(character, "They are not here to attack.");
+                return false;
+            }
+            CombatWorkflow.CreateCombat(character, target);
+            return true;
+
+            /*List<string> attackableNonPlayers = [];
 
             foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
@@ -158,7 +167,7 @@ namespace RPGFramework.Commands
                     return true;
                 }
             }
-            return false;
+            return false;*/
         }
     }
 
@@ -183,7 +192,7 @@ namespace RPGFramework.Commands
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
                 player.WriteLine("You do not have permission to use this command.");
-                    return false;
+                return false;
             }
 
             string subcommand = parameters.ElementAt(1) ?? "";
@@ -203,11 +212,9 @@ namespace RPGFramework.Commands
                     player.WriteLine("You provided a subselect that does not exist");
                     return false;
                 case 3:
-                    Player? target = null;
+                    Player? target = GameState.Instance.GetPlayerByName(parameters[2]);
                     if (subcommand == "start")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
                         // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
@@ -217,8 +224,6 @@ namespace RPGFramework.Commands
 
                     if (subcommand == "end")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
 
