@@ -129,6 +129,27 @@ namespace RPGFramework
             SetHealth(Health + heal);
         }
 
-        
+        public Item? FindItem(string itemName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == itemName.ToLower());
+        }
+
+        public Item? FindItem(int itemId)
+        {
+            return BackPack.Items.Find(x => x.Id == itemId);
+        }
+
+        public Item? FindConsumable(string consumableName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == consumableName.ToLower() 
+            && x is Consumable);
+        }
+
+        public Item? FindConsumable(int consumableId)
+        {
+            return BackPack.Items.Find(x => x.Id == consumableId 
+            && x is Consumable);
+        }
+
     }
 }

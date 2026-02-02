@@ -6,7 +6,7 @@ namespace RPGFramework.Items
 {
     internal class Consumable: Item
     {
-        public int usesLeft { get; set; } = 1;
+        public int UsesRemaining { get; set; } = -1; // -1 means unlimited uses
     }
 }
 

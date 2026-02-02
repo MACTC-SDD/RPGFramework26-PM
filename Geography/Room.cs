@@ -295,6 +295,18 @@ namespace RPGFramework.Geography
             }
             return null;
         }
+
+        public Item? FindItem(string itemName)
+        {
+            return Items.Find(x => x.Name.ToLower() == itemName.ToLower());
+        }
+
+        public Item? FindItem(int itemId)
+        {
+            return Items.Find(x => x.Id == itemId);
+        }
+
+
         #endregion
 
         #region TryParseId Method (Static)

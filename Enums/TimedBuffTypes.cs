@@ -4,8 +4,8 @@ using System.Text;
 
 namespace RPGFramework.Enums
 {
-    internal enum PotionType
+    internal enum TimedBuffTypes
     {
-        Potion_Of_Healing
+        HealthPotion,
     }
 }

@@ -30,13 +30,161 @@ namespace RPGFramework.Commands
                 new StatusCommand(),
                 new HelpCommand(),
                 new EquipmentCommand(),
-                new UseCommand(),
+                new InvCommand(),
+                new GetCommand(),
+                new DropCommand(),
                 // Add other core commands here as they are implemented
             };
         }
 
 
     }
+
+
+    internal class GiveCommand : ICommand
+    {
+        public string Name => "give";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Give an item.\nUsage: give <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to give");
+            }
+
+            // find item
+            Item? i = character.FindItem(parameters[1]);
+            Player? p = GameState.Instance.GetPlayerByName(parameters[1]);
+
+            if (i == null)
+            {
+                player.WriteLine("No item to give");
+                return false;
+            }
+            if (p == null)
+            {
+                player.WriteLine("No player found");
+                return false;
+            }
+            else
+            {
+                p.BackPack.Items.Add(i);
+                player.BackPack.Items.Remove(i);
+                player.WriteLine($"Gave {i} To {p} ");
+            }
+            return true;
+
+
+        }
+    }
+
+    internal class DropCommand : ICommand
+    {
+        public string Name => "drop";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Drop an item.\nUsage: drop <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            Room room = player.GetRoom();
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to drop");
+                return false;
+            }
+
+            // find item
+            Item? i = character.FindItem(parameters[1]);
+
+            if (i == null)
+            {
+                // couldnt find
+                return false;
+            }
+            else
+            {
+                room.Items.Add(i);
+                player.BackPack.Items.Remove(i);
+                player.WriteLine($"Dropped {i}");
+            }
+            return true;
+
+
+        }
+    }
+
+    internal class GetCommand : ICommand
+    {
+        public string Name => "get";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Get an item.\nUsage: get <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to get");
+                return false;
+            }
+
+            Room room = player.GetRoom();
+
+
+            // find item
+            Item? i = room.FindItem(parameters[1]);
+            
+            if (i == null)
+            {
+                // couldnt find
+                return false;
+            }
+            else
+            {
+                room.Items.Remove(i);
+                player.BackPack.Items.Add(i);
+                player.WriteLine($"Picked up {i}");
+            }
+            return true;
+
+
+        }
+    }
+
+
+
+    internal class InvCommand : ICommand
+    {
+        public string Name => "inv";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Show your inventory.\nUsage: inv";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (player.BackPack.Items.Count < 1)
+            {
+                player.WriteLine("No items in your BackPack");
+                return false;
+            }
+            foreach (Item i in player.BackPack.Items)
+                player.WriteLine(i.Name);
+                return true;
+
+
+        }
+    }
+
 
    
 
