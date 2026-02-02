@@ -59,6 +59,43 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+
+    internal class EquipCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Equip an item.\nUsage: Equip <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to equip");
+            }
+
+            // find item
+            Item? i = character.FindItem(parameters[1]);
+
+            if (i == null)
+            {
+                player.WriteLine("No item to equip");
+                return false;
+            }
+            else
+            {
+                player.BackPack.Items.Remove(i);
+                player.WriteLine($"Equipped {i}");
+
+            }
+            return true;
+
+
+        }
+    }
+
     internal class UseCommand : ICommand
     {
         public string Name => "use";
