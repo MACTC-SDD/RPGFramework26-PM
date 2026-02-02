@@ -1,5 +1,5 @@
 ﻿using RPGFramework.Workflows;
-using RPGFramework.Combat;
+using RPGFramework;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +8,13 @@ namespace RPGFramework
 {
     internal abstract partial class Character
     {
+        public void DropItem(Character c, Item item)
+        {
+            // Remove the item from the character's backpack Items list
+            c.BackPack.Items.Remove(item);
+            c.GetRoom().Items.Add(item);
+            item.IsDropped = true;
+        }
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {
             Random rand = new Random();
@@ -84,7 +91,7 @@ namespace RPGFramework
                 if (a is Player player)
                     player.WriteLine($"You missed {t.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                a.DropItem(weapon);
+                a.DropItem(a, weapon);
                 a.TakeDamage(1);
             }
             else if (totalAttack >= tAC)

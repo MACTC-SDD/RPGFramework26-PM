@@ -1,6 +1,4 @@
-﻿
-using RPGFramework.Combat;
-using RPGFramework.Enums;
+﻿using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
@@ -40,6 +38,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        
         
         #endregion
 

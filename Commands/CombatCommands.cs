@@ -1,13 +1,15 @@
 ﻿using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
+using RPGFramework;
 
 
 namespace RPGFramework.Commands
 {
+    
     internal class CombatCommands
     {
-        public static List<ICommand> GetCombatCommands()
+        public static List<ICommand> GetAllCommands()
         {
             return
                 [
@@ -18,6 +20,7 @@ namespace RPGFramework.Commands
                 ];
         }
     }
+    #region Consider Command
     internal class ConsiderCommand : ICommand
     {
         public string Name { get; set; } = "consider";
@@ -47,7 +50,7 @@ namespace RPGFramework.Commands
             return Comm.SendToIfPlayer(character, character.Consider(c));
         }
     }
-    #endregion
+#endregion
 
     #region CombatStatusCommand Class
     internal class CombatStatusCommand : ICommand
@@ -113,24 +116,29 @@ namespace RPGFramework.Commands
             }
         }
     }
+    #endregion
 
+    #region StartCombatCommand
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
         public IEnumerable<string> Aliases => new List<string> { "/attack", "/a" };
+
+        public string Help => throw new NotImplementedException();
+
         public bool Execute(Character character, List<string> parameters)
         {
 
             List<string> attackableNonPlayers = new List<string>();
 
-            foreach (NonPlayer npc in character.GetRoom().GetNonPlayers())
+            foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
                 attackableNonPlayers.Add(npc.Name);
             }
 
             List<string> attackablePlayers = new List<string>();
 
-            foreach (Player p in character.GetRoom().GetPlayers())
+            foreach (Player p in Room.GetPlayersInRoom(character.GetRoom()))
             {
                 attackablePlayers.Add(p.Name);
             }
@@ -164,7 +172,9 @@ namespace RPGFramework.Commands
             {
                 if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                 {
-                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
+                    Character enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
+                    if (enemy == null)
+                        return false;
                     CombatWorkflow.CreateCombat(character, enemy);
                     return true;
                 }
@@ -174,8 +184,7 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-
-
+    #region CombatAdminControlsCommand
     internal class CombatAdminControlsCommand : ICommand
     {
         public string Name => "/combat";
@@ -233,7 +242,8 @@ namespace RPGFramework.Commands
                         }
                         if (target == null)
                             return false;
-                        AdminStartCombatUntargeted(target);
+                        // AdminStartCombatUntargeted(target);
+                        // apparently this method got deleted at somepoint
                         return true;
                     }
                     else if (parameters[1].ToLower() == "end")
@@ -289,7 +299,8 @@ namespace RPGFramework.Commands
                         }
                         if (target2 != null && target1 != null)
                         {
-                            AdminStartCombatTargeted(target1, target2);
+                            // AdminStartCombatTargeted(target1, target2);
+                            // apparently this method got deleted at somepoint
                             return true;
                         }
                         return false;
@@ -312,16 +323,17 @@ namespace RPGFramework.Commands
             }
         }
     }
-}
 #endregion
 }
 
 
-    
 
 
 
-    
+
+
+
+
 
 
 
