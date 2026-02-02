@@ -1,33 +1,30 @@
 ﻿using RPGFramework.Enums;
 using RPGFramework.Geography;
-using RPGFramework.Persistence;
-using RPGFramework.Workflows;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace RPGFramework.Commands
 {
-    internal class BuilderCommands
+    internal class CCCommands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return
-            [
-                new RoomBuilderCommand(),
-                new ExitBuilderCommand(),
-                // Add more builder commands here as needed
-            ];
+            return new List<ICommand>
+            {
+                new CCBuilderCommand(),
+                // Add more test commands here as needed
+            };
         }
     }
-
-    #region --- Room Builder ---
-    /// <summary>
-    /// /room command for building and editing rooms.
-    /// </summary>
-    internal class RoomBuilderCommand : ICommand
+    internal class CCBuilderCommand : ICommand
     {
-        public string Name => "/room";
+        public string Name => "/cc";
 
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Character Class management commands (create, set, show, delete).\n"
+            + "\n"
+            + "\n";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -53,26 +50,26 @@ namespace RPGFramework.Commands
             switch (parameters[1].ToLower())
             {
                 case "create":
-                    return RoomCreate(player, parameters);
+                    return CCCreate(player, parameters);
                 case "set":
+                    return CCSet(player, parameters);
+
                     // We'll move setting name and description into this
-                    RoomSet(player, parameters);
+                    //CCSet(player, parameters);
                     break;
                 case "show":
-                    ShowCommand(player, parameters);
+                    //CCCommand(player);
                     break;
                 case "add":
-                    RoomAdd(player, parameters);
+                    //CCAdd(player, parameters);
                     break;
                 case "remove":
-                    RoomRemove(player, parameters);
+                    //CCRemove(player, parameters);
                     break;
                 case "delete":
-                    return RoomDelete(player, parameters);
-                case "area":
-                    return RoomArea(player, parameters);
+                //return CCDelete(player, parameters);
                 default:
-                    ShowHelp(player);
+                    //CCHelp(player);
                     break;
             }
 
@@ -80,55 +77,100 @@ namespace RPGFramework.Commands
         }
 
         #region RoomSet Method
-        private static bool RoomSet(Player player, List<string> parameters)
+        private bool CCSet(Player player, List<string> parameters)
         {
-            if (parameters.Count < 3)
+            if (parameters.Count < 5)
             {
-                return ShowHelp(player);
+                player.WriteLine("Usage: /cc set '<class name>' '<property>' '<value>'");
+                return false;
+            }
+            if (!GameState.Instance.CCCatalog
+                .TryGetValue(parameters[2], out CharacterClass? charClass) || charClass == null)
+            {
+                player.WriteLine($"Character class '{parameters[2]}' not found.");
+                return false;
             }
 
-            switch (parameters[2].ToLower())
+            switch (parameters[3].ToLower())
             {
                 case "description":
-                    return RoomSetDescription(player, parameters);
-                case "name":
-                    return RoomSetName(player, parameters);
-                // As we add more settable properties, we can expand this switch
-                case "icon":
-                    return RoomSetIcon(player, parameters);
-                case "tags":
-                    RoomSetTags(player, parameters);
-                    break;
-                case "exit":
-                    RoomSetExit(player, parameters);
-                    break;
+                    charClass.Description = parameters[4];
+                    player.WriteLine("Description updated.");
+                    player.WriteLine(charClass.Description);
+                    return true;
+                case "str":
+                    if (int.TryParse(parameters[4], out int str))
+                    {
+                        charClass.StrengthMod = str;
+                        player.WriteLine($"Strength modifier set to {str}.");
+                        return true;
+                    }
+                    player.WriteLine("Invalid strength modifier value.");
+                    return false;
+                case "dex":
+                    if (int.TryParse(parameters[4], out int dex))
+                    {
+                        charClass.DexterityMod = dex;
+                        player.WriteLine($"Dexterity modifier set to {dex}.");
+                        return true;
+                    }
+                    player.WriteLine("Invalid dexterity modifier value.");
+                    return false;
+                    case "con":
+                        if (int.TryParse(parameters[4], out int con))
+                    {
+                        charClass.ConstitutionMod = con;
+                        player.WriteLine($"Constitution modifier set to {con}.");
+                        return true;
+                    }
+                        player.WriteLine("Invalid constitution modifier value.");
+                    return false;
+                    case "int":
+                        if (int.TryParse(parameters[4], out int intel))
+                    {
+                        charClass.IntelligenceMod = intel;
+                        player.WriteLine($"Intelligence modifier set to {intel}.");
+                        return true;
+                    }
+                        player.WriteLine("Invalid intelligence modifier value.");
+                    return false;
+                    case "wis":
+                        if (int.TryParse(parameters[4], out int wis))
+                    {
+                        charClass.WisdomMod = wis;
+                        player.WriteLine($"Wisdom modifier set to {wis}.");
+                        return true;
+                    }
+                        player.WriteLine("Invalid wisdom modifier value.");
+                    return false;
+                    case "cha":
+                        if (int.TryParse(parameters[4], out int cha))
+                    {
+                        charClass.CharismaMod = cha;
+                        player.WriteLine($"Charisma modifier set to {cha}.");
+                        return true;
+                    }
+                        player.WriteLine("Invalid charisma modifier value.");
+                    return false;            
                 default:
                     return ShowHelp(player);
             }
-            return false;
         }
         #endregion
 
         #region ShowHelp Method
-        private static bool ShowHelp(Player player)
+        private bool ShowHelp(Player player)
         {
-            player.WriteLine("Usage: ");
-            player.WriteLine("/room set description '<set room desc to this>'");
-            player.WriteLine("/room set name '<set room name to this>'");
-            player.WriteLine("/room create '<name>' '<description>' <exit direction> '<exit description>'");
-            player.WriteLine("/room add <direction> <destRoomId> '<exit description>'");
-            player.WriteLine("  or: /room add <direction> <areaId>:<roomId> '<exit description>'");
-            player.WriteLine("/room remove <direction>");
-            player.WriteLine("/room remove id <exitId>");
-            player.WriteLine("/room delete");
-            player.WriteLine("/room set icon '<Icon>'");
-            player.WriteLine("/room set color '<color>'");
-            player.WriteLine("/room set tags '<tag, tag, tag>'");
-            player.WriteLine("/room set exit dir <exitId> <direction>   - Changes direction (validates duplicates, updates return exit)");
-            player.WriteLine("/room set exit dest <exitId> <roomId>     - Change destination (use <areaId>:<roomId> to specify area)");
-            player.WriteLine("/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type");
-            player.WriteLine("/room set exit open <exitId> <open|close> - Open or close this exit (doors only)");
-            player.WriteLine("/room area exit <areaId> '<exit description>'  - Create a cross-area exit to specified area (creates a new room in target area).");
+            player.WriteLine(Help);
+            player.WriteLine("/cc set <class name> description '<set desc to this>'");
+            player.WriteLine("/cc set <class name> str <number>");
+            player.WriteLine("/cc set <class name> dex <number>");
+            player.WriteLine("/cc set <class name> con <number>");
+            player.WriteLine("/cc set <class name> int <number>");
+            player.WriteLine("/cc set <class name> wis <number>");
+            player.WriteLine("/cc set <class name> cha <number>");
+
+
             //to see tags and desc and name etc, just do /room <name of thing> and nothing after
 
             return false;
@@ -136,41 +178,76 @@ namespace RPGFramework.Commands
         #endregion
 
         #region RoomCreate Method
-        private static bool RoomCreate(Player player, List<string> parameters)
+        private static bool CCCreate(Player player, List<string> parameters)
         {
-            // 0: /room
+            // 0: /cc
             // 1: create
             // 2: name
             // 3: description
-            // 4: exit direction
-            // 5: exit description
-            if (parameters.Count < 6)
+            // 4: str
+            // 5: int
+            // 6: dex
+            // 7: con
+            // 8: wis
+            // 9: cha
+            if (parameters.Count < 10)
             {
-                player.WriteLine("Usage: /room create '<name>' '<description>' <exit direction> '<exit description>'");
+                player.WriteLine("Usage: /cc create '<name>' '<description>' '<str>' '<int>' '<dex>' '<con>' '<wis>' '<cha>'");
                 return false;
             }
 
-            if (!Enum.TryParse(parameters[4], true, out Direction exitDirection))
+            if (!int.TryParse(parameters[4], out int str))
             {
-                player.WriteLine("Invalid exit direction.");
+                player.WriteLine("Invalid strength value.");
+                return false;
+            }
+            if (!int.TryParse(parameters[5], out int intel))
+            {
+                player.WriteLine("Invalid intelligence value.");
+                return false;
+            }
+            if (!int.TryParse(parameters[6], out int dex))
+            {
+                player.WriteLine("Invalid dexterity value.");
+                return false;
+            }
+            if (!int.TryParse(parameters[7], out int con))
+            {
+                player.WriteLine("Invalid constitution value.");
+                return false;
+            }
+            if (!int.TryParse(parameters[8], out int wis))
+            {
+                player.WriteLine("Invalid wisdom value.");
+                return false;
+            }
+            if (!int.TryParse(parameters[9], out int cha))
+            {
+                player.WriteLine("Invalid charisma value.");
                 return false;
             }
 
-            try
+            if (GameState.Instance.CCCatalog.TryGetValue(parameters[2], out CharacterClass? _))
             {
-                // Ensure room is created in the player's current area
-                Room room = Room.CreateRoom(player.AreaId, parameters[2], parameters[3]);
+                player.WriteLine("A character class with that name already exists.");
+                return false;
+            }
 
-                player.GetRoom().AddExits(player, exitDirection, parameters[5], room);
-                player.WriteLine("Room created.");
-                return true;
-            }
-            catch (Exception ex)
+            CharacterClass newClass = new CharacterClass
             {
-                player.WriteLine($"Error creating room: {ex.Message}");
-                player.WriteLine(ex.StackTrace ?? "");
-            }
-            return false;
+                Name = parameters[2],
+                Description = parameters[3],
+                StrengthMod = str,
+                CharismaMod = str,
+                IntelligenceMod = intel,
+                DexterityMod = dex,
+                ConstitutionMod = con,
+                WisdomMod = wis,
+            };
+
+            GameState.Instance.CCCatalog.Add(newClass.Name, newClass);
+            player.WriteLine($"Character class '{newClass.Name}' created.");
+            return true;
         }
         #endregion
 
@@ -244,7 +321,7 @@ namespace RPGFramework.Commands
                 player.WriteLine("You have been moved to the safe room.");
 
                 // Delete the room from storage (adjust based on your Room management)
-                Room.DeleteRoom(currentRoom); 
+                Room.DeleteRoom(currentRoom);
                 player.WriteLine("Room deleted.");
                 return true;
             }
@@ -382,13 +459,28 @@ namespace RPGFramework.Commands
             Direction opposite = Navigation.GetOppositeDirection(newDir);
             Exit? returnExit = Room.FindReturnExit(exit.SourceRoomId, currentRoom.AreaId, exit.DestinationRoomId);
 
+            // Find destination area's room and check its exits
+            /*int destAreaId = -1;
+            foreach (var kvp in GameState.Instance.Areas)
+            {
+                if (kvp.Value.Rooms.ContainsKey(exit.DestinationRoomId))
+                {
+                    destAreaId = kvp.Key;
+                    break;
+                }
+            }*/
+
+
             var destRoom = GameState.Instance.Areas[exit.DestinationAreaId].Rooms[exit.DestinationRoomId];
+            // If some other exit (not the returnExit) already uses that opposite direction, fail.
+            // Only check this if we found a return exit.
+            //if (destRoom.GetExits().Any(e => e.ExitDirection == opposite && (returnExit == null || e.Id != returnExit.Id)))
             if (returnExit != null && Room.CheckForExit(destRoom, opposite, returnExit))
             {
                 player.WriteLine("Destination room already has an exit using the opposite direction.");
                 return false;
             }
-         
+
 
             // Update directions
             Direction oldDir = exit.ExitDirection;
@@ -506,95 +598,7 @@ namespace RPGFramework.Commands
         // Some things like FindReturnExit might make sense as part of the Exit class so others could use it too.
         // When searching for an exit id, keep in mind that they IDs are NOT unique across areas.
         // Overall a great set of features for exit management!
-        // You can delete this once you've read it. Let me know if you have any questions.
-
-        /// <summary>
-        /// /room set exit ...
-        /// Supports:
-        ///   /room set exit dir <exitId> <direction>
-        ///   /room set exit dest <exitId> <roomId>   (or <areaId>:<roomId>)
-        ///   /room set exit type <exitId> <Open|Door|LockedDoor|Impassable>
-        ///   /room set exit open <exitId> <open|close>
-        /// All require Builder permission.
-        /// </summary>
-        private static bool RoomSetExit(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 4)
-            {
-                return ShowHelp(player);
-            }            
-
-            var subCommand = parameters[3].ToLower();
-            Room currentRoom = player.GetRoom();
-
-            // CODE REVIEW: Ashten - Shouldn't need this check since GetRoom() should never return null for a Player.
-            if (currentRoom == null)
-            {
-                player.WriteLine("You are not in a valid room.");
-                return false;
-            }
-
-            // Expect exit id for all subcommands
-            if (parameters.Count < 5 || !int.TryParse(parameters[4], out int exitId))
-            {
-                player.WriteLine("Usage: /room set exit <dir|dest|type|open> <exitId> <...>");
-                return false;
-            }
-
-            // Find the exit across all areas (allow builders to operate on exits outside current room)
-            // TODO: We need to constrain this to exits in the current area or make area id part of the command.
-            // This is because exit and room ids are only unique within an area.
-            // I'm going to make it area of player for now, but we could expand the command later.
-            Exit? exit = GameState.Instance.Areas[player.AreaId].Exits.GetValueOrDefault(exitId);
-
-            if (exit == null)
-            {
-                player.WriteLine($"Exit id {exitId} not found in current area.");
-                return false;
-            }
-
-            // Helper: try find the return exit (if any)
-            // CODE REVIEW: Ashten 
-            // TODO: nested functions are generally discouraged - consider moving this to Exit class or a utility class.
-            // Also, this won't work until we add DestinationAreaId to Exit and match on that.
-            // In this case because of the snow days, I've added DestinationAreaId and moved this
-            // functionality to Room.FindReturnExit
-            /*Exit? FindReturnExit(int sourceRoomId, int destRoomId)
-            {
-                foreach (var kvp in GameState.Instance.Areas)
-                {
-                    if (kvp.Value.Rooms.ContainsKey(destRoomId))
-                    {
-                        return kvp.Value.Exits.Values.FirstOrDefault(e =>
-                            e.SourceRoomId == destRoomId && e.DestinationRoomId == sourceRoomId);
-                    }
-                }
-                return null;
-            }*/
-
-            try
-            {
-                switch (subCommand)
-                {
-                    case "dir":
-                        return RoomSetExitDir(player, parameters, exit);                       
-                    case "dest":
-                        return RoomSetExitDest(player, parameters, currentRoom, exit);
-                    case "type":
-                        return RoomSetExitType(player, parameters, currentRoom, exit);
-                    case "open":
-                        return RoomSetExitOpen(player, parameters, exit);
-                    default:
-                        return ShowHelp(player);
-                }
-            }
-            catch (Exception ex)
-            {
-                player.WriteLine($"Error updating exit: {ex.Message}");
-            }
-
-            return false;
-        }
+        
         #endregion
 
         private static void RoomSetTags(Player player, List<string> parameters)
@@ -805,7 +809,7 @@ namespace RPGFramework.Commands
                 currentRoom.ExitIds.Remove(exitToRemove.Id);
 
                 // Attempt to find and remove the return exit (if any) in the destination room's area
-                int destRoomId = exitToRemove.DestinationRoomId; 
+                int destRoomId = exitToRemove.DestinationRoomId;
                 int destAreaId = -1;
 
                 // CODE REVIEW: Ashten - I don't think we should be looping through 
@@ -848,352 +852,16 @@ namespace RPGFramework.Commands
         }
         #endregion
 
-        private static void ShowCommand(Player player, List<string> parameters)
-        {
-
-
-
-            Room r = player.GetRoom();
-            player.WriteLine($"Name: {r.Name}");
-            player.WriteLine($"Id: {r.Id.ToString()}");
-            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
-            player.WriteLine($"Description: {r.Description}");
-
-            // Show exits in the current room
-            var exits = r.GetExits();
-            if (exits == null || exits.Count == 0)
-            {
-                player.WriteLine("Exits: None");
-                return;
-            }
-
-            player.WriteLine("Exits:");
-            foreach (var e in exits)
-            {
-                // Resolve destination room by searching all areas (supports cross-area exits)
-                Room? destRoom = null;
-                int destAreaId = -1;
-                foreach (var kvp in GameState.Instance.Areas)
-                {
-                    if (kvp.Value.Rooms.ContainsKey(e.DestinationRoomId))
-                    {
-                        destAreaId = kvp.Key;
-                        destRoom = kvp.Value.Rooms[e.DestinationRoomId];
-                        break;
-                    }
-                }
-
-                string destName = destRoom != null ? destRoom.Name : "Unknown";
-                // Show area:room id when available to avoid ambiguity across areas
-                string destId = destAreaId != -1 ? $"{destAreaId}:{e.DestinationRoomId}" : e.DestinationRoomId.ToString();
-
-                // Include open/closed info
-                string openState = e.IsOpen ? "Open" : "Closed";
-
-                // Show direction alongside exit name (if present)
-                string namePart = string.IsNullOrWhiteSpace(e.Name) ? "" : $" '{e.Name}'";
-                player.WriteLine($"{e.ExitDirection}{namePart} -> {destName} (Id: {destId}) [[{e.ExitType}]] [[{openState}]] : {e.Description}");
-            }//this code above very specifically needs [[ ]] instead of [ ]
-        }
-
-        #region --- New: /room area exit ---
-        private static bool RoomArea(Player player, List<string> parameters)
-        {
-            // Usage: /room area exit <areaId> '<exit description>'
-            if (!Utility.CheckPermission(player, PlayerRole.Builder))
-            {
-                player.WriteLine("You do not have permission to do that.");
-                return false;
-            }
-
-            if (parameters.Count < 4)
-            {
-                ShowHelp(player);
-                return false;
-            }
-
-            if (parameters[2].ToLower() != "exit")
-            {
-                ShowHelp(player);
-                return false;
-            }
-
-            if (!int.TryParse(parameters[3], out int targetAreaId))
-            {
-                player.WriteLine("Invalid area id.");
-                return false;
-            }
-
-            string exitDescription = parameters.Count > 4 ? parameters[4] : "A strange portal.";
-
-            if (!GameState.Instance.Areas.TryGetValue(targetAreaId, out Area? targetArea))
-            {
-                player.WriteLine($"Area {targetAreaId} not found.");
-                return false;
-            }
-
-            try
-            {
-                // Create a new room inside the target area
-                Room newRoom = Room.CreateRoom(targetAreaId, $"Crossing to Area {targetAreaId}", $"A constructed crossing into area {targetAreaId}.");
-
-                // If the target area has a room 0, create an in-area exit from room 0 west to newRoom
-                if (targetArea.Rooms.TryGetValue(0, out Room? room0))
-                {
-                    // Add an exit from target area's room 0 west to the new room (return exit created inside the target area)
-                    room0.AddExits(player, Direction.West, $"A passage to {newRoom.Name}", newRoom, returnExit: true);
-                }
-
-                // Add an exit from the current room to the newly created room (cross-area)
-                // We do NOT create a return exit here: traveling across this exit will be one-way (no immediate return).
-                Room current = player.GetRoom();
-                // Use West direction for the created exit as requested
-                current.AddExits(player, Direction.West, exitDescription, newRoom, returnExit: false);
-
-                player.WriteLine($"Area exit created to Area {targetAreaId} Room {newRoom.Id}. Players will be asked to confirm when using this exit.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                player.WriteLine($"Error creating area exit: {ex.Message}");
-                return false;
-            }
-        }
-        #endregion
-    }
-    #endregion
-
-    #region --- Exit Builder ---
-    /// <summary>
-    /// /room command for building and editing rooms.
-    /// </summary>
-    /// Change all room commands to exit.
-    internal class ExitBuilderCommand : ICommand
-    {
-        public string Name => "/exit";
-
-        public IEnumerable<string> Aliases => [];
-        public string Help => "";
-
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is not Player player)
-            {
-                return false;
-            }
-
-            // All /exit commands require admin, no need to check further down
-            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-            {
-                player.WriteLine("You do not have permission to do that.");
-                return false;
-            }
-
-            if (parameters.Count < 2)
-            {
-                ShowHelp(player);
-                return false;
-            }
-
-            // Decide what to do based on the second parameter
-            switch (parameters[1].ToLower())
-            {
-                case "create":
-                    return ExitCreate(player, parameters);
-                case "set":
-                    return ExitSet(player, parameters);
-                case "show":
-                    return ShowCommand(player);
-                default:
-                    ShowHelp(player);
-                    break;
-            }
-
-            return true;
-        }
-
-        #region ExitSet Method
-        private static bool ExitSet(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 5)
-            {
-                ShowHelp(player);
-                return false;
-            }
-            switch (parameters[3].ToLower())
-            {
-                case "description":
-                    return ExitSetDescription(player, parameters);
-                case "name":
-                    return ExitSetName(player, parameters);
-                case "icon":
-                    return ExitSetIcon(player, parameters);
-                // As we add more settable properties, we can expand this switch
-                default:
-                    ShowHelp(player);
-                    break;
-            }
-            return false;
-        }
-        #endregion
-
-        #region ShowHelp Method
-        private static void ShowHelp(Player player)
-        {
-            player.WriteLine("Usage: ");
-            player.WriteLine("/room description '<set room desc to this>'");
-            player.WriteLine("/room name '<set room name to this>'");
-            player.WriteLine("/room create '<name>' '<description>' <exit direction> '<exit description>'");
-        }
-        #endregion
-
-        #region ExitCreate Method
-        private static bool ExitCreate(Player player, List<string> parameters)
-        {
-            if (!Utility.CheckPermission(player, PlayerRole.Admin))
-            {
-                player.WriteLine("You do not have permission to do that.");
-                return false;
-            }
-
-            // 0: /room
-            // 1: create
-            // 2: name
-            // 3: description
-            // 4: exit direction
-            // 5: exit description
-            if (parameters.Count < 6)
-            {
-                ShowHelp(player);
-                return false;
-            }
-
-            if (!Enum.TryParse(parameters[4], true, out Direction exitDirection))
-            {
-                player.WriteLine("Invalid exit direction.");
-                return false;
-            }
-
-            try
-            {
-                // TODO Before creating the room, ensure there's no existing exit in that direction
-                // Also, shouuld exit create be creating a room? maybe this is a copy of room create right now?
-                Room room = Room.CreateRoom(player.AreaId, parameters[2], parameters[3]);
-
-                player.GetRoom().AddExits(player, exitDirection, parameters[5], room);
-                player.WriteLine("Room exit created.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                player.WriteLine($"Error creating exit: {ex.Message}");
-                player.WriteLine(ex.StackTrace ?? "");
-            }
-            return false;
-        }
-        #endregion
-
-        #region ExitSetIcon Method
-        private static bool ExitSetIcon(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 4)
-            {
-                player.WriteLine($"Current room icon: {player.GetRoom().MapIcon}");
-                return false;
-            }
-
-            // TODO: Should we check that it's a single character? Maybe we don't care.
-            player.GetRoom().MapIcon = parameters[3];            
-            player.WriteLine($"Room icon set to: {player.GetRoom().MapIcon}");
-            return true;
-        }
-        #endregion
-
-        #region ExitSetName Method
-        private static bool ExitSetName(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 5)
-            {
-                player.WriteLine(player.GetRoom().Name);
-                return false;
-            }
-
-            Room r = player.GetRoom();
-            Exit? e = r.GetExitByName(parameters[2]);
-            if (e != null)
-            {
-                e.Name = parameters[4];
-                player.WriteLine("Exit name set.");
-                return true;
-            }
-
-            player.WriteLine($"Could not find exit {parameters[2]}.");
-            return false;
-        }
-        #endregion
-
-        #region ExitSetDescription Method
-        private static bool ExitSetDescription(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 5)
-            {
-                player.WriteLine(player.GetRoom().Name);
-                return false;
-            }
-
-            Room r = player.GetRoom();
-            Exit? e = r.GetExitByName(parameters[2]);
-            if (e != null)
-            {
-                e.Description = parameters[4];
-                player.WriteLine("Exit description set.");
-                return true;
-            }
-
-            player.WriteLine($"Could not set description. {parameters[2]}.");
-            return false;
-        }
-        #endregion
-
-        #region ShowCommand Method
-        private static bool ShowCommand(Player player)
+        private static void ShowCommand(Player player)
         {
             Room r = player.GetRoom();
             player.WriteLine($"Name: {r.Name}");
             player.WriteLine($"Id: {r.Id}");
             player.WriteLine($"Area Id: {r.AreaId}");
             player.WriteLine($"Description: {r.Description}");
-
-            // Show exits in the current room
-            var exits = r.GetExits();
-            if (exits == null || exits.Count == 0)
-            {
-                player.WriteLine("Exits: None");
-                return true;
-            }
-
-            player.WriteLine("Exits:");
-            foreach (var e in exits)
-            {
-                // Try to resolve destination room (rooms are stored per-area)
-                Room? destRoom = null;
-                if (GameState.Instance.Areas.TryGetValue(r.AreaId, out Area? value)
-                    && value.Rooms.TryGetValue(e.DestinationRoomId, out Room? value1))
-                {
-                    destRoom = value1;
-                }
-
-                string destName = destRoom != null ? destRoom.Name : "Unknown";
-                string destId = e.DestinationRoomId.ToString();
-
-                // Include open/closed info
-                string openState = e.IsOpen ? "Open" : "Closed";
-
-                player.WriteLine($"{e.ExitDirection} -> {destName} (Id: {destId}) [[{e.ExitType}]] [[{openState}]] : {e.Description}");
-            }//this code above very specifically needs [[ ]] instead of [ ]
-            return true;
         }
-        #endregion
     }
-    #endregion
 }
+
+
+

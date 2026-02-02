@@ -1,8 +1,11 @@
 ﻿using RPGFramework.Core;
 using RPGFramework.Display;
 using RPGFramework.Enums;
+using RPGFramework.Persistence;
 using RPGFramework.Workflows;
 using RPGFramework.Geography;
+using System.IO.Compression;
+using System.Numerics;
 
 
 namespace RPGFramework.Commands
@@ -27,6 +30,9 @@ namespace RPGFramework.Commands
                 new WhereCommand(),
                 new WhoCommand(),
                 new TeleportRoomCommand(), // added teleport by room id
+                new BackupCommand(),
+                new RestoreCommand(),
+                new MotdCommand(),
             ];
         }
     }
@@ -72,7 +78,9 @@ namespace RPGFramework.Commands
     internal class AnnounceCommand : ICommand
     {
         public string Name => "/announce";
-        public IEnumerable<string> Aliases => [ "ann" ];
+        public IEnumerable<string> Aliases => [ "/ann" ];
+        public string Help => "Make an annoucement to all connected players.";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -92,13 +100,12 @@ namespace RPGFramework.Commands
     #endregion
 
     #region GoToCommand Class
-    // CODE REVIEW: Aidan - The GoToCommand had several issues similar to those I addressed in SummonCommand.
     internal class GoToCommand : ICommand
     {
-        public string Name => "goto";
-
+        public string Name => "/goto";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "Jump to a specific player:\n/goto <player name>";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -113,7 +120,6 @@ namespace RPGFramework.Commands
 
             Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
 
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
             if (target == null)
             {
                 player.WriteLine("Player not found.");
@@ -136,6 +142,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/help";
         public IEnumerable<string> Aliases => [];
+        public string Help => "Usage: /help create <name> <category> <content>";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -168,7 +176,7 @@ namespace RPGFramework.Commands
             return true;
         }
 
-        public static bool CreateHelp(Player player, List<string> parameters)
+        public bool CreateHelp(Player player, List<string> parameters)
         {
             if (parameters.Count < 5)
             {
@@ -193,9 +201,9 @@ namespace RPGFramework.Commands
             return true;
         }
 
-        public static bool ShowHelp(Player player)
+        public bool ShowHelp(Player player)
         {
-            player.WriteLine("Usage: /help create <name> <category> <content>");
+            player.WriteLine(Help);
             return false;
         }
     }
@@ -205,9 +213,10 @@ namespace RPGFramework.Commands
     // CODE REVIEW: Aidan - The KickCommand had several issues similar to those I addressed in SummonCommand.
     internal class KickCommand : ICommand
     {
-        public string Name => "kick";
+        public string Name => "/kick";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "Disconnect a player from the server. This does NOT ban them.";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -249,6 +258,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/reloadseeddata";
         public IEnumerable<string> Aliases => [];
+        public string Help => "Reload all seed data files. This won't delete existing files, but it will OVERWRITE them if they exist in seed_data. Use this with caution!";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -272,9 +282,10 @@ namespace RPGFramework.Commands
     // Also, class names should be PascalCase, so I've renamed it to RenameCommand.
     internal class RenameCommand : ICommand
     {
-        public string Name => "rename";
+        public string Name => "/rename";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "Change a player's username.";
 
         // CODE REVIEW: Aidan - I un-nested this by moving character and permission checks to the 
         // beginning and exiting if they failed. This makes the code a lot more readable because we don't
@@ -294,31 +305,26 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            /*if (parameters[1] == null)
-            {
-                player.WriteLine("Player not found.");
-                return false;
-            }            
-            */
 
             Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
             if (target == null)
             {
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            // CODE REVIEW: Aidan - We don't need to check IsOnline here unless there's some specific reason
-            if (target.IsOnline == true)
+            if (Player.Exists(parameters[1], GameState.Instance.Players))
             {
-                target.Name = parameters[2];
-
-                player.WriteLine($"You have changed their name to {target.Name}");
-                return true;
+                player.WriteLine("That name is already taken.");
+                return false;
             }
 
-            return false;
+            GameState.Instance.Players.Remove(target.Name);
+            target.Name = parameters[2];
+            GameState.Instance.Players.Add(target.Name, target);
+
+            player.WriteLine($"You have changed their name to {target.Name}");
+            return true;
         }
     }
     #endregion
@@ -330,6 +336,7 @@ namespace RPGFramework.Commands
         public string Name => "role";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -390,6 +397,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/saveall";
         public IEnumerable<string> Aliases => [  ];
+        public string Help => "";
+
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -412,6 +421,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/shutdown";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -434,17 +444,9 @@ namespace RPGFramework.Commands
     #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "summon";
-
-        // CODE REVIEW: Aidan - This should use Utility.CheckPermission for consistency.
-        // Once you've review, just delete this comment and the commented out method below.
-        /*public bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
-        
+        public string Name => "summon";        
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -563,6 +565,7 @@ namespace RPGFramework.Commands
         */
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
         // Also un-nested the code for better readability by moving checks to the start and exiting early.
@@ -598,6 +601,7 @@ namespace RPGFramework.Commands
         public string Name => "who";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -622,5 +626,109 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-}
+    #region BackupCommand Class
+    internal class BackupCommand : ICommand
+    {
+        public string Name => "backup";
 
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+         
+          
+            try
+            {
+                GameState.CreateBackup();
+                player.WriteLine("Backup created successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Backup failed: {ex.Message}");
+                return false;
+            }
+        }
+
+
+    }
+    #endregion
+    #region RestoreCommand
+    internal class RestoreCommand : ICommand
+    {
+        public string Name => "restore";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count == 0)
+            {
+                player.WriteLine("Usage: /restore <backupName | latest>");
+                return false;
+            }
+
+            try
+            {
+                GameState.RestoreBackup(parameters[0]);
+                player.WriteLine("Restore completed successfully. Server restart recommended.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Restore failed: {ex.Message}");
+                return false;
+            }
+        }
+
+    }
+    #endregion
+    internal class MotdCommand : ICommand
+    {
+        public string Name => "/motd";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine(GameState.Instance.MessageCatalog.ContainsKey("motd")
+                    ? GameState.Instance.MessageCatalog["motd"]
+                    : "nothing");
+                return false;
+            }
+            player.WriteLine($"successfully set motd");
+            GameState.Instance.MessageCatalog["motd"] = parameters[1];
+            return true;
+        }
+    }
+}
