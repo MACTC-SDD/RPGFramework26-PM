@@ -41,35 +41,6 @@ namespace RPGFramework.Commands
 
     }
 
-    internal class UseCommand : ICommand
-    {
-        public string Name => "use";
-        public IEnumerable<string> Aliases => [];
-        public string Help => "Use an item.\nUsage: use <itemName|itemId>";
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is not Player player)
-                return false;
-
-
-            // find item
-            Item? i = character.FindItem(parameters[1]);
-
-            if (i == null)
-            {
-                player.WriteLine("Nothing to use");
-                return false;
-            }
-            else
-            {
-                player.BackPack.Items.Remove(i);
-                player.WriteLine($"Used {i}");
-            }
-            return true;
-
-
-        }
-    }
 
     internal class GiveCommand : ICommand
     {
