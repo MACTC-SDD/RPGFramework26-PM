@@ -36,12 +36,12 @@ namespace RPGFramework.Commands
             {
                 player.WriteLine($"Your character class is: {character.Class.Name}");
                 player.WriteLine($"Description: {character.Class.Description}");
-                player.WriteLine($"{character.Class.StrengthMod}");
-                player.WriteLine($"{character.Class.DexterityMod}");
-                player.WriteLine($"{character.Class.ConstitutionMod}");
-                player.WriteLine($"{character.Class.IntelligenceMod}");
-                player.WriteLine($"{character.Class.WisdomMod}");
-                player.WriteLine($"{character.Class.CharismaMod}");
+                player.WriteLine($"Strength Modifier:{character.Class.StrengthMod}");
+                player.WriteLine($"Dexterity Modifier:{character.Class.DexterityMod}");
+                player.WriteLine($"Constitution Modifier:{character.Class.ConstitutionMod}");
+                player.WriteLine($"Inteligence Modifier:{character.Class.IntelligenceMod}");
+                player.WriteLine($"Wisdom Modifier:{character.Class.WisdomMod}");
+                player.WriteLine($"Charisma Modifier:{character.Class.CharismaMod}");
             }
 
             // If the command failed to run for some reason, return false

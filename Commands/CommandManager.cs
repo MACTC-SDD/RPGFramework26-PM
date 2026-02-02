@@ -13,6 +13,7 @@ namespace RPGFramework.Commands
             // Add new command sets here as needed
             AdminCommands.GetAllCommands().ForEach(o => Register(o));
             BuilderCommands.GetAllCommands().ForEach(o => Register(o));
+            CCCommands.GetAllCommands().ForEach(o => Register(o));
             CommunicationCommands.GetAllCommands().ForEach((o) => Register(o));
             CoreCommands.GetAllCommands().ForEach(o => Register(o));
             ItemCommands.GetAllCommands().ForEach(o => Register(o));

@@ -26,6 +26,7 @@ namespace RPGFramework.Workflows
 
             // The action we take will depend on the CurrentStep, we will store progress in WorkflowData
             player.WriteLine($"Workflow: {Name}, Step: {CurrentStep}");
+            string classList = string.Join(", ", GameState.Instance.CCCatalog.Keys.OrderBy(x => x));
 
             switch (CurrentStep)
             {
@@ -44,7 +45,9 @@ namespace RPGFramework.Workflows
                     {
                         player.SetPassword(parameters[0]);
                         player.WriteLine(Name + ": Welcome to the game! Let's start by choosing your character class.");
-                        player.WriteLine("Available classes: Warrior, Mage, Rogue,Paladin,Bard,Druid,Necromancer.");
+
+                        player.WriteLine($"Please choose from the following classes: {classList}");
+                        //player.WriteLine("Available classes: Warrior, Mage, Rogue, Paladin, Bard, Druid, Necromancer.");
                         CurrentStep++;
                     }
                     break;
@@ -52,51 +55,26 @@ namespace RPGFramework.Workflows
                 case 2:
                     // Step 2: Gather player class and validate
                     string chosenClass = parameters.Count > 0 ? parameters[0].ToLower() : string.Empty;
-                    if (chosenClass == "warrior" || chosenClass == "mage" || chosenClass == "rogue" || chosenClass == "paladin" ||
-                        chosenClass == "bard" || chosenClass == "druid" || chosenClass == "necromancer")
+                    if (!GameState.Instance.CCCatalog.TryGetValue(chosenClass, out CharacterClass? charClass)
+                        || charClass == null)
                     {
-
-                        switch (chosenClass)
-                        {
-                            case "warrior":
-                                player.Class = new CharacterClass { Name = "Warrior" };
-                                break;
-                            case "mage":
-                                player.Class = new CharacterClass { Name = "Mage" };
-                                break;
-                            case "rogue":
-                                player.Class = new CharacterClass { Name = "Rogue" };
-                                break;
-                            case "paladin":
-                                player.Class = new CharacterClass { Name = "Paladin" };
-                                break;
-                            case "bard":
-                                player.Class = new CharacterClass { Name = "Bard" };
-                                break;
-                            case "druid":
-                                player.Class = new CharacterClass { Name = "Druid" };
-                                break;
-                            case "necromancer":
-                                player.Class = new CharacterClass { Name = "Necromancer" };
-                                break;
-                        }
-
-
-                        WorkflowData["ChosenClass"] = chosenClass;
-                        
-                        player.WriteLine($"You have chosen the {chosenClass} class.");
-                        // If class is valid, proceed, otherwise print message and stay on this step
-                        // Placeholder logic
-                        CurrentStep++;
+                        player.WriteLine($"Invalid class chosen. Please choose from: {classList}.");
+                        break;
                     }
-                    else
-                    {
-                        player.WriteLine("Invalid class chosen. Please choose from: Warrior, Mage, Rogue,Paladin,Bard,Druid,Necromancer.");
-                    }
-                    break;
+
+                    player.Class = charClass;
+                    WorkflowData["ChosenClass"] = chosenClass;
+                    CurrentStep++;
+
+                    player.WriteLine($"You have chosen the {chosenClass} class.");
+                    // If class is valid, proceed, otherwise print message and stay on this step
+                    // Placeholder logic
+                    CurrentStep++;
+                    break;     
                 case 3:
                     // Step 2: Roll stats and loop until accepted
                     // Placeholder logic
+                   // player.Initiative = GameState.Instance.Random.Next(1, 20);
                     player.Strength = GameState.Instance.Random.Next(1, 20);
                     player.Dexterity = GameState.Instance.Random.Next(1, 20);
                     player.Intelligence = GameState.Instance.Random.Next(1, 20);

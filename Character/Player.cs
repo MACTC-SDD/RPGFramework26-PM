@@ -23,7 +23,7 @@ namespace RPGFramework
         public TimeSpan PlayTime { get; set; } = new TimeSpan();
         public PlayerRole PlayerRole { get; set; }
         #endregion
-
+       
         public string DisplayName()
         {
             // We could add colors and other things later, for now, just afk
@@ -39,6 +39,11 @@ namespace RPGFramework
             IsOnline = true;
             LastLogin = DateTime.Now; 
             Console = CreateAnsiConsole();
+            if (Class != null 
+                && GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c))
+            {
+                Class = c ?? null;
+            }
         }
 
         
