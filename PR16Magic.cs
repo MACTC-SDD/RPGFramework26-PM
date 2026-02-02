@@ -32,5 +32,6 @@ namespace RPGFramework
     internal class Consumable : Item
     {
         public int HealAmount { get; set; } = 0;
+        public int UsesLeft { get; set; }
     }
 }

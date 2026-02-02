@@ -78,7 +78,6 @@ namespace RPGFramework.Commands
             i.Level = Convert.ToInt32(parameters[8]);
             i.Name = parameters[9];
             i.Tags = parameters[10].Split(",").ToList();
-            i.UsesRemaining = Convert.ToInt32(parameters[11]);
             i.Value = Convert.ToDouble(parameters[12]);
             i.Weight = Convert.ToDouble(parameters[13]);
             i.SpawnChance = Convert.ToDouble(parameters[14]);

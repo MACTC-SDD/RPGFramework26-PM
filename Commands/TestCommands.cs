@@ -74,7 +74,6 @@
                     Weight = (i % 50) * 0.75,
                     IsDroppable = true,
                     IsGettable = true,
-                    UsesRemaining = -1
                 };
                 items.Add(item);
             }
