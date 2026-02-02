@@ -33,6 +33,7 @@ namespace RPGFramework.Commands
                 new InvCommand(),
                 new GetCommand(),
                 new DropCommand(),
+                new GiveCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -55,6 +56,7 @@ namespace RPGFramework.Commands
             if (parameters.Count < 2)
             {
                 player.WriteLine("Nothing to give");
+                return false;
             }
 
             // find item
