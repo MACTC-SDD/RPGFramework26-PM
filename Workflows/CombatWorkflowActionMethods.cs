@@ -32,9 +32,10 @@ namespace RPGFramework.Workflows
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
                     // Here you would add logic to apply the attack or spell effects to the chosen target
-                    Player.RollToHitS(player, selectedSpell, chosenTarget);
+                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }
@@ -68,9 +69,10 @@ namespace RPGFramework.Workflows
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
                     // Here you would add logic to apply the attack or spell effects to the chosen target
-                    Player.RollToHitW(player, selectedWeapon, chosenTarget);
+                    // TODO Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
+                    EndTurn();
                     return true;
                     // CurrentStep = 0; // End turn
                 }
@@ -83,7 +85,7 @@ namespace RPGFramework.Workflows
         }
         private bool ChooseItem(Player player, List<string> parameters)
         {
-            List<Consumable> consumables = new List<Consumable>();
+            List<Consumable> consumables = [];
             foreach (Consumable item in player.Inventory)
             {
                 consumables.Add(item);
@@ -110,6 +112,7 @@ namespace RPGFramework.Workflows
                 player.Heal(chosenItem.HealAmount);
                 player.Inventory.Remove(chosenItem); // Remove used item from inventory
                 CurrentStep = 0; // End turn
+                EndTurn();
                 return true;
             }
             else

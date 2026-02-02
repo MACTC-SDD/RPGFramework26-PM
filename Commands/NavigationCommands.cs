@@ -27,6 +27,7 @@ namespace RPGFramework.Commands
         public string Name => "map";
 
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -55,6 +56,7 @@ namespace RPGFramework.Commands
             "u", "up",
             "d", "down"      
         };
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
