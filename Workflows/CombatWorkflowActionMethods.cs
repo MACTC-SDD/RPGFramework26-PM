@@ -6,7 +6,11 @@ using System.Text;
 
 namespace RPGFramework.Workflows
 {
-
+    // CODE REVIEW: Rylan - The steps might be well served by an enum instead of magic numbers
+    // because enums are really just ints, you could create an enum like:
+    // enum CombatStep { ActionSelection = 0, WeaponSelection = 2, SpellSelection = 3, ItemSelection = 4, Targeting = 5 }
+    // This would make the code more readable and maintainable (since you wouldn't have to remember what each number means or renumber)
+    // Since these states are only used within this class, you could make the enum private within this file.
     internal partial class CombatWorkflow : IWorkflow
     {
         private bool TargetSpell(Player player, List<string> parameters)
@@ -177,60 +181,71 @@ namespace RPGFramework.Workflows
                 }
             }
         }
-private void ChooseWeapon(Player player, List<string> parameters)
+        private void ChooseWeapon(Player player, List<string> parameters)
         {
-            List<Weapon> weapons = new List<Weapon>();
-            foreach (Weapon weapon in player.Inventory)
-            {
-                weapons.Add(weapon);
-            }
+            // CODE REVIEW: Rylan - I moved this check to the top to remove nesting
             if (parameters.Count == 0)
             {
                 player.WriteLine("You must choose a weapon to attack with!");
+                return;
             }
-            else
+
+            // CODE REVIEW: Rylan - Not everything in inventory will be a weapon
+            // Here is a way to get a list of just the weapons
+            List<Weapon> weapons = [.. player.Inventory.OfType<Weapon>()];
+
+            /*List<Weapon> weapons = new List<Weapon>();
+
+            foreach (Weapon weapon in player.Inventory)
             {
-                string weaponName = parameters[0].ToLower();
-                if (weaponName == "back" || weaponName == "exit")
-                {
-                    CurrentStep = 0; // go back to action selection
-                    return;
-                }
+                weapons.Add(weapon);
+            }*/
 
-                foreach (Weapon weapon in weapons)
-                {
-                    if (weapon.Name.ToLower() == weaponName)
-                    {
-                        selectedWeapon = weapon;
-                        break;
-                    }
-                }
-                if (selectedWeapon != null)
-                {
-                    player.WriteLine($"You attack with your {selectedWeapon.Name}!");
+            string weaponName = parameters[0].ToLower();
+            if (weaponName == "back" || weaponName == "exit")
+            {
+                CurrentStep = 0; // go back to action selection
+                return;
+            }
 
-                    player.WriteLine("Select your target:");
-                    foreach (CombatWorkflow combat in GameState.Instance.Combats)
+            // CODE REVIEW: Rylan - Here is a shorter way to find the weapon
+            Weapon? selectedWeapon = weapons.FirstOrDefault(w => w.Name.ToLower() == weaponName);
+            /*foreach (Weapon weapon in weapons)
+            {
+                if (weapon.Name.ToLower() == weaponName)
+                {
+                    selectedWeapon = weapon;
+                    break;
+                }
+            }*/
+
+            // Moved this above to reduce nesting
+            if (selectedWeapon == null)
+            {
+                player.WriteLine("You don't have that weapon!");
+                CurrentStep = 2; // stay in weapon selection
+                return;
+            }
+
+            player.WriteLine($"You attack with your {selectedWeapon.Name}!");
+
+            // CODE REVIEW: Rylan - A little confusing since this shows targers from all combats
+            // a player might be in. This might be by design...
+            player.WriteLine("Select your target:");
+            foreach (CombatWorkflow combat in GameState.Instance.Combats)
+            {
+                if (combat.Combatants.Contains(player))
+                {
+                    foreach (Character target in combat.Combatants)
                     {
-                        if (combat.Combatants.Contains(player))
+                        if (target != player)
                         {
-                            foreach (Character target in combat.Combatants)
-                            {
-                                if (target != player)
-                                {
-                                    player.WriteLine($"- {target.Name}");
-                                }
-                            }
+                            player.WriteLine($"- {target.Name}");
                         }
                     }
-                    CurrentStep = 5; // targeting phase next
-                }
-                else
-                {
-                    player.WriteLine("You don't have that weapon!");
-                    CurrentStep = 2; // stay in weapon selection
                 }
             }
+            CurrentStep = 5; // targeting phase next
         }
     }
 }

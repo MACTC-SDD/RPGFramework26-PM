@@ -10,7 +10,7 @@ namespace RPGFramework.Workflows
         public List<ICommand> PreProcessCommands { get; private set; } = [];
         public List<ICommand> PostProcessCommands { get; private set; } = [];
 
-        public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> WorkflowData { get; set; } = [];
         public void Execute(Player player, List<string> parameters)
         {
             // 1. We'll assume we didn't get here if player exists, if they did that will have authenticated instead

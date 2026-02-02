@@ -12,7 +12,7 @@ namespace RPGFramework.Workflows
         public List<ICommand> PreProcessCommands { get; private set; } = [];
         public List<ICommand> PostProcessCommands { get; private set; } = [];
 
-        public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> WorkflowData { get; set; } = [];
 
         private readonly int _exitAreaId;
         private readonly int _exitId;

@@ -12,7 +12,7 @@ namespace RPGFramework.Workflows
         public List<ICommand> PreProcessCommands { get; private set; } = [];
         public List<ICommand> PostProcessCommands { get; private set; } = [];
 
-        public Dictionary<string, object> WorkflowData { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> WorkflowData { get; set; } = [];
         public void Execute(Player player, List<string> parameters)
         {
             // Step 0, they've been prompted to confirm, step 0 is processing it.
