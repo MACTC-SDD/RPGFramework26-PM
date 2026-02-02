@@ -38,6 +38,8 @@ namespace RPGFramework.Commands
 
     }
 
+   
+
     internal class EquipmentCommand : ICommand
     {
         public string Name => "equip";
@@ -53,7 +55,25 @@ namespace RPGFramework.Commands
                 if (i is Armor a)
                 { armorItems.Add(a); }
             }
-            
+            List<Weapon> weaponItems = new List<Weapon>();
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Weapon a)
+                { weaponItems.Add(a); }
+            }
+            List <Food> foodItems = new List<Food>();
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Food a)
+                { foodItems.Add(a); }
+            }
+            List<Potion> potionItems = new List<Potion>();
+            foreach (Item i in player.BackPack.Items)
+            {
+                if (i is Potion a)
+                { potionItems.Add(a); }
+            }
+
 
 
             return false;
