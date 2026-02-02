@@ -60,7 +60,10 @@ namespace RPGFramework.Geography
             // Create a new Exit object from this room
             Exit exit = new Exit();
             exit.Id = Exit.GetNextId(AreaId);
+            // Set area ids so cross-area exits keep their origin/destination areas
+            exit.SourceAreaId = AreaId;
             exit.SourceRoomId = Id;
+            exit.DestinationAreaId = destinationRoom.AreaId;
             exit.DestinationRoomId = destinationRoom.Id;
             exit.ExitDirection = direction;
             exit.Description = exitDescription;
@@ -76,7 +79,10 @@ namespace RPGFramework.Geography
             {
                 Exit exit1 = new Exit();
                 exit1.Id = Exit.GetNextId(destinationRoom.AreaId);
+                // set area ids for the return exit as well
+                exit1.SourceAreaId = destinationRoom.AreaId;
                 exit1.SourceRoomId = destinationRoom.Id;
+                exit1.DestinationAreaId = AreaId;
                 exit1.DestinationRoomId = Id;
                 exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());

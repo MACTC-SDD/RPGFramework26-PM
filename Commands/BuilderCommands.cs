@@ -1,6 +1,7 @@
 ﻿using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
+using RPGFramework.Workflows;
 
 namespace RPGFramework.Commands
 {
@@ -57,7 +58,7 @@ namespace RPGFramework.Commands
                     RoomSet(player, parameters);
                     break;
                 case "show":
-                    ShowCommand(player);
+                    ShowCommand(player, parameters);
                     break;
                 case "add":
                     RoomAdd(player, parameters);
@@ -67,6 +68,8 @@ namespace RPGFramework.Commands
                     break;
                 case "delete":
                     return RoomDelete(player, parameters);
+                case "area":
+                    return RoomArea(player, parameters);
                 default:
                     ShowHelp(player);
                     break;
@@ -124,6 +127,7 @@ namespace RPGFramework.Commands
             player.WriteLine("/room set exit dest <exitId> <roomId>     - Change destination (use <areaId>:<roomId> to specify area)");
             player.WriteLine("/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type");
             player.WriteLine("/room set exit open <exitId> <open|close> - Open or close this exit (doors only)");
+            player.WriteLine("/room area exit <areaId> '<exit description>'  - Create a cross-area exit to specified area (creates a new room in target area).");
             //to see tags and desc and name etc, just do /room <name of thing> and nothing after
 
             return false;
@@ -153,6 +157,7 @@ namespace RPGFramework.Commands
 
             try
             {
+                // Ensure room is created in the player's current area
                 Room room = Room.CreateRoom(player.AreaId, parameters[2], parameters[3]);
 
                 player.GetRoom().AddExits(player, exitDirection, parameters[5], room);
@@ -376,22 +381,7 @@ namespace RPGFramework.Commands
             Direction opposite = Navigation.GetOppositeDirection(newDir);
             Exit? returnExit = Room.FindReturnExit(exit.SourceRoomId, currentRoom.AreaId, exit.DestinationRoomId);
 
-            // Find destination area's room and check its exits
-            /*int destAreaId = -1;
-            foreach (var kvp in GameState.Instance.Areas)
-            {
-                if (kvp.Value.Rooms.ContainsKey(exit.DestinationRoomId))
-                {
-                    destAreaId = kvp.Key;
-                    break;
-                }
-            }*/
-
-
             var destRoom = GameState.Instance.Areas[exit.DestinationAreaId].Rooms[exit.DestinationRoomId];
-            // If some other exit (not the returnExit) already uses that opposite direction, fail.
-            // Only check this if we found a return exit.
-            //if (destRoom.GetExits().Any(e => e.ExitDirection == opposite && (returnExit == null || e.Id != returnExit.Id)))
             if (returnExit != null && Room.CheckForExit(destRoom, opposite, returnExit))
             {
                 player.WriteLine("Destination room already has an exit using the opposite direction.");
@@ -857,14 +847,118 @@ namespace RPGFramework.Commands
         }
         #endregion
 
-        private static void ShowCommand(Player player)
+        private static void ShowCommand(Player player, List<string> parameters)
         {
+
+
+
             Room r = player.GetRoom();
             player.WriteLine($"Name: {r.Name}");
-            player.WriteLine($"Id: {r.Id}");
-            player.WriteLine($"Area Id: {r.AreaId}");
+            player.WriteLine($"Id: {r.Id.ToString()}");
+            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
             player.WriteLine($"Description: {r.Description}");
+
+            // Show exits in the current room
+            var exits = r.GetExits();
+            if (exits == null || exits.Count == 0)
+            {
+                player.WriteLine("Exits: None");
+                return;
+            }
+
+            player.WriteLine("Exits:");
+            foreach (var e in exits)
+            {
+                // Resolve destination room by searching all areas (supports cross-area exits)
+                Room? destRoom = null;
+                int destAreaId = -1;
+                foreach (var kvp in GameState.Instance.Areas)
+                {
+                    if (kvp.Value.Rooms.ContainsKey(e.DestinationRoomId))
+                    {
+                        destAreaId = kvp.Key;
+                        destRoom = kvp.Value.Rooms[e.DestinationRoomId];
+                        break;
+                    }
+                }
+
+                string destName = destRoom != null ? destRoom.Name : "Unknown";
+                // Show area:room id when available to avoid ambiguity across areas
+                string destId = destAreaId != -1 ? $"{destAreaId}:{e.DestinationRoomId}" : e.DestinationRoomId.ToString();
+
+                // Include open/closed info
+                string openState = e.IsOpen ? "Open" : "Closed";
+
+                // Show direction alongside exit name (if present)
+                string namePart = string.IsNullOrWhiteSpace(e.Name) ? "" : $" '{e.Name}'";
+                player.WriteLine($"{e.ExitDirection}{namePart} -> {destName} (Id: {destId}) [[{e.ExitType}]] [[{openState}]] : {e.Description}");
+            }//this code above very specifically needs [[ ]] instead of [ ]
         }
+
+        #region --- New: /room area exit ---
+        private static bool RoomArea(Player player, List<string> parameters)
+        {
+            // Usage: /room area exit <areaId> '<exit description>'
+            if (!Utility.CheckPermission(player, PlayerRole.Builder))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return false;
+            }
+
+            if (parameters.Count < 4)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            if (parameters[2].ToLower() != "exit")
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            if (!int.TryParse(parameters[3], out int targetAreaId))
+            {
+                player.WriteLine("Invalid area id.");
+                return false;
+            }
+
+            string exitDescription = parameters.Count > 4 ? parameters[4] : "A strange portal.";
+
+            if (!GameState.Instance.Areas.TryGetValue(targetAreaId, out Area? targetArea))
+            {
+                player.WriteLine($"Area {targetAreaId} not found.");
+                return false;
+            }
+
+            try
+            {
+                // Create a new room inside the target area
+                Room newRoom = Room.CreateRoom(targetAreaId, $"Crossing to Area {targetAreaId}", $"A constructed crossing into area {targetAreaId}.");
+
+                // If the target area has a room 0, create an in-area exit from room 0 west to newRoom
+                if (targetArea.Rooms.TryGetValue(0, out Room? room0))
+                {
+                    // Add an exit from target area's room 0 west to the new room (return exit created inside the target area)
+                    room0.AddExits(player, Direction.West, $"A passage to {newRoom.Name}", newRoom, returnExit: true);
+                }
+
+                // Add an exit from the current room to the newly created room (cross-area)
+                // We do NOT create a return exit here: traveling across this exit will be one-way (no immediate return).
+                Room current = player.GetRoom();
+                // Use West direction for the created exit as requested
+                current.AddExits(player, Direction.West, exitDescription, newRoom, returnExit: false);
+
+                player.WriteLine($"Area exit created to Area {targetAreaId} Room {newRoom.Id}. Players will be asked to confirm when using this exit.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Error creating area exit: {ex.Message}");
+                return false;
+            }
+        }
+        #endregion
     }
     #endregion
 
