@@ -41,6 +41,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        public int HitPenalty { get; set; } = 0;
         #endregion
 
         #region --- Skill Attributes --- (0-20)
