@@ -53,8 +53,25 @@ namespace RPGFramework
 
         public void Petrified()
         {
-            // this.IsIncapacitated = true;
-
+            this.IsIncapacitated = true;
+            this.CountPetrified++;
+            this.Disadvantage += 5;
+            if (this.CountPetrified >= 3)
+            {
+                this.DamageResistance = 2;
+                if (this.IsPoisoned == true)
+                    this.IsPoisoned = false;
+                
+            }
+            else
+            {
+                this.DamageResistance = 1;
+                this.Disadvantage -= 5;
+                this.CountPetrified = 0;
+                this.IsPetrified = false;
+                this.IsIncapacitated = false;
+            }
+            
         }
 
         /*Poisoned,

@@ -23,6 +23,7 @@ namespace RPGFramework
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
         public int HealPenalty { get; set; } = 0;
+        public double DamageResistance { get; set; } = 1.0;
         public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
@@ -152,7 +153,7 @@ namespace RPGFramework
         // Remove some amount from health
         public void TakeDamage(int damage)
         {
-            SetHealth(Health - damage);
+            SetHealth(Health - (int)Math.Ceiling((double)damage / DamageResistance));
         }
 
         // Add some amount to health
