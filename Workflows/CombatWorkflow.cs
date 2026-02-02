@@ -221,6 +221,7 @@ namespace RPGFramework.Workflows
                             case "3":
                             case "items":
                                 player.WriteLine("You open your inventory:");
+                                // Rylan - See my note in ChooseItem about filtering by type.
                                 foreach (Consumable item in player.Inventory)
                                 {
                                     player.WriteLine($"- {item.Name}");

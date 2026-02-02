@@ -89,6 +89,7 @@ namespace RPGFramework.Workflows
         }
         private bool ChooseItem(Player player, List<string> parameters)
         {
+            // Rylan - see my notes in ChooseWeapon about getting just consumables
             List<Consumable> consumables = [];
             foreach (Consumable item in player.Inventory)
             {
@@ -128,7 +129,7 @@ namespace RPGFramework.Workflows
         }
         private void ChooseSpell(Player player, List<string> parameters)
         {
-            List<Spell> spells = new List<Spell>();
+            List<Spell> spells = [];
             foreach (Spell spell in player.Spellbook)
             {
                 spells.Add(spell);
