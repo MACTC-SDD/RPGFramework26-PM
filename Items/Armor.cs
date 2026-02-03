@@ -5,6 +5,7 @@ namespace RPGFramework
     {
         public ArmorType ArmorType { get; set; }
         public int Durability { get; set; } = 20;
+        public int CurrentDurability { get; set; }
         public bool Equipped { get; set; } = false;
         public int Protection { get; set; } = 0;
 

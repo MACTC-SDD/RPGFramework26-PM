@@ -1,7 +1,5 @@
 ﻿using RPGFramework.Workflows;
-using RPGFramework;
 using System;
-﻿using RPGFramework.Workflows;
 
 
 namespace RPGFramework
@@ -47,6 +45,7 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, (target.EquippedArmor.Durability / 16));
             }
             else if (attackRoll == 1)
             {
@@ -86,6 +85,8 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, target.EquippedArmor.Durability / 16);
+                Comm.SendToIfPlayer(target, "Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
             }
             else if (attackRoll == 1)
             {
@@ -94,6 +95,8 @@ namespace RPGFramework
                 totalAttack = 0;
                 attacker.DropItem(weapon);
                 attacker.TakeDamage(1);
+                // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
+                //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {

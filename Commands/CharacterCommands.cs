@@ -37,15 +37,31 @@ namespace RPGFramework.Commands
                 player.WriteLine("You have not selected a character class yet.");
                 return true;
             }
-
+            player.WriteLine($"══════════ ⋆★⋆ ═════════════");
             player.WriteLine($"Your character class is: {character.Class.Name}");
             player.WriteLine($"Description: {character.Class.Description}");
-            player.WriteLine($"Strength Modifier:{character.Class.StrengthMod}");
-            player.WriteLine($"Dexterity Modifier:{character.Class.DexterityMod}");
-            player.WriteLine($"Constitution Modifier:{character.Class.ConstitutionMod}");
-            player.WriteLine($"Inteligence Modifier:{character.Class.IntelligenceMod}");
-            player.WriteLine($"Wisdom Modifier:{character.Class.WisdomMod}");
-            player.WriteLine($"Charisma Modifier:{character.Class.CharismaMod}");
+            player.WriteLine($"════════════════════════════");
+            player.WriteLine($"══════════ ⋆★⋆ ═════════════");
+            player.WriteLine("        Base Stats ");
+            player.WriteLine($"════════════════════════════");
+            player.WriteLine($"       Strength: {player.Strength}");
+            player.WriteLine($"       Dexterity: {player.Dexterity}");
+            player.WriteLine($"       Constitution: {player.Constitution}");
+            player.WriteLine($"       Inteligence: {player.Intelligence}");
+            player.WriteLine($"       Wisdom: {player.Wisdom}");
+            player.WriteLine($"       Charisma: {player.Charisma}");
+            player.WriteLine($"════════════════════════════");
+            player.WriteLine($"");
+            player.WriteLine($"══════════ ⋆★⋆ ═════════════");
+            player.WriteLine("        Modifiers ");
+            player.WriteLine($"════════════════════════════");
+            player.WriteLine($"   Strength Modifier:{character.Class.StrengthMod}");
+            player.WriteLine($"   Dexterity Modifier:{character.Class.DexterityMod}");
+            player.WriteLine($"   Constitution Modifier:{character.Class.ConstitutionMod}");
+            player.WriteLine($"   Inteligence Modifier:{character.Class.IntelligenceMod}");
+            player.WriteLine($"   Wisdom Modifier:{character.Class.WisdomMod}");
+            player.WriteLine($"   Charisma Modifier:{character.Class.CharismaMod}");
+            player.WriteLine($"════════════════════════════");
             return true;
         }
     }

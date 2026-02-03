@@ -326,6 +326,7 @@ namespace RPGFramework.Commands
 
             // Update source exit to point to new destination
             exit.DestinationRoomId = newRoomId;
+            exit.DestinationAreaId = newAreaId;
 
             // Add new return exit in new destination's area
             var newReturn = new Exit
@@ -535,42 +536,50 @@ namespace RPGFramework.Commands
             }
 
             // Expect exit id for all subcommands
-            if (parameters.Count < 5 || !int.TryParse(parameters[4], out int exitId))
+            if (parameters.Count < 5)
             {
                 player.WriteLine("Usage: /room set exit <dir|dest|type|open> <exitId> <...>");
                 return false;
             }
 
-            // Find the exit across all areas (allow builders to operate on exits outside current room)
-            // TODO: We need to constrain this to exits in the current area or make area id part of the command.
-            // This is because exit and room ids are only unique within an area.
-            // I'm going to make it area of player for now, but we could expand the command later.
-            Exit? exit = GameState.Instance.Areas[player.AreaId].Exits.GetValueOrDefault(exitId);
-
-            if (exit == null)
+            // Allow specifying the exit with an optional area prefix: <areaId>:<exitId> or just <exitId>
+            int exitAreaId = player.AreaId;
+            int exitId;
+            string exitParam = parameters[4];
+            if (exitParam.Contains(":"))
             {
-                player.WriteLine($"Exit id {exitId} not found in current area.");
+                var parts = exitParam.Split(':');
+                if (parts.Length != 2
+                    || !int.TryParse(parts[0], out exitAreaId)
+                    || !int.TryParse(parts[1], out exitId))
+                {
+                    player.WriteLine("Invalid exit id format. Use <exitId> or <areaId>:<exitId>.");
+                    return false;
+                }
+            }
+            else
+            {
+                if (!int.TryParse(exitParam, out exitId))
+                {
+                    player.WriteLine("Invalid exit id.");
+                    return false;
+                }
+            }
+
+            // Find the exit in the specified area (allow builders to operate on exits in other areas by specifying area)
+            if (!GameState.Instance.Areas.TryGetValue(exitAreaId, out Area? exitArea))
+            {
+                player.WriteLine($"Area {exitAreaId} not found.");
                 return false;
             }
 
-            // Helper: try find the return exit (if any)
-            // CODE REVIEW: Ashten 
-            // TODO: nested functions are generally discouraged - consider moving this to Exit class or a utility class.
-            // Also, this won't work until we add DestinationAreaId to Exit and match on that.
-            // In this case because of the snow days, I've added DestinationAreaId and moved this
-            // functionality to Room.FindReturnExit
-            /*Exit? FindReturnExit(int sourceRoomId, int destRoomId)
+            Exit? exit = exitArea.Exits.GetValueOrDefault(exitId);
+
+            if (exit == null)
             {
-                foreach (var kvp in GameState.Instance.Areas)
-                {
-                    if (kvp.Value.Rooms.ContainsKey(destRoomId))
-                    {
-                        return kvp.Value.Exits.Values.FirstOrDefault(e =>
-                            e.SourceRoomId == destRoomId && e.DestinationRoomId == sourceRoomId);
-                    }
-                }
-                return null;
-            }*/
+                player.WriteLine($"Exit id {exitId} not found in Area {exitAreaId}.");
+                return false;
+            }
 
             try
             {
@@ -962,12 +971,12 @@ namespace RPGFramework.Commands
                 }
 
                 // Add an exit from the current room to the newly created room (cross-area)
-                // We do NOT create a return exit here: traveling across this exit will be one-way (no immediate return).
+                // Create a return exit so players can travel back and forth between areas.
                 Room current = player.GetRoom();
                 // Use West direction for the created exit as requested
-                current.AddExits(player, Direction.West, exitDescription, newRoom, returnExit: false);
+                current.AddExits(player, Direction.West, exitDescription, newRoom, returnExit: true);
 
-                player.WriteLine($"Area exit created to Area {targetAreaId} Room {newRoom.Id}. Players will be asked to confirm when using this exit.");
+                player.WriteLine($"Area exit created to Area {targetAreaId} Room {newRoom.Id}. Players can travel between the areas both ways.");
                 return true;
             }
             catch (Exception ex)
