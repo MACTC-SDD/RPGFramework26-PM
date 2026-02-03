@@ -934,16 +934,21 @@ namespace RPGFramework.Commands
         public string Help => "gives you a title";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
             {
-                if (parameters.Count < 2)
-                {
-                    player.WriteLine($"you gotta type what your title is");
-                    return false;
-                }
-                player.Title = parameters[1];
-                player.WriteLine($"your title has been changed!");
+                player.WriteLine($"you gotta type what your title is");
+                return false;
             }
+            player.Title = parameters[1];
+            player.WriteLine($"your title has been changed!");
+            return true;
+        }
+    }
+
     internal class ExamineCommand : ICommand
     {         public string Name => "examine";
         public IEnumerable<string> Aliases => [ "ex", "exa" ];

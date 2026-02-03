@@ -12,7 +12,6 @@ namespace RPGFramework
         public bool AmmoLeft { get; set; } = true;
         public int Range { get; set; } = 0;
         public double Speed { get; set; } = 0;
-        public double Weight { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods

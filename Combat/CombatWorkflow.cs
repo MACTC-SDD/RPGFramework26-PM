@@ -69,7 +69,8 @@ namespace RPGFramework.Workflows
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
-            InitiativeOrder(Combatants);
+            //InitiativeOrder(Combatants);
+            InitiativeOrder();
             foreach (Character c in Combatants)
             {
                 c.EngageCombat(true);
