@@ -1,9 +1,9 @@
-﻿
-using RPGFramework.Core;
+﻿using RPGFramework.Core;
 using RPGFramework.Display;
 using RPGFramework.Enums;
 using RPGFramework.Persistence;
 using RPGFramework.Workflows;
+using RPGFramework.Geography;
 using System.IO.Compression;
 using System.Numerics;
 
@@ -16,6 +16,7 @@ namespace RPGFramework.Commands
         {
             return
             [
+                new AdminHelpCommand(),
                 new AnnounceCommand(),
                 new GoToCommand(),
                 new HelpEditCommand(),
@@ -28,12 +29,51 @@ namespace RPGFramework.Commands
                 new SaveAll(),
                 new WhereCommand(),
                 new WhoCommand(),
+                new TeleportRoomCommand(), // added teleport by room id
                 new BackupCommand(),
                 new RestoreCommand(),
                 new MotdCommand(),
             ];
         }
     }
+
+    #region Admin Help Command
+    internal class AdminHelpCommand : ICommand
+    {
+        public string Name => "/admin";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Displays a list of admin commands.";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return false;
+            }
+
+            // If caller simply typed "/admin" show the list of admin commands and usage
+            player.WriteLine("Admin Commands:");
+            player.WriteLine("/announce <message>                        - Broadcast an announcement to all players");
+            player.WriteLine("goto <targetPlayer> <playerToMove?>       - Move a playerToMove to targetPlayer's area (use carefully)");
+            player.WriteLine("/help create <name> <category> <content>  - Create a help entry");
+            player.WriteLine("kick <playerName>                         - Disconnect a player");
+            player.WriteLine("/reloadseeddata                           - Reload seed data (requires confirmation: type YES!)");
+            player.WriteLine("rename <targetPlayerName> <newName>       - Change a player's name");
+            player.WriteLine("role <playerName> <role>                  - Set a player's role (Admin/Builder/Player etc)");
+            player.WriteLine("summon <targetPlayerName> [[destPlayer]]    - Teleport target player to you or destPlayer if provided");
+            player.WriteLine("/shutdown                                 - Shutdown the server");
+            player.WriteLine("/saveall                                   - Save all players");
+            player.WriteLine("where <playerName>                        - Show location for a player");
+            player.WriteLine("who                                       - List online players");
+            player.WriteLine("teleportroom <areaId>:<roomId> OR <roomId> - Teleport to a specific room (area optional)");
+            return true;
+        }
+    }
+    #endregion
 
     #region AnnounceCommand Class
     internal class AnnounceCommand : ICommand
@@ -460,6 +500,55 @@ namespace RPGFramework.Commands
 
             target.WriteLine($"You have been summoned to {destPlayer.DisplayName()}.");
             player.WriteLine($"You have teleported {target.DisplayName()} to you.");
+            return true;
+        }
+    }
+    #endregion
+
+    #region TeleportRoomCommand
+    internal class TeleportRoomCommand : ICommand
+    {
+        public string Name => "teleportroom";
+        public IEnumerable<string> Aliases => [ "tpr" ];
+        public string Help => "Teleport to a specific room by ID. Usage: teleportroom <areaId>:<roomId> or teleportroom <roomId> (uses your current area)";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Usage: teleportroom <areaId>:<roomId>   or teleportroom <roomId> (uses your current area)");
+                return false;
+            }
+
+            if (!Room.TryParseId(parameters[1], player.AreaId, out int roomId, out int areaId))
+            {
+                player.WriteLine("Invalid destination format. Use <roomId> or <areaId>:<roomId>.");
+                return false;
+            }
+
+            if (!GameState.Instance.Areas.TryGetValue(areaId, out Area? area) || !area.Rooms.TryGetValue(roomId, out Room? destRoom))
+            {
+                player.WriteLine($"Destination room not found (Area: {areaId}, Room: {roomId}).");
+                return false;
+            }
+
+            // move the player correctly (call Leave/Enter so room notifications work)
+            Room current = player.GetRoom();
+            current.LeaveRoom(player, destRoom);
+            destRoom.EnterRoom(player, current);
+
+            player.AreaId = areaId;
+            player.LocationId = roomId;
+
+            player.WriteLine($"Teleported to Area {areaId} Room {roomId}.");
             return true;
         }
     }

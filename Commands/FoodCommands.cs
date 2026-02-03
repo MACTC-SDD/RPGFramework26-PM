@@ -10,7 +10,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/Food";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
@@ -52,13 +52,15 @@ namespace RPGFramework.Commands
         {
             // Make sure not < 4
 
-            Food f = new Food();
-            f.Name = parameters[2];
-            f.Description = parameters[3];
-            f.HealAmount = Convert.ToInt32(parameters[4]);
-            f.StackAmount = Convert.ToInt32(parameters[5]);
-            f.StackMax = Convert.ToInt32(parameters[6]);
-            
+            Food f = new()
+            {
+                Name = parameters[2],
+                Description = parameters[3],
+                HealAmount = Convert.ToInt32(parameters[4]),
+                StackAmount = Convert.ToInt32(parameters[5]),
+                StackMax = Convert.ToInt32(parameters[6])
+            };
+
 
 
 

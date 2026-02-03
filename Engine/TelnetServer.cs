@@ -13,7 +13,7 @@ using System.Text;
 
 internal class TelnetServer
 {
-    private TcpListener _listener;
+    private readonly TcpListener _listener;
     private bool _isRunning;
 
 
@@ -47,7 +47,7 @@ internal class TelnetServer
         using (client)
         {
             // Create PlayerNetwork object, once logged in we'll attach it to player
-            PlayerNetwork pn = new PlayerNetwork(client);
+            PlayerNetwork pn = new(client);
 
 
             pn.Writer.WriteLine("Username: ");

@@ -7,27 +7,18 @@ namespace RPGFramework
         public string Description { get; set; } = ""; // What you see when you look at it
         public string DisplayText { get; set; } = ""; // How it appears when in a room
         public bool IsDroppable { get; set; } // Can the item be dropped
-        public bool IsDropped { get; set; }
+
+        public bool IsDropped { get; set; } = false; // Not sure what this is for? (Mr. Brown)
         public bool IsGettable { get; set; } // Can the item be picked up
+        public bool IsPerishable { get; set; } = false;
 
         public int Level { get; set; } = 0;
         public string Name { get; set; } = "";
-        public List<string> Tags { get; set; } = new List<string>();
-        public int UsesRemaining { get; set; } = -1; // -1 means unlimited uses
+        public double SpawnChance { get; set; } = 0;
+        public List<string> Tags { get; set; } = [];
+        public double UseSpeed { get; set; } = 1;
         public double Value { get; set; } = 0;
         public double Weight { get; set; } = 0;
-        public double SpawnChance { get; set; } = 0;
-        public double UseSpeed { get; set; } = 1;
-
-        Dictionary<int, string> Inventory = new();
-
-            //var Weapons = new Dictionary<int, string>();
-            //{
-            //    {"Sword", "Mace}
-            //};
-
-
-
-        public bool IsPerishable { get; set; } = false;
+      
     }
 }

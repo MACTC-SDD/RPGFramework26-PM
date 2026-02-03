@@ -33,7 +33,7 @@ namespace RPGFramework.Commands
                     HelpEntry h = new()
                     { Category = "Commands", Name = command.Name, Content = command.Help };
 
-                    if (h.Name.StartsWith("/"))
+                    if (h.Name.StartsWith('/'))
                         h.Category = "AdminCommands";
 
                     entries.Add(h);
