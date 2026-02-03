@@ -35,8 +35,8 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    // Here you would add logic to apply the attack or spell effects to the chosen target
-                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
+                    if (selectedSpell != null)
+                        Player.RollToHitS(player, selectedSpell, chosenTarget);
 
                     CurrentStep = 0;
                     EndTurn();
@@ -72,8 +72,8 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    // Here you would add logic to apply the attack or spell effects to the chosen target
-                    // TODO Player.RollToHitW(player, selectedWeapon, chosenTarget);
+                    if (selectedWeapon != null)
+                        Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
                     EndTurn();

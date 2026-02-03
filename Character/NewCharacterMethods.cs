@@ -98,8 +98,8 @@ namespace RPGFramework
                 // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
                 attacker.DropItem(attacker, weapon);
                 attacker.TakeDamage(1);
-                // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
-                //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
+                attacker.ReduceDurabilityWeapon(weapon, (weapon.Durability / 16));
+                Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + weapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {
