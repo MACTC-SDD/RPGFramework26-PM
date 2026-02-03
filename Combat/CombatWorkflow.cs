@@ -41,7 +41,7 @@ namespace RPGFramework.Workflows
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
                 new CombatAdminControlsCommand()
-            ];
+        ];
 
         public Dictionary<string, object> WorkflowData { get; set; } = [];
 
@@ -230,6 +230,7 @@ namespace RPGFramework.Workflows
                             case "3":
                             case "items":
                                 player.WriteLine("You open your inventory:");
+                                // Rylan - See my note in ChooseItem about filtering by type.
                                 foreach (Consumable item in player.Inventory)
                                 {
                                     player.WriteLine($"- {item.Name}");
@@ -245,7 +246,7 @@ namespace RPGFramework.Workflows
                             case "4":
                             case "run":
                                 player.WriteLine("You attempt to flee from combat!");
-                                Player.FleeCombat(player, currentCombat);
+                                // TODO Player.FleeCombat(player, currentCombat);
                                 player.CurrentWorkflow = null;
                                 break;
                         }

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RPGFramework.Items
+﻿namespace RPGFramework
 {
     internal class Consumable: Item
     {
-        public int usesLeft { get; set; } = 1;
+        public int UsesLeft { get; set; } = -1; // -1 means unlimited uses
+        public int HealAmount { get; set; } = 0;
     }
 }
 

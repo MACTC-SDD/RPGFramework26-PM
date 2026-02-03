@@ -12,8 +12,8 @@ namespace RPGFramework.Commands
     {
         public static List<ICommand> GetAllCommands()
         {
-            return new List<ICommand>
-            {
+            return
+            [
                 new UXCommand(),
                 new UXColorCommand(),
                 new UXDecorationCommand(),
@@ -22,7 +22,7 @@ namespace RPGFramework.Commands
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
                 // Add more test commands here as needed
-            };
+            ];
         }
     }
 
@@ -63,8 +63,8 @@ namespace RPGFramework.Commands
             string title = "UX Testing Commands";
 
             Panel panel = RPGPanel.GetPanel(table, title);
-            player.Write(panel);
-
+            //player.Write(panel);
+            player.Write(player.ShowSummary());
             return true;
         }
     }
@@ -149,7 +149,7 @@ namespace RPGFramework.Commands
         public string Name => "/uxdecoration";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
-        public IEnumerable<string> Aliases => new List<string>() { "/uxdec", "/uxdecorations" };
+        public IEnumerable<string> Aliases => [ "/uxdec", "/uxdecorations" ];
         public string Help => "";
 
         // Change code in here to experiment with different text decorations
@@ -183,7 +183,7 @@ namespace RPGFramework.Commands
         public string Name => "/uxtree";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
@@ -212,7 +212,7 @@ namespace RPGFramework.Commands
         public string Name => "/uxbarchart";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
-        public IEnumerable<string> Aliases => new List<string>() { "/uxbar" };
+        public IEnumerable<string> Aliases => [ "/uxbar" ];
         public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
@@ -242,7 +242,7 @@ namespace RPGFramework.Commands
         public string Name => "/uxcanvas";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
-        public IEnumerable<string> Aliases => new List<string>() { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         // Change code in here to experiment with the RPGPanel UX component
@@ -253,7 +253,7 @@ namespace RPGFramework.Commands
                 return false;
 
             // We can make it as certain width/height
-            Canvas canvas = new Canvas(16, 16);
+            Canvas canvas = new(16, 16);
 
             // We can set pixels at a certain location to different colors.
             // This loop creates an "X" and creates borders

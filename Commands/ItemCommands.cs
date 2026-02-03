@@ -26,7 +26,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/item";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
@@ -68,21 +68,25 @@ namespace RPGFramework.Commands
         {
             // Make sure not < 4
 
-            Item i = new Item();
-            i.Name = parameters[2];
-            i.Id = Convert.ToInt32(parameters[3]);
-            i.Description = parameters[4];
-            i.DisplayText = parameters[5];
-            i.IsDroppable = Convert.ToBoolean(parameters[6]);
-            i.IsDroppable = Convert.ToBoolean(parameters[7]);
-            i.Level = Convert.ToInt32(parameters[8]);
-            i.Name = parameters[9];
-            i.Tags = parameters[10].Split(",").ToList();
-            i.UsesRemaining = Convert.ToInt32(parameters[11]);
-            i.Value = Convert.ToDouble(parameters[12]);
-            i.Weight = Convert.ToDouble(parameters[13]);
-            i.SpawnChance = Convert.ToDouble(parameters[14]);
-            i.UseSpeed = Convert.ToDouble(parameters[15]);
+            // CODE REVIEW: Brayden, Tyler
+            // The boolean and double conversions here could throw exceptions if the input is invalid.
+            // I'm not sure what element 9 is supposed to be since Name is already at 2.
+            Item i = new()
+            {
+                Name = parameters[2],
+                Id = Convert.ToInt32(parameters[3]),
+                Description = parameters[4],
+                DisplayText = parameters[5],
+                IsDroppable = Convert.ToBoolean(parameters[6]),
+                IsGettable = Convert.ToBoolean(parameters[7]),
+                Level = Convert.ToInt32(parameters[8]),
+                Tags = [.. parameters[10].Split(",")],
+                Value = Convert.ToDouble(parameters[12]),
+                Weight = Convert.ToDouble(parameters[13]),
+                SpawnChance = Convert.ToDouble(parameters[14]),
+                UseSpeed = Convert.ToDouble(parameters[15])
+            };
+
 
 
             //int = Convert.ToInt32(parameters[+]);
