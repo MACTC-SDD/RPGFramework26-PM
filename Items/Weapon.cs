@@ -5,19 +5,24 @@ namespace RPGFramework
 {
     internal class Weapon : Item
     {
-        public int Damage { get; set; } = 0;
+        public int MaxDamage { get; set; } = 0;
+        public int MaxDice { get; set; } = 0;
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
         public bool ammmoleft { get; set; } = true;
-        public int range { get; set; } = 0;
+        public bool range { get; set; } = false;
         public double Speed { get; set; } = 0;
         public double weight { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
+        // COMBAT AND CORE TEAM: speed is not needed or important in any way
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
+        // COMBAT AND CORE TEAM: already done
 
         //ADD THE STAFFS AND GLASS BOTTLES
+        // COMBAT AND CORE TEAM: glass bottles should do a max of 4 with a max dice of 1
+        // COMBAT AND CORE TEAM: staff should do a max of 6 with a max dice of 1
 
 
         public void WeaponDamage()
@@ -25,43 +30,59 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Bow:
-                    Damage = 30;
+                    MaxDamage = 6;
+                    MaxDice = 1;
+                    range = true;
                     break;
                 case WeaponType.Flail:
-                    Damage = 25;
+                    MaxDamage = 8;
+                    MaxDice = 1;
                     break;
                 case WeaponType.Hands:
-                    Damage = 10;
+                    MaxDamage = 1;
+                    MaxDice = 1;
                     break;
                 case WeaponType.Crossbow:
-                    Damage = 35;
+                    MaxDamage = 8;
+                    MaxDice = 1;
+                    range = true;
                     break;
                 case WeaponType.Knife:
-                    Damage = 20;
+                    MaxDamage = 4;
+                    MaxDice = 1;
                     break;
                 case WeaponType.LongSword:
-                    Damage = 35;
+                    MaxDamage = 8;
+                    MaxDice = 1;
                     break;
                 case WeaponType.Sword:
-                    Damage = 30;
+                    MaxDamage = 8;
+                    MaxDice = 2;
                     break;
                 case WeaponType.Mace:
-                    Damage = 20;
+                    MaxDamage = 6;
+                    MaxDice = 1;
                     break;
                 case WeaponType.Musket:
-                    Damage = 50;
+                    MaxDamage = 12;
+                    MaxDice = 1;
+                    range = true;
                     break;
                 case WeaponType.Rock:
-                    Damage = 15;
+                    MaxDamage = 4;
+                    MaxDice = 1;
                     break;
                 case WeaponType.ShortSword:
-                    Damage = 20;
+                    MaxDamage = 6;
+                    MaxDice = 1;
                     break;
                 case WeaponType.Spear:
-                    Damage = 25;
+                    MaxDamage = 6;
+                    MaxDice = 1;
                     break;
                 case WeaponType.WarAxe:
-                    Damage = 35;
+                    MaxDamage = 12;
+                    MaxDice = 1;
                     break;
             }
         }
@@ -106,7 +127,7 @@ namespace RPGFramework
             }
         }
 
-        public void WeaponRange()
+        /*public void WeaponRange()
         {
             switch (this.WeaponType)
             {
@@ -150,10 +171,11 @@ namespace RPGFramework
                     range = 5;
                     break;
             }
-        }
+        }*/
+        // COMBAT AND CORE TEAM: range should just be a bool to see if it can add strenght to damage
 
 
-        public void SetWeaponsSpeed()
+        /*public void SetWeaponsSpeed()
         {
             switch (this.WeaponType)
             {
@@ -197,9 +219,10 @@ namespace RPGFramework
                     Speed = 1;
                     break;
             }
-        }
+        } */
 
-
+        // COMBAT AND CORE TEAM: weight is once again changed to pounds for consistancy
+        // COMBAT AND CORE TEAM: and to make it make sense to both the players and anyone coding
         public void WeaponWeight()
         {
             switch (this.WeaponType)
@@ -208,43 +231,56 @@ namespace RPGFramework
                     Weight = 0;
                     break;
                 case WeaponType.Bow:
-                    Weight = 5;
-                    break;
-                case WeaponType.Sword:
-                    Weight = 5;
-                    break;
-                case WeaponType.Musket:
-                    Weight = 25;
-                    break;
-                case WeaponType.Crossbow:
-                    Weight = 15;
-                    break;
-                case WeaponType.Flail:
-                    Weight = 8;
-                    break;
-                case WeaponType.Knife:
                     Weight = 2;
                     break;
-                case WeaponType.LongSword:
-                    Weight = 10;
-                    break;
-                case WeaponType.Mace:
+                case WeaponType.Sword:
                     Weight = 6;
                     break;
-                case WeaponType.Rock:
+                case WeaponType.Musket:
+                    Weight = 10;
+                    break;
+                case WeaponType.Crossbow:
+                    Weight = 5;
+                    break;
+                case WeaponType.Flail:
+                    Weight = 2;
+                    break;
+                case WeaponType.Knife:
                     Weight = 1;
+                    break;
+                case WeaponType.LongSword:
+                    Weight = 3;
+                    break;
+                case WeaponType.Mace:
+                    Weight = 4;
+                    break;
+                case WeaponType.Rock:
+                    Weight = 10;
                     break;
                 case WeaponType.ShortSword:
-                    Weight = 1;
+                    Weight = 2;
                     break;
                 case WeaponType.Spear:
-                    Weight = 8;
+                    Weight = 3;
                     break;
                 case WeaponType.WarAxe:
-                    Weight = 10;
+                    Weight = 7;
                     break;
             }
         }
+        public int RollDamage()
+        {
+            int totalDamage = 0;
+    
+    for(int i = 0; i < this.MaxDice; i++)
+	{
+                Random rand = new Random();
+                int roll = rand.Next(1, this.MaxDamage);
+                totalDamage += roll;
+            }
+            return totalDamage;
+        }
+
     }
 }
 

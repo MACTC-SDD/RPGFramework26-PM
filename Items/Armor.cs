@@ -3,12 +3,16 @@ namespace RPGFramework
 {
     internal class Armor : Item
     {
-        public int protection { get; set; } = 0;
+        public int AC { get; set; } = 0;
         public int Durability { get; set; } = 20;
         public double weight { get; set; } = 0;
         public bool Equipped { get; set; } = false;
         public ArmorType ArmorType { get; set; }
-
+        public int ACBonus { get; set; } = 0;
+        public bool HasDex { get; set; } = false;
+        public int DexMax { get; set; } = 10;
+        // COMBAT AND CORE TEAM: Armor Durability and Protection did not fit with how combat was run, and weight was unrealistic
+        // COMBAT AND CORE TEAM: additinally there was some armor that when looking at the material properties did not make sense having the protection score they had as well as weight
         public void ArmorDurablility()
         {
             switch (ArmorType)
@@ -51,71 +55,91 @@ namespace RPGFramework
             switch (ArmorType)
             {
                 case ArmorType.Rags:
-                    protection = 10;
+                    AC = 10;
+                    HasDex = true;
+                    DexMax = 10;
                     break;
                 case ArmorType.Hide:
-                    protection = 25;
+                    AC = 12;
+                    HasDex = true;
+                    DexMax = 2;
                     break;
                 case ArmorType.ChainMail:
-                    protection = 50;
+                    AC = 16;
+                    HasDex = false;
+                    DexMax = 0;
                     break;
                 case ArmorType.LightIron:
-                    protection = 75;
+                    AC = 14;
+                    HasDex = true;
+                    DexMax = 2;
                     break;
                 case ArmorType.MediumIron:
-                    protection = 100;
+                    AC = 15;
+                    HasDex = true;
+                    DexMax = 2;
                     break;
                 case ArmorType.HeavyIron:
-                    protection = 150;
+                    AC = 18;
+                    HasDex = false;
+                    DexMax = 0;
                     break;
                 case ArmorType.Gold:
-                    protection = 200;
+                    AC = 8;
+                    HasDex = false;
+                    DexMax = 0;
+                    // COMBAT AND CORE TEAM: gold can be bent with your hands, its not stopping a sword
                     break;
                 case ArmorType.Fur:
-                    protection = 25;
+                    AC = 11;
+                    HasDex = true;
+                    DexMax = 10;
                     break;
                 case ArmorType.Scale:
-                    protection = 125;
+                    AC = 14;
+                    HasDex = true;
+                    DexMax = 2;
                     break;
                 case ArmorType.Shield:
-                    protection = 50;
+                    ACBonus = 5;
                     break;
             }
         }
 
         public void ArmorWeight()
         {
+            // COMBAT AND CORE TEAM: weight is now in pounds and based on either DnD or some other game
             switch (ArmorType)
             {
                 case ArmorType.Rags:
                     Weight = 2;
                     break;
                 case ArmorType.Hide:
-                    Weight = 5;
+                    Weight = 12;
                     break;
                 case ArmorType.ChainMail:
-                    Weight = 10;
+                    Weight = 55;
                     break;
                 case ArmorType.LightIron:
-                    Weight = 10;
-                    break;
-                case ArmorType.MediumIron:
                     Weight = 20;
                     break;
-                case ArmorType.HeavyIron:
-                    Weight = 35;
-                    break;
-                case ArmorType.Gold:
+                case ArmorType.MediumIron:
                     Weight = 40;
                     break;
-                case ArmorType.Fur:
-                    Weight = 8;
+                case ArmorType.HeavyIron:
+                    Weight = 65;
                     break;
-                case ArmorType.Scale:
+                case ArmorType.Gold:
+                    Weight = 150;
+                    break;
+                case ArmorType.Fur:
                     Weight = 25;
                     break;
-                case ArmorType.Shield:
+                case ArmorType.Scale:
                     Weight = 45;
+                    break;
+                case ArmorType.Shield:
+                    Weight = 6;
                     break;
             }
         }

@@ -68,6 +68,8 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
+                    if (selectedWeapon != null)
+                        chosenTarget.TakeDamage(selectedWeapon.RollDamage());
                     // Here you would add logic to apply the attack or spell effects to the chosen target
                     // TODO Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
