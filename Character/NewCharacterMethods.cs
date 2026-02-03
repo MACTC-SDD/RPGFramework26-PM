@@ -6,11 +6,11 @@ namespace RPGFramework
 {
     internal abstract partial class Character
     {
-        public void DropItem(Character c, Item item)
+        public void DropItem(Item item)
         {
             // Remove the item from the character's backpack Items list
-            c.BackPack.Items.Remove(item);
-            c.GetRoom().Items.Add(item);
+            BackPack.Items.Remove(item);
+            GetRoom().Items.Add(item);
             item.IsDropped = true;
         }
         public static bool FleeCombat(Character character, CombatWorkflow combat)
@@ -18,13 +18,11 @@ namespace RPGFramework
             Random rand = new Random();
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
-            // if (true) // Rylan - fix, not sure what the linebelow means.
             {
-                //{e(character);
+                combat.Combatants.Remove(character);
+                character.CurrentWorkflow = null;
                 if (character is Player player)
                     player.WriteLine("You successfully fled the combat!");
-                character.FindCombat().Combatants.Remove(character);
-                character.CurrentWorkflow = null;
                 return true;
             }
             else
@@ -95,8 +93,7 @@ namespace RPGFramework
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
-                attacker.DropItem(attacker, weapon);
+                attacker.DropItem(weapon);
                 attacker.TakeDamage(1);
                 // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
                 //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
@@ -118,6 +115,65 @@ namespace RPGFramework
                     player.WriteLine($"You missed {target.Name}!");
             }
         }
-
+        public void OutOfCombatStatusProcessing()
+        {
+            if (!InCombat)
+            {
+                ProcessStatusEffects();
+            }
+        }
+        public void ProcessStatusEffects()
+        {
+            if (IsPetrified)
+            {
+                Petrified();
+            }
+            if (IsBleed)
+            {
+                Bleed();
+            }
+            if (IsBlind)
+            {
+                Blinded();
+            }
+            if (IsBurn)
+            {
+                Burn();
+            }
+            if (IsDeafened)
+            {
+                Deafened();
+            }
+            if (IsFreightened)
+            {
+                Freightened();
+            }
+            if (IsGappled)
+            {
+                Grappled();
+            }
+            if (IsParalyzed)
+            {
+                Paralyzed();
+            }
+            if (IsPoisoned)
+            {
+                Poisoned();
+            }
+            if (IsStun)
+            {
+                Stun();
+            }
+            if (IsUnconcious)
+            {
+                Unconscious();
+            }
+            if (IsIncapacitated)
+            {
+                Incapacitated();
+            }
+        }
     }
 }
+    
+

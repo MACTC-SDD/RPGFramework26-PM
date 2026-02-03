@@ -55,6 +55,8 @@ namespace RPGFramework
         private Task? _itemCleanUpTask;
         private CancellationTokenSource? _combatManagerCts;
         private Task? _combatManagerTask;
+        private CancellationTokenSource? _statusConditionManagerCts;
+        private Task? _statusConditionManagerTask;
 
         private int _tickCount = 0;
         private readonly int _logSuppressionSeconds = 30;
@@ -411,6 +413,9 @@ namespace RPGFramework
             _weatherCts = new CancellationTokenSource();
             _weatherTask = RunWeatherLoopAsync(TimeSpan.FromMinutes(1), _weatherCts.Token);
 
+            _statusConditionManagerCts = new CancellationTokenSource();
+            _statusConditionManagerTask = RunStatusConditionManagerLoopAsync(TimeSpan.FromSeconds(30), _statusConditionManagerCts.Token);
+
             _itemCleanUpCts = new CancellationTokenSource();
             _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
 
@@ -566,6 +571,29 @@ namespace RPGFramework
             }
 
             GameState.Log(DebugLevel.Alert, "Autosave thread stopping.");
+        }
+        #endregion
+
+        #region RunStatusConditionManagerLoopAsync
+        private async Task RunStatusConditionManagerLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Combat Manager thread started.");
+            while (ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    foreach (Character c in GameState.Instance.NPCCatalog.Values)
+                    {
+                        c.OutOfCombatStatusProcessing();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Alert, $"Error during status condition management: {ex.Message}");
+                }
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Status Effect Management thread stopping");
         }
         #endregion
 

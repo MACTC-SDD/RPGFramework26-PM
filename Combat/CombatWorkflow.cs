@@ -76,6 +76,14 @@ namespace RPGFramework.Workflows
                 c.CurrentWorkflow = this;
             }
         }
+
+        public void RollInitiative(Character c)
+        {
+            Random rand = new();
+            int initiativeRoll = rand.Next(1, 20);
+            int dexterityModifier = (c.Dexterity - 10) / 2;
+            c.Initiative = initiativeRoll + dexterityModifier;
+        }
         public Character ActiveCombatant { get; set; } = null!;
 
         public List<Character> Elf = [];
@@ -138,7 +146,7 @@ namespace RPGFramework.Workflows
             }
         }
 
-        public void InitiativeOrder(List<Character> combatants)
+        public void InitiativeOrder()
         {
             Combatants = [.. Combatants.OrderByDescending(c => c.Initiative)];
         }

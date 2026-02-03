@@ -42,6 +42,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        public bool InCombat { get; set; } = false;
         
         
         #endregion
@@ -107,7 +108,7 @@ namespace RPGFramework
         public void EngageCombat(bool inCombat)
         {
             IsEngaged = inCombat;
-
+            InCombat = inCombat;
         }
 
         /// <summary>
