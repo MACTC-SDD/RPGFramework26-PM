@@ -43,6 +43,7 @@ namespace RPGFramework
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
         public StatusCondition StatusConditon = StatusCondition.None;
+        public string Title { get; set; } = "";
         #endregion
 
         #region --- Skill Attributes --- (0-20)

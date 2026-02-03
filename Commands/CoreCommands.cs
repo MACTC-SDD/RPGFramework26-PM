@@ -44,6 +44,7 @@ namespace RPGFramework.Commands
                 new TrainCommand(),                
                 new EquipmentCommand(),
                 new ScoreCommand(),
+                new TitleCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -702,6 +703,26 @@ namespace RPGFramework.Commands
                 player.WriteLine($"================================");
                 player.WriteLine($" Class: {player.Class}");
                 player.WriteLine($" Level: {player.Level}");
+            }
+            return true;
+        }
+    }
+    internal class TitleCommand : ICommand
+    {
+        public string Name => "title";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "gives you a title";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (parameters.Count < 2)
+                {
+                    player.WriteLine($"you gotta type what your title is");
+                    return false;
+                }
+                player.Title = parameters[1];
+                player.WriteLine($"your title has been changed!");
             }
             return true;
         }
