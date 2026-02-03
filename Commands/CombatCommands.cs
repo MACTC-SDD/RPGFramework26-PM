@@ -175,7 +175,18 @@ namespace RPGFramework.Commands
                     Character enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
                     if (enemy == null)
                         return false;
-                    CombatWorkflow.CreateCombat(character, enemy);
+                    if (enemy.InCombat == true)
+                    {
+                        CombatWorkflow cw = enemy.FindCombat();
+                        character.CurrentWorkflow = cw;
+                        cw.RollInitiative(character);
+                        cw.SortCombatants();
+                        cw.InitiativeOrder();
+                    }
+                    else
+                    {
+                        CombatWorkflow.CreateCombat(character, enemy);
+                    }
                     return true;
                 }
             }

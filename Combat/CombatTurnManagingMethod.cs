@@ -94,7 +94,6 @@ namespace RPGFramework.Workflows
             foreach (Character c in Combatants)
             {
                 c.CurrentWorkflow = null;
-                ClearStatusEffects(c);
                 Combatants.Remove(c);
             }
 
@@ -129,7 +128,7 @@ namespace RPGFramework.Workflows
             return af;
         }
         #region StatusEffectMethods
-        private void ProcessStatusEffects(Character c)
+        public void ProcessStatusEffects(Character c)
         {
             if (c.IsPetrified)
             {
@@ -180,7 +179,7 @@ namespace RPGFramework.Workflows
                 c.Incapacitated();
             }
         }
-        private void ClearStatusEffects(Character c)
+        /*private void ClearStatusEffects(Character c)
         {
             c.IsBleed = false;
             c.IsBlind = false;
@@ -194,7 +193,8 @@ namespace RPGFramework.Workflows
             c.IsPetrified = false;
             c.IsStun = false;
             c.IsUnconcious = false;
-        }
+        }*/
+        
         #endregion
     }
 }

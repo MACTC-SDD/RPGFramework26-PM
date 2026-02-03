@@ -8,11 +8,11 @@ namespace RPGFramework
 {
     internal abstract partial class Character
     {
-        public void DropItem(Character c, Item item)
+        public void DropItem(Item item)
         {
             // Remove the item from the character's backpack Items list
-            c.BackPack.Items.Remove(item);
-            c.GetRoom().Items.Add(item);
+            BackPack.Items.Remove(item);
+            GetRoom().Items.Add(item);
             item.IsDropped = true;
         }
         public static bool FleeCombat(Character character, CombatWorkflow combat)
@@ -22,6 +22,7 @@ namespace RPGFramework
             if (fleeRoll >= 80)
             {
                 combat.Combatants.Remove(character);
+                character.CurrentWorkflow = null;
                 if (character is Player player)
                     player.WriteLine("You successfully fled the combat!");
                 return true;
@@ -91,7 +92,7 @@ namespace RPGFramework
                 if (a is Player player)
                     player.WriteLine($"You missed {t.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                a.DropItem(a, weapon);
+                a.DropItem(weapon);
                 a.TakeDamage(1);
             }
             else if (totalAttack >= tAC)
@@ -111,5 +112,14 @@ namespace RPGFramework
                     player.WriteLine($"You missed {t.Name}!");
             }
         }
+        public void OutOfCombatStatusProcessing()
+        {
+            if (!InCombat)
+            {
+                FindCombat().ProcessStatusEffects(this);
+            }
+        }
     }
 }
+    
+
