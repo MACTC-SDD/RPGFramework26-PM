@@ -48,6 +48,7 @@ namespace RPGFramework.Workflows
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
             if (ActiveCombatant is NonPlayer npc)
             {
+                npc.ProcessStatusEffects();
                 NonPlayer.TakeTurn(npc, this);
                 TurnTimer++;
             }
@@ -59,6 +60,8 @@ namespace RPGFramework.Workflows
                     if (PreviousActingCharacter == ActiveCombatant)
                     {
                         // update timer for player turns if it is the same player as the last run of this task
+                        if (TurnTimer == 1)
+                            ActiveCombatant.ProcessStatusEffects();
                         TurnTimer++;
                         if (TurnTimer >= 30)
                         {
@@ -91,7 +94,6 @@ namespace RPGFramework.Workflows
             foreach (Character c in Combatants)
             {
                 c.CurrentWorkflow = null;
-                c.EngageCombat(false);
                 Combatants.Remove(c);
             }
 
@@ -124,6 +126,7 @@ namespace RPGFramework.Workflows
                 af++;
 
             return af;
-        }        
+        }
+        
     }
 }

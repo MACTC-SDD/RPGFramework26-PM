@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 
 namespace RPGFramework
 {
@@ -12,26 +10,14 @@ namespace RPGFramework
 
     internal partial class Player
     {
-        public List<Spell> Spellbook { get; set; } = new List<Spell>();
-        public List<Item> Inventory { get; set; } = new List<Item>();
+        public List<Spell> Spellbook { get; set; } = [];
+
+        // Isn't this a duplicate of Character.Backpack?
+        public List<Item> Inventory { get; set; } = [];
 
         public List<Consumable> GetConsumables()
-                    {
-            List<Consumable> consumables = new List<Consumable>();
-            foreach (Item item in Inventory)
-            {
-                if (item is Consumable consumable)
-                {
-                    consumables.Add(consumable);
-                }
-            }
-            return consumables;
+        {
+            return [.. Inventory.OfType<Consumable>()];
         }
-    }
-
-    internal class Consumable : Item
-    {
-        public int HealAmount { get; set; } = 0;
-        public int UsesLeft { get; set; }
     }
 }

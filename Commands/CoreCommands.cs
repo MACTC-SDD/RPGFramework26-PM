@@ -25,6 +25,7 @@ namespace RPGFramework.Commands
             return
             [
                 new AFKCommand(),
+                new ExamineCommand(),
                 new IpCommand(),
                 new LookCommand(),
                 new QuitCommand(),
@@ -43,6 +44,8 @@ namespace RPGFramework.Commands
                 new LevelCommand(),
                 new TrainCommand(),                
                 new EquipmentCommand(),
+                new ScoreCommand(),
+                new TitleCommand(),
                 new InvCommand(),
                 new GetCommand(),
                 new DropCommand(),
@@ -296,7 +299,7 @@ namespace RPGFramework.Commands
     internal class UseCommand : ICommand
     {
         public string Name => "use";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -310,20 +313,17 @@ namespace RPGFramework.Commands
             // is it consum
 
             Item? i = player.BackPack.GetItemByName(parameters[1]);
-            Consumable? c = null;
 
-            if (i == null || i is not Consumable)
+            if (i == null || i is not Consumable c)
             {
                 // not coukgt find
             }
             else
             {
-                c = (Consumable)i;
                 if (c.UsesLeft > 0)
                 {
                     c.UsesLeft--;
                     //c.Use();
-
                 }
             }
 
@@ -481,14 +481,14 @@ namespace RPGFramework.Commands
     internal class TimeCommand : ICommand
     {
         public string Name => "time";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
             {
-                player.WriteLine($"The time is {GameState.Instance.GameDate.ToShortTimeString()}");
+                player.WriteLine($"The time is {GameState.Instance.GameDate:t}");
                 return true;
             }
             return false;
@@ -548,7 +548,7 @@ namespace RPGFramework.Commands
 
                 List<string> helpTopics = [];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
+                List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
                 helpKeys.Sort();
                 foreach (string key in helpKeys)
                 {
@@ -570,9 +570,9 @@ namespace RPGFramework.Commands
                     helpTopics.ElementAtOrDefault(1) ?? "",
                     helpTopics.ElementAtOrDefault(2) ?? "",
                     helpTopics.ElementAtOrDefault(3) ?? "");
-                    Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
-                    player.Write(panel);
                 }
+                Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
+                player.Write(panel);
             }
             else
             {
@@ -618,7 +618,7 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                player.WriteLine($"You have {player.XP} XP. You need  {Player.Levels[player.Level].RequiredXp - player.XP} XP");
                 return true;
             }
             return false;
@@ -862,7 +862,9 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You are level {player.Level} you will gain an additional {player.Levels[player.Level].Health} health and you will have {player.Levels[player.Level].StatPoints} points upon level up.");
+                player.WriteLine($"You are level {player.Level} you will gain an additional "
+                    + $"{Player.Levels[player.Level].Health} health and you will have " + 
+                    $"{Player.Levels[player.Level].StatPoints} points upon level up.");
                 return true;
             }
             return false;
@@ -952,6 +954,75 @@ namespace RPGFramework.Commands
                 break;
             }
             return false;
+        }
+    }
+    internal class ScoreCommand : ICommand
+    {
+        public string Name => "score";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "shows your bonus stats";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"================================");
+                player.WriteLine($"  Name: {player.Name}");
+                player.WriteLine($"================================");
+                player.WriteLine($" Class: {player.Class}");
+                player.WriteLine($" Level: {player.Level}");
+            }
+            return true;
+        }
+    }
+    internal class TitleCommand : ICommand
+    {
+        public string Name => "title";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "gives you a title";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine($"you gotta type what your title is");
+                return false;
+            }
+            player.Title = parameters[1];
+            player.WriteLine($"your title has been changed!");
+            return true;
+        }
+    }
+
+    internal class ExamineCommand : ICommand
+    {         public string Name => "examine";
+        public IEnumerable<string> Aliases => [ "ex", "exa" ];
+        public string Help => "Examine an item in detail.\nUsage: examine <item name>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Examine what?");
+                return false;
+            }
+            string itemName = parameters[1];
+            //if (player.GetRoom().Find TODO: implement FindItem method
+            Item? item = player.GetRoom().Items
+                .FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.CurrentCultureIgnoreCase));
+            if (item == null)
+            {
+                player.WriteLine($"There is no '{itemName}' here to examine.");
+                return false;
+            }
+            Panel panel = RPGPanel.GetPanel(item.Description, item.Name);
+            player.Write(panel);
+            return true;
         }
     }
 }

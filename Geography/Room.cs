@@ -88,12 +88,14 @@ namespace RPGFramework.Geography
             Exit exit = new()
             {
                 Id = Exit.GetNextId(AreaId),
+                // Set area ids so cross-area exits keep their origin/destination areas
+                SourceAreaId = AreaId,
                 SourceRoomId = Id,
+                DestinationAreaId = destinationRoom.AreaId,
                 DestinationRoomId = destinationRoom.Id,
                 ExitDirection = direction,
                 Description = exitDescription
             };
-
             // Keep ExitType default unless modified later.
             // Apply sensible open/close defaults based on ExitType
             exit.ApplyDefaultsForType();
@@ -107,7 +109,10 @@ namespace RPGFramework.Geography
                 Exit exit1 = new()
                 {
                     Id = Exit.GetNextId(destinationRoom.AreaId),
+                    // set area ids for the return exit as well
+                    SourceAreaId = destinationRoom.AreaId,
                     SourceRoomId = destinationRoom.Id,
+                    DestinationAreaId = AreaId,
                     DestinationRoomId = Id,
                     ExitDirection = Navigation.GetOppositeDirection(direction)
                 };

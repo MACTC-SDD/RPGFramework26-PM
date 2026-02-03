@@ -3,11 +3,11 @@ namespace RPGFramework
 {
     internal class Armor : Item
     {
-        public int protection { get; set; } = 0;
-        public int Durability { get; set; } = 20;
-        public double weight { get; set; } = 0;
-        public bool Equipped { get; set; } = false;
         public ArmorType ArmorType { get; set; }
+        public int Durability { get; set; } = 20;
+        public int CurrentDurability { get; set; }
+        public bool Equipped { get; set; } = false;
+        public int Protection { get; set; } = 0;
 
         public void ArmorDurablility()
         {
@@ -46,39 +46,39 @@ namespace RPGFramework
             }
         }
 
-        public void Armorprotection()
+        public void ArmorProtection()
         {
             switch (ArmorType)
             {
                 case ArmorType.Rags:
-                    protection = 10;
+                    Protection = 10;
                     break;
                 case ArmorType.Hide:
-                    protection = 25;
+                    Protection = 25;
                     break;
                 case ArmorType.ChainMail:
-                    protection = 50;
+                    Protection = 50;
                     break;
                 case ArmorType.LightIron:
-                    protection = 75;
+                    Protection = 75;
                     break;
                 case ArmorType.MediumIron:
-                    protection = 100;
+                    Protection = 100;
                     break;
                 case ArmorType.HeavyIron:
-                    protection = 150;
+                    Protection = 150;
                     break;
                 case ArmorType.Gold:
-                    protection = 200;
+                    Protection = 200;
                     break;
                 case ArmorType.Fur:
-                    protection = 25;
+                    Protection = 25;
                     break;
                 case ArmorType.Scale:
-                    protection = 125;
+                    Protection = 125;
                     break;
                 case ArmorType.Shield:
-                    protection = 50;
+                    Protection = 50;
                     break;
             }
         }
@@ -88,34 +88,34 @@ namespace RPGFramework
             switch (ArmorType)
             {
                 case ArmorType.Rags:
-                    Weight = 2;
+                    base.Weight = 2;
                     break;
                 case ArmorType.Hide:
-                    Weight = 5;
+                    base.Weight = 5;
                     break;
                 case ArmorType.ChainMail:
-                    Weight = 10;
+                    base.Weight = 10;
                     break;
                 case ArmorType.LightIron:
-                    Weight = 10;
+                    base.Weight = 10;
                     break;
                 case ArmorType.MediumIron:
-                    Weight = 20;
+                    base.Weight = 20;
                     break;
                 case ArmorType.HeavyIron:
-                    Weight = 35;
+                    base.Weight = 35;
                     break;
                 case ArmorType.Gold:
-                    Weight = 40;
+                    base.Weight = 40;
                     break;
                 case ArmorType.Fur:
-                    Weight = 8;
+                    base.Weight = 8;
                     break;
                 case ArmorType.Scale:
-                    Weight = 25;
+                    base.Weight = 25;
                     break;
                 case ArmorType.Shield:
-                    Weight = 45;
+                    base.Weight = 45;
                     break;
             }
         }

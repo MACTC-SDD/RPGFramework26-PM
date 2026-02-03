@@ -1,5 +1,6 @@
 ﻿using RPGFramework.Commands;
 using RPGFramework.Geography;
+using RPGFramework;
 
 namespace RPGFramework.Workflows
 {
@@ -68,12 +69,21 @@ namespace RPGFramework.Workflows
                 int dexterityModifier = (c.Dexterity - 10) / 2;
                 c.Initiative = initiativeRoll + dexterityModifier;
             }
-            InitiativeOrder(Combatants);
+            //InitiativeOrder(Combatants);
+            InitiativeOrder();
             foreach (Character c in Combatants)
             {
                 c.EngageCombat(true);
                 c.CurrentWorkflow = this;
             }
+        }
+
+        public void RollInitiative(Character c)
+        {
+            Random rand = new();
+            int initiativeRoll = rand.Next(1, 20);
+            int dexterityModifier = (c.Dexterity - 10) / 2;
+            c.Initiative = initiativeRoll + dexterityModifier;
         }
         public Character ActiveCombatant { get; set; } = null!;
 
@@ -137,7 +147,7 @@ namespace RPGFramework.Workflows
             }
         }
 
-        public void InitiativeOrder(List<Character> combatants)
+        public void InitiativeOrder()
         {
             Combatants = [.. Combatants.OrderByDescending(c => c.Initiative)];
         }
@@ -221,6 +231,7 @@ namespace RPGFramework.Workflows
                             case "3":
                             case "items":
                                 player.WriteLine("You open your inventory:");
+                                // Rylan - See my note in ChooseItem about filtering by type.
                                 foreach (Consumable item in player.Inventory)
                                 {
                                     player.WriteLine($"- {item.Name}");
