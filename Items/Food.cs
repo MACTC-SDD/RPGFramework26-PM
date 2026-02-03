@@ -7,7 +7,6 @@ namespace RPGFramework.Items
 {
     internal class Food : Consumable
     {
-        public int HealAmount { get; set; } = 0;
         public int StackAmount { get; set; } = 1;
         public int StackMax { get; set; } = 10;
 

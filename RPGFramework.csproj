@@ -38,6 +38,14 @@
   <ItemGroup>
     <Folder Include="data_seed\catalogs\" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\mabrowncd\source\repos\RPGFramework26-PM\.editorconfig" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <None Include="C:\Users\mabrowncd\source\repos\RPGFramework26-PM\.editorconfig" />
+  </ItemGroup>
 
 
 </Project>

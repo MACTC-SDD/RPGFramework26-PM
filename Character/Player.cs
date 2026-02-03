@@ -25,23 +25,25 @@ namespace RPGFramework
         public TimeSpan PlayTime { get; set; } = new TimeSpan();
         public PlayerRole PlayerRole { get; set; }
 
-        public List<LevelEntry> Levels { get { return _levels; } }
+        [JsonIgnore] public static List<LevelEntry> Levels { get { return _levels; } }
+
         #endregion
 
         #region --- Fields ---
-        private List<LevelEntry> _levels = new List<LevelEntry>()
-        {
-            new LevelEntry () {RequiredXp = 0, StatPoints = 0, Health = 0},
-            new LevelEntry () {RequiredXp = 500, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 1000, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 1500, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 2000, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 2500, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 3000, StatPoints = 1, Health = 25},
-            new LevelEntry () {RequiredXp = 3500, StatPoints = 1, Health = 25}
-        };
-        #endregion
+        private static readonly List<LevelEntry> _levels =
+        [
+            new() {RequiredXp = 0, StatPoints = 0, Health = 0},
+            new() {RequiredXp = 500, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 1000, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 1500, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 2000, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 2500, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 3000, StatPoints = 1, Health = 25},
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25}
+        ];
 
+        #endregion
+       
         public string DisplayName()
         {
             // We could add colors and other things later, for now, just afk
@@ -110,6 +112,11 @@ namespace RPGFramework
             IsOnline = true;
             LastLogin = DateTime.Now; 
             Console = CreateAnsiConsole();
+            if (Class != null 
+                && GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c))
+            {
+                Class = c ?? null;
+            }
         }
 
         
@@ -204,7 +211,7 @@ namespace RPGFramework
         {
             if (XP > _levels[Level].RequiredXp)
             {
-                MaxHealth = MaxHealth + _levels[Level].Health;
+                MaxHealth += _levels[Level].Health;
                 Health = MaxHealth;
                 StatPoints += _levels[Level].StatPoints;
                 Level++;

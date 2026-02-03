@@ -1,6 +1,5 @@
 ﻿
 using RPGFramework.Display;
-using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
@@ -25,6 +24,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public double DamageResistance { get; set; } = 1.0;
         public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
@@ -37,12 +37,16 @@ namespace RPGFramework
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
-        public CharacterClass Class { get; set; } = CharacterClass.None;
-        public List<Armor> EquippedArmor { get; set; } = [];
+        public Armor EquippedArmor { get; set; }
+        public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
         public StatusCondition StatusConditon = StatusCondition.None;
+        public string Title { get; set; } = "";
+        public bool InCombat { get; set; } = false;
+        
+        
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -63,6 +67,13 @@ namespace RPGFramework
             Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
+
+            if (Class != null)
+            {
+                GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c);
+                if (c != null)
+                    Class = c;
+            }
         }
 
         #region Consider Method
@@ -99,7 +110,7 @@ namespace RPGFramework
         public void EngageCombat(bool inCombat)
         {
             IsEngaged = inCombat;
-
+            InCombat = inCombat;
         }
 
         /// <summary>
@@ -155,7 +166,7 @@ namespace RPGFramework
         // Remove some amount from health
         public void TakeDamage(int damage)
         {
-            SetHealth(Health - damage);
+            SetHealth(Health - (int)Math.Ceiling((double)damage / DamageResistance));
         }
 
         // Add some amount to health

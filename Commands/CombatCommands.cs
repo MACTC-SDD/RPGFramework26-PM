@@ -1,10 +1,12 @@
 ﻿using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
+using RPGFramework;
 
 
 namespace RPGFramework.Commands
 {
+    
     internal class CombatCommands
     {
         public static List<ICommand> GetAllCommands()
@@ -49,7 +51,9 @@ namespace RPGFramework.Commands
             return Comm.SendToIfPlayer(character, character.Consider(c));
         }
     }
+    #endregion
 
+    #region CombatStatusCommand Class
     internal class CombatStatusCommand : ICommand
     {
 
@@ -84,9 +88,6 @@ namespace RPGFramework.Commands
                     return false;
             }
         }
-
-
-
         
         private bool ShowCombatStatus(Player p, List<string> parameters)
         {
@@ -115,7 +116,9 @@ namespace RPGFramework.Commands
             }
         }
     }
+    #endregion
 
+    #region StartCombatCommand
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
@@ -124,8 +127,19 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
+            if (parameters.Count < 2)
+                return false; // Need a target to attack
 
-            List<string> attackableNonPlayers = [];
+            Character? target = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
+            if (target == null)
+            {
+                Comm.SendToIfPlayer(character, "They are not here to attack.");
+                return false;
+            }
+            CombatWorkflow.CreateCombat(character, target);
+            return true;
+
+            /*List<string> attackableNonPlayers = [];
 
             foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
@@ -153,12 +167,22 @@ namespace RPGFramework.Commands
                     Character? enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
                     if (enemy == null)
                         return false;
-
-                    CombatWorkflow.CreateCombat(character, enemy);
+                    if (enemy.InCombat == true)
+                    {
+                        CombatWorkflow cw = enemy.FindCombat();
+                        character.CurrentWorkflow = cw;
+                        cw.RollInitiative(character);
+                        cw.SortCombatants();
+                        cw.InitiativeOrder();
+                    }
+                    else
+                    {
+                        CombatWorkflow.CreateCombat(character, enemy);
+                    }
                     return true;
                 }
             }
-            return false;
+            return false;*/
         }
     }
 
@@ -183,7 +207,7 @@ namespace RPGFramework.Commands
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
                 player.WriteLine("You do not have permission to use this command.");
-                    return false;
+                return false;
             }
 
             string subcommand = parameters.ElementAt(1) ?? "";
@@ -203,22 +227,18 @@ namespace RPGFramework.Commands
                     player.WriteLine("You provided a subselect that does not exist");
                     return false;
                 case 3:
-                    Player? target = null;
+                    Player? target = GameState.Instance.GetPlayerByName(parameters[2]);
                     if (subcommand == "start")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
-                        // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
-                        // AdminStartCombatUntargeted(target); 
+                        // AdminStartCombatUntargeted(target);
+                        // apparently this method got deleted at somepoint
                         return true;
                     }
 
                     if (subcommand == "end")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
 
@@ -246,6 +266,8 @@ namespace RPGFramework.Commands
                         Character? target2 = Room.FindCharacterInRoom(player.GetRoom(), parameters[3]);
                         if (target2 != null && target1 != null)
                         {
+                            // AdminStartCombatTargeted(target1, target2);
+                            // apparently this method got deleted at somepoint
                             return true;
                         }
                         return false;

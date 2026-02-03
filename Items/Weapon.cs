@@ -8,10 +8,10 @@ namespace RPGFramework
         public int Damage { get; set; } = 0;
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
-        public bool ammmoleft { get; set; } = true;
+        public int CurrentDurability { get; set; }
+        public bool AmmoLeft { get; set; } = true;
         public int Range { get; set; } = 0;
         public double Speed { get; set; } = 0;
-        public double weight { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // Implement attack methods
@@ -353,43 +353,43 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    Weight = 0;
+                    base.Weight = 0;
                     break;
                 case WeaponType.Bow:
-                    Weight = 5;
+                    base.Weight = 5;
                     break;
                 case WeaponType.Sword:
-                    Weight = 5;
+                    base.Weight = 5;
                     break;
                 case WeaponType.Musket:
-                    Weight = 25;
+                    base.Weight = 25;
                     break;
                 case WeaponType.Crossbow:
-                    Weight = 15;
+                    base.Weight = 15;
                     break;
                 case WeaponType.Flail:
-                    Weight = 8;
+                    base.Weight = 8;
                     break;
                 case WeaponType.Knife:
-                    Weight = 2;
+                    base.Weight = 2;
                     break;
                 case WeaponType.LongSword:
-                    Weight = 10;
+                    base.Weight = 10;
                     break;
                 case WeaponType.Mace:
-                    Weight = 6;
+                    base.Weight = 6;
                     break;
                 case WeaponType.Rock:
-                    Weight = 1;
+                    base.Weight = 1;
                     break;
                 case WeaponType.ShortSword:
-                    Weight = 1;
+                    base.Weight = 1;
                     break;
                 case WeaponType.Spear:
-                    Weight = 8;
+                    base.Weight = 8;
                     break;
                 case WeaponType.WarAxe:
-                    Weight = 10;
+                    base.Weight = 10;
                     break;
                 case WeaponType.GlassBottle:
                     Weight = 1;

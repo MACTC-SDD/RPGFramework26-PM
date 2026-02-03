@@ -25,6 +25,7 @@ namespace RPGFramework.Commands
             return
             [
                 new AFKCommand(),
+                new ExamineCommand(),
                 new IpCommand(),
                 new LookCommand(),
                 new QuitCommand(),
@@ -43,6 +44,8 @@ namespace RPGFramework.Commands
                 new LevelCommand(),
                 new TrainCommand(),                
                 new EquipmentCommand(),
+                new ScoreCommand(),
+                new TitleCommand(),
                 new InvCommand(),
                 new GetCommand(),
                 new DropCommand(),
@@ -214,42 +217,93 @@ namespace RPGFramework.Commands
             if (character is not Player player)
                 return false;
 
-            List<Armor> armorItems = [];
-            foreach (Item i in player.BackPack.Items)
+
+            if (parameters.Count < 2)
             {
-                if (i is Armor a)
-                { armorItems.Add(a); }
+                player.WriteLine("Backpackitems");
+                foreach (Item i in player.BackPack.Items)
+                {
+                    player.WriteLine(i.Name);
+                    return false;
+                }
             }
-            List<Weapon> weaponItems = new List<Weapon>();
-            foreach (Item i in player.BackPack.Items)
+            else
             {
-                if (i is Weapon a)
-                { weaponItems.Add(a); }
-            }
-            List <Food> foodItems = new List<Food>();
-            foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Food a)
-                { foodItems.Add(a); }
-            }
-            List<Potion> potionItems = new List<Potion>();
-            foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Potion a)
-                { potionItems.Add(a); }
+                List<Armor> armorItems = [];
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Armor a)
+                    { armorItems.Add(a); }
+                }
+                List<Weapon> weaponItems = new List<Weapon>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Weapon a)
+                    { weaponItems.Add(a); }
+                }
+                List<Food> foodItems = new List<Food>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Food a)
+                    { foodItems.Add(a); }
+                }
+                List<Potion> potionItems = new List<Potion>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Potion a)
+                    { potionItems.Add(a); }
+                }
             }
 
 
 
-            return false;
+            return true;
         }
     }
+
+    internal class EquipCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Equip an item.\nUsage: Equip <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to equip");
+            }
+
+            // find item
+            Item? i = character.FindItem(parameters[1]);
+
+            if (i == null)
+            {
+                player.WriteLine("No item to equip");
+                return false;
+            }
+            else
+            {
+                player.BackPack.Items.Remove(i);
+                player.WriteLine($"Equipped {i}");
+
+            }
+            return true;
+
+
+        }
+    }
+
     internal class UseCommand : ICommand
     {
         public string Name => "use";
-        public IEnumerable<string> Aliases => new List<string> { };
-        public string Help => "USe an item.\nUsage: use";
-        public bool Execute(Character character, List<string> parameters)
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Use an item.\nUsage: use <item name>";
+
+public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
@@ -263,31 +317,27 @@ namespace RPGFramework.Commands
             // find item
             Consumable? i = character.FindConsumable(parameters[1]);
 
-            if (i == null || i is not Consumable)
+            if (i == null || i is not Consumable c)
             {
                 player.WriteLine("Nothing to use");
                 return false;
             }
             else
-            {
-                
+            {                
                 if (i.UsesLeft > 0)
                 {
                    i.UsesLeft--;
-                    player.BackPack.Items.Remove(i);
                     player.WriteLine($"Used {i}");
                 }
-                else
+                
+                if (i.UsesLeft < 1)
                 {
+                    player.BackPack.Items.Remove(i);
                     player.WriteLine("No uses remaining");
-                    return false;
                 }
             }
 
             return true;
-
-
-
         }
     }
 
@@ -438,14 +488,14 @@ namespace RPGFramework.Commands
     internal class TimeCommand : ICommand
     {
         public string Name => "time";
-        public IEnumerable<string> Aliases => new List<string> { };
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
             {
-                player.WriteLine($"The time is {GameState.Instance.GameDate.ToShortTimeString()}");
+                player.WriteLine($"The time is {GameState.Instance.GameDate:t}");
                 return true;
             }
             return false;
@@ -505,7 +555,7 @@ namespace RPGFramework.Commands
 
                 List<string> helpTopics = [];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                List<string> helpKeys = GameState.Instance.HelpCatalog.Keys.ToList();
+                List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
                 helpKeys.Sort();
                 foreach (string key in helpKeys)
                 {
@@ -527,9 +577,9 @@ namespace RPGFramework.Commands
                     helpTopics.ElementAtOrDefault(1) ?? "",
                     helpTopics.ElementAtOrDefault(2) ?? "",
                     helpTopics.ElementAtOrDefault(3) ?? "");
-                    Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
-                    player.Write(panel);
                 }
+                Panel panel = RPGPanel.GetPanel(table, "[mediumpurple2] Help Topics[/]");
+                player.Write(panel);
             }
             else
             {
@@ -575,7 +625,7 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You have {player.XP} XP. You need  {player.Levels[player.Level].RequiredXp - player.XP} XP");
+                player.WriteLine($"You have {player.XP} XP. You need  {Player.Levels[player.Level].RequiredXp - player.XP} XP");
                 return true;
             }
             return false;
@@ -819,7 +869,9 @@ namespace RPGFramework.Commands
         {
             if (character is Player player)
             {
-                player.WriteLine($"You are level {player.Level} you will gain an additional {player.Levels[player.Level].Health} health and you will have {player.Levels[player.Level].StatPoints} points upon level up.");
+                player.WriteLine($"You are level {player.Level} you will gain an additional "
+                    + $"{Player.Levels[player.Level].Health} health and you will have " + 
+                    $"{Player.Levels[player.Level].StatPoints} points upon level up.");
                 return true;
             }
             return false;
@@ -909,6 +961,75 @@ namespace RPGFramework.Commands
                 break;
             }
             return false;
+        }
+    }
+    internal class ScoreCommand : ICommand
+    {
+        public string Name => "score";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "shows your bonus stats";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"================================");
+                player.WriteLine($"  Name: {player.Name}");
+                player.WriteLine($"================================");
+                player.WriteLine($" Class: {player.Class}");
+                player.WriteLine($" Level: {player.Level}");
+            }
+            return true;
+        }
+    }
+    internal class TitleCommand : ICommand
+    {
+        public string Name => "title";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "gives you a title";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine($"you gotta type what your title is");
+                return false;
+            }
+            player.Title = parameters[1];
+            player.WriteLine($"your title has been changed!");
+            return true;
+        }
+    }
+
+    internal class ExamineCommand : ICommand
+    {         public string Name => "examine";
+        public IEnumerable<string> Aliases => [ "ex", "exa" ];
+        public string Help => "Examine an item in detail.\nUsage: examine <item name>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Examine what?");
+                return false;
+            }
+            string itemName = parameters[1];
+            //if (player.GetRoom().Find TODO: implement FindItem method
+            Item? item = player.GetRoom().Items
+                .FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.CurrentCultureIgnoreCase));
+            if (item == null)
+            {
+                player.WriteLine($"There is no '{itemName}' here to examine.");
+                return false;
+            }
+            Panel panel = RPGPanel.GetPanel(item.Description, item.Name);
+            player.Write(panel);
+            return true;
         }
     }
 }
