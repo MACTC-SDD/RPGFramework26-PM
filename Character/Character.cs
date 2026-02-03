@@ -42,6 +42,8 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
+        public StatusCondition StatusConditon = StatusCondition.None;
+        public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
         
         

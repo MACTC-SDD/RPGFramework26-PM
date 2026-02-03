@@ -44,6 +44,8 @@ namespace RPGFramework.Commands
                 new LevelCommand(),
                 new TrainCommand(),                
                 new EquipmentCommand(),
+                new ScoreCommand(),
+                new TitleCommand(),
                 new InvCommand(),
                 new GetCommand(),
                 new DropCommand(),
@@ -907,6 +909,41 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+    internal class ScoreCommand : ICommand
+    {
+        public string Name => "score";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "shows your bonus stats";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"================================");
+                player.WriteLine($"  Name: {player.Name}");
+                player.WriteLine($"================================");
+                player.WriteLine($" Class: {player.Class}");
+                player.WriteLine($" Level: {player.Level}");
+            }
+            return true;
+        }
+    }
+    internal class TitleCommand : ICommand
+    {
+        public string Name => "title";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "gives you a title";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (parameters.Count < 2)
+                {
+                    player.WriteLine($"you gotta type what your title is");
+                    return false;
+                }
+                player.Title = parameters[1];
+                player.WriteLine($"your title has been changed!");
+            }
     internal class ExamineCommand : ICommand
     {         public string Name => "examine";
         public IEnumerable<string> Aliases => [ "ex", "exa" ];
