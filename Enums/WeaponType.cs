@@ -19,12 +19,12 @@ namespace RPGFramework.Enums
         Bow,
         Crossbow,
         Musket,
-        Fire_Staff,
-        Light_Staff,
-        Ice_Staff,
-        Glass_Bottle,
-        Dark_Staff,
-        Air_Staff,
-        Earth_Staff
+        FireStaff,
+        LightStaff,
+        IceStaff,
+        GlassBottle,
+        DarkStaff,
+        AirStaff,
+        EarthStaff
     }
 }
