@@ -73,6 +73,9 @@ namespace RPGFramework.Commands
                 default:
                     ShowHelp(player);
                     break;
+                case "arealist":
+                    return RoomSetArea(player, parameters);
+
             }
 
             return true;
@@ -128,6 +131,9 @@ namespace RPGFramework.Commands
             player.WriteLine("/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type");
             player.WriteLine("/room set exit open <exitId> <open|close> - Open or close this exit (doors only)");
             player.WriteLine("/room area exit <areaId> '<exit description>'  - Create a cross-area exit to specified area (creates a new room in target area).");
+            player.WriteLine("/room area list [[areaId]]               - List all rooms in an area");
+            player.WriteLine("/room set area description <areaId>:<roomId> '<desc>'");
+
             //to see tags and desc and name etc, just do /room <name of thing> and nothing after
 
             return false;
@@ -637,7 +643,71 @@ namespace RPGFramework.Commands
 
             player.WriteLine("Room tags set: " + string.Join(", ", room.Tags));
         }
+        private static bool RoomAreaList(Player player, List<string> parameters)
+        {
+            int areaId = player.AreaId;
 
+            if (parameters.Count >= 4 && !int.TryParse(parameters[3], out areaId))
+            {
+                player.WriteLine("Invalid area id.");
+                return false;
+            }
+
+            if (!GameState.Instance.Areas.TryGetValue(areaId, out Area? area))
+            {
+                player.WriteLine($"Area {areaId} not found.");
+                return false;
+            }
+
+            if (area.Rooms.Count == 0)
+            {
+                player.WriteLine($"Area {areaId} has no rooms.");
+                return true;
+            }
+
+            player.WriteLine($"Rooms in Area {areaId}:");
+
+            foreach (var room in area.Rooms.Values.OrderBy(r => r.Id))
+            {
+                int exitCount = room.ExitIds?.Count ?? 0;
+                player.WriteLine($"  [{room.Id}] {room.Name} (Exits: {exitCount})");
+            }
+
+            return true;
+        }
+        private static bool RoomSetArea(Player player, List<string> parameters)
+        {
+            // /room set area description <areaId>:<roomId> '<desc>'
+            if (parameters.Count < 6)
+            {
+                player.WriteLine("Usage: /room set area description <areaId>:<roomId> '<description>'");
+                return false;
+            }
+
+            if (parameters[3].ToLower() != "description")
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+
+            if (!Room.TryParseId(parameters[4], player.AreaId, out int roomId, out int areaId))
+            {
+                player.WriteLine("Invalid room id format. Use <roomId> or <areaId>:<roomId>.");
+                return false;
+            }
+
+            if (!GameState.Instance.Areas.TryGetValue(areaId, out Area? area)
+                || !area.Rooms.TryGetValue(roomId, out Room? room))
+            {
+                player.WriteLine($"Room not found (Area {areaId}, Room {roomId}).");
+                return false;
+            }
+
+            room.Description = parameters[5];
+            player.WriteLine($"Room {areaId}:{roomId} description updated.");
+            return true;
+        }
         #region RoomAdd Method
         /// <summary>
         /// Add an exit from the player's current room to an existing room.
@@ -966,6 +1036,7 @@ namespace RPGFramework.Commands
                 player.WriteLine($"Error creating area exit: {ex.Message}");
                 return false;
             }
+
         }
         #endregion
     }
@@ -1200,7 +1271,11 @@ namespace RPGFramework.Commands
             }//this code above very specifically needs [[ ]] instead of [ ]
             return true;
         }
-        #endregion
+        
+       
+
+
     }
+    #endregion
     #endregion
 }
