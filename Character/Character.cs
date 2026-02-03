@@ -25,6 +25,7 @@ namespace RPGFramework
         #region --- Properties ---
         public bool Alive { get; set; } = true;
         public int AreaId { get; set; } = 0;
+        public double DamageResistance { get; set; } = 1.0;
         public CombatFaction CombatFaction { get; set; }
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
@@ -42,7 +43,7 @@ namespace RPGFramework
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
-        public StatusCondition StatusConditon = StatusCondition.None;
+        
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -162,7 +163,7 @@ namespace RPGFramework
         // Remove some amount from health
         public void TakeDamage(int damage)
         {
-            SetHealth(Health - damage);
+            SetHealth(Health - (int)Math.Ceiling((double)damage / DamageResistance));
         }
 
         // Add some amount to health

@@ -1,5 +1,6 @@
 ﻿using RPGFramework.Commands;
 using RPGFramework.Geography;
+using RPGFramework;
 
 namespace RPGFramework.Workflows
 {
