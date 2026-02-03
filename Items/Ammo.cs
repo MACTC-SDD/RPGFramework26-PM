@@ -8,6 +8,7 @@ namespace RPGFramework.Items
     {
         public int Amount { get; set; } = 0;
         public int MaxAmount { get; set; } = 50;
+        public int UsesRemaining { get; set; } = -1; // -1 means unlimited uses
 
     }
 }

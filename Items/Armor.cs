@@ -9,6 +9,45 @@ namespace RPGFramework
         public bool Equipped { get; set; } = false;
         public ArmorType ArmorType { get; set; }
 
+        public void ArmorValue()
+        {
+            switch (ArmorType)
+            {
+                case ArmorType.Rags:
+                    Value = 3;
+                    break;
+                case ArmorType.Hide:
+                    Value = 5;
+                    break;
+                case ArmorType.ChainMail:
+                    Value = 10;
+                    break;
+                case ArmorType.LightIron:
+                    Value = 15;
+                    break;
+                case ArmorType.MediumIron:
+                    Value = 17;
+                    break;
+                case ArmorType.HeavyIron:
+                    Value = 20;
+                    break;
+                case ArmorType.Gold:
+                    Value = 25;
+                    break;
+                case ArmorType.Fur:
+                    Value = 15;
+                    break;
+                case ArmorType.Scale:
+                    Value = 25;
+                    break;
+                case ArmorType.Shield:
+                    Value = 15;
+                    break;
+            }
+        }
+
+
+
         public void ArmorDurablility()
         {
             switch (ArmorType)
