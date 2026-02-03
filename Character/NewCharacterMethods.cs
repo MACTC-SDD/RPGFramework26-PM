@@ -88,7 +88,7 @@ namespace RPGFramework
             {
                 target.TakeDamage(totalDamage * 2);
                 target.ReduceDurabilityArmor(target.EquippedArmor, target.EquippedArmor.Durability / 16);
-                target.WriteLine("Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
+                Comm.SendToIfPlayer(target, "Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
             }
             else if (attackRoll == 1)
             {
@@ -98,8 +98,8 @@ namespace RPGFramework
                 // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
                 attacker.DropItem(attacker, weapon);
                 attacker.TakeDamage(1);
-                attacker.ReduceDurabilityWeapon(attacker.selectedWeapon, (attacker.selectedWeapon.Durability / 16));
-                attacker.WriteLine("Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
+                // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
+                //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {

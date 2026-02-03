@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Spectre.Console;
 
-namespace RPGFramework.Character
+namespace RPGFramework
 {
-    internal class DurabilityReduction
+    internal partial class Character
     {
         public void ReduceDurabilityArmor(Armor ca, int amout)
         {
