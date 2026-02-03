@@ -8,8 +8,8 @@ namespace RPGFramework
 {
     internal abstract partial class Character
     {
-        public int HitPenalty { get; set; } = 0;
-        public int HealPenalty { get; set; } = 0;
+        //public int HitPenalty { get; set; } = 0;
+        //public int HealPenalty { get; set; } = 0;
         public void Poisoned()
         {
             if (this.CountPoisoned == 0)

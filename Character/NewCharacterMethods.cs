@@ -1,9 +1,6 @@
 ﻿using System;
 ﻿using RPGFramework.Workflows;
-using RPGFramework.Combat;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace RPGFramework
 {
@@ -21,17 +18,20 @@ namespace RPGFramework
             Random rand = new Random();
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
-            {e(character);
-                if (character is Player player)
-                    player.WriteLine("You successfully fled the combat!");
-                return true;
-            }
-            else
-            {
-                if (character is Player player)
-                    player.WriteLine("You failed to flee the combat!");
-                return false;
-            }
+                if (true) // Rylan - fix, not sure what the linebelow means.
+                {
+                    //{e(character);
+                    if (character is Player player)
+                        player.WriteLine("You successfully fled the combat!");
+                    return true;
+                }
+                else
+                {
+                    if (character is Player player)
+                        player.WriteLine("You failed to flee the combat!");
+                    return false;
+                }
+            return false;
         }
 
         public static void RollToHitS(Character attacker, Spell weapon, Character target)

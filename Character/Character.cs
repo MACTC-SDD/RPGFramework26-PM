@@ -1,6 +1,5 @@
 ﻿
 using RPGFramework.Display;
-using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
