@@ -12,13 +12,12 @@ namespace RPGFramework
         public bool ammmoleft { get; set; } = true;
         public bool range { get; set; } = false;
         public double Speed { get; set; } = 0;
-        public double weight { get; set; } = 0;
+        public double Weight { get; set; } = 0;
         // TODO
         // Add attack properties (damage, speed, etc.)
         // COMBAT AND CORE TEAM: speed is not needed or important in any way
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
-        // COMBAT AND CORE TEAM: already done
 
         //ADD THE STAFFS AND GLASS BOTTLES
         // COMBAT AND CORE TEAM: glass bottles should do a max of 4 with a max dice of 1
@@ -132,43 +131,43 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    range = 2;
+                    Range = 2;
                     break;
                 case WeaponType.Bow:
-                    range = 15;
+                    Range = 15;
                     break;
                 case WeaponType.Crossbow:
-                    range = 20;
+                    Range = 20;
                     break;
                 case WeaponType.Flail:
-                    range = 5;
+                    Range = 5;
                     break;
                 case WeaponType.Knife:
-                    range = 2;
+                    Range = 2;
                     break;
                 case WeaponType.LongSword:
-                    range = 7;
+                    Range = 7;
                     break;
                 case WeaponType.ShortSword:
-                    range = 4;
+                    Range = 4;
                     break;
                 case WeaponType.Sword:
-                    range = 5;
+                    Range = 5;
                     break;
                 case WeaponType.Mace:
-                    range = 4;
+                    Range = 4;
                     break;
                 case WeaponType.Musket:
-                    range = 35;
+                    Range = 35;
                     break;
                 case WeaponType.Rock:
-                    range = 10;
+                    Range = 10;
                     break;
                 case WeaponType.Spear:
-                    range = 15;
+                    Range = 15;
                     break;
                 case WeaponType.WarAxe:
-                    range = 5;
+                    Range = 5;
                     break;
             }
         }*/
@@ -228,7 +227,7 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    Weight = 0;
+                    base.Weight = 0;
                     break;
                 case WeaponType.Bow:
                     Weight = 2;

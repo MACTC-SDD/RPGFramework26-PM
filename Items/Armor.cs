@@ -5,7 +5,6 @@ namespace RPGFramework
     {
         public int AC { get; set; } = 0;
         public int Durability { get; set; } = 20;
-        public double weight { get; set; } = 0;
         public bool Equipped { get; set; } = false;
         public ArmorType ArmorType { get; set; }
         public int ACBonus { get; set; } = 0;
@@ -50,7 +49,7 @@ namespace RPGFramework
             }
         }
 
-        public void Armorprotection()
+        public void ArmorProtection()
         {
             switch (ArmorType)
             {
@@ -112,7 +111,7 @@ namespace RPGFramework
             switch (ArmorType)
             {
                 case ArmorType.Rags:
-                    Weight = 2;
+                    base.Weight = 2;
                     break;
                 case ArmorType.Hide:
                     Weight = 12;

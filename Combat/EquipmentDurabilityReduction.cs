@@ -43,7 +43,7 @@ namespace RPGFramework.Combat
 
         public bool IsCrit()
         {
-            Random rand = new Random();
+            Random rand = new();
 
             int randomNumber = rand.Next(0, 20);
             if (randomNumber == 20)

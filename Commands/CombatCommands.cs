@@ -12,7 +12,7 @@ namespace RPGFramework.Commands
             return
             [
                 new ConsiderCommand(),
-                new ComabtStatusCommand(),
+                new CombatStatusCommand(),
                 new StartCombatCommand(),
                 new CombatAdminControlsCommand()
             ];
@@ -50,46 +50,44 @@ namespace RPGFramework.Commands
         }
     }
 
-    internal class ComabtStatusCommand : ICommand
+    internal class CombatStatusCommand : ICommand
     {
 
         public string Name => "combatstatus";
-        public IEnumerable<string> Aliases => new List<string> { "/combatstatus", "/cs" };
+        public IEnumerable<string> Aliases => [ "cs" ];
+        public string Help => "Shows the combat status of all combatants in your current combat.";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
 
-
-            if (Utility.CheckPermission(player, PlayerRole.Admin))
-            {
-                switch (parameters.Count)
-                {
-                    case 1:
-                        player.WriteLine("Must choose a character to see the combat status");
-                        return false;
-
-                    case 2:
-
-                        return ShowCombatStatus(player, parameters);
-
-                    default:
-
-                        player.WriteLine("Must choose a character to see the combat status");
-                        return false;
-                }
-            }
-            else
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
             {
                 player.WriteLine("You do not have permission to use this command.");
                 return false;
             }
 
 
+            switch (parameters.Count)
+            {
+                case 1:
+                    player.WriteLine("Must choose a character to see the combat status");
+                    return false;
+
+                case 2:
+
+                    return ShowCombatStatus(player, parameters);
+
+                default:
+
+                    player.WriteLine("Must choose a character to see the combat status");
+                    return false;
+            }
         }
+        
         private bool ShowCombatStatus(Player p, List<string> parameters)
         {
-            CombatWorkflow currentCombat = null;
+            CombatWorkflow? currentCombat = null;
             foreach (CombatWorkflow combat in GameState.Instance.Combats)
             {
                 if (combat.Combatants.Contains(p))
@@ -115,6 +113,7 @@ namespace RPGFramework.Commands
         }
     }
 
+    // CODE REVIEW: Rylan - I think the logic here could be simplified a bit.
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
@@ -123,8 +122,19 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
+            if (parameters.Count < 2)
+                return false; // Need a target to attack
 
-            List<string> attackableNonPlayers = [];
+            Character? target = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
+            if (target == null)
+            {
+                Comm.SendToIfPlayer(character, "They are not here to attack.");
+                return false;
+            }
+            CombatWorkflow.CreateCombat(character, target);
+            return true;
+
+            /*List<string> attackableNonPlayers = [];
 
             foreach (NonPlayer npc in character.GetRoom().NonPlayers)
             {
@@ -148,35 +158,7 @@ namespace RPGFramework.Commands
             {
                 if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
                 {
-                    Character enemy = character.GetRoom().GetCharacters().Find(Character => Character.Name == parameters[1]);
-                    CombatWorkflow.CreateCombat(character, enemy);
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-
-    internal class CombatAdminControlsCommand : ICommand
-    {
-        public void AdminStartCombatUntargeted(Player player)
-        {
-            NonPlayer? target = null;
-            List<NonPlayer> possibleTargets = new List<NonPlayer>();
-            foreach (NonPlayer npc in player.GetRoom().GetNonPlayers())
-            {
-                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
-                {
-                    Character? enemy = Room.GetCharactersInRoom(character.GetRoom())
-                        .Find(Character => Character.Name == parameters[1]);
-
-                }
-            }
-            if (parameters.Count == 2)
-            {
-                if (attackablePlayers.Contains(parameters[1]) || attackableNonPlayers.Contains(parameters[1]))
-                {
+                    
                     Character? enemy = Room.FindCharacterInRoom(character.GetRoom(), parameters[1]);
                     if (enemy == null)
                         return false;
@@ -185,9 +167,10 @@ namespace RPGFramework.Commands
                     return true;
                 }
             }
-            return false;
+            return false;*/
         }
     }
+
     #endregion
 
     #region CombatAdminControlsCommand Class
@@ -209,7 +192,7 @@ namespace RPGFramework.Commands
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
                 player.WriteLine("You do not have permission to use this command.");
-                    return false;
+                return false;
             }
 
             string subcommand = parameters.ElementAt(1) ?? "";
@@ -229,11 +212,9 @@ namespace RPGFramework.Commands
                     player.WriteLine("You provided a subselect that does not exist");
                     return false;
                 case 3:
-                    Player? target = null;
+                    Player? target = GameState.Instance.GetPlayerByName(parameters[2]);
                     if (subcommand == "start")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
                         // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
@@ -243,8 +224,6 @@ namespace RPGFramework.Commands
 
                     if (subcommand == "end")
                     {
-                        target = GameState.Instance.GetPlayerByName(parameters[2]);
-
                         if (target == null)
                             return false;
 
@@ -262,14 +241,14 @@ namespace RPGFramework.Commands
                     player.WriteLine("You provided a subselect that does not exist");
                     return false;                
                 case 4:
-                    Player? target1 = null;
-                    Character? target2 = null;
                     if (subcommand == "start")
                     {
-                        target1 = GameState.Instance.GetPlayerByName(parameters[2]);
+                        Player? target1 = GameState.Instance.GetPlayerByName(parameters[2]);
                         if (target1 == null) return false;
 
-                        target2 = GameState.Instance.GetPlayerByName(parameters[3]);
+                        // Find the first matching character in the room
+                       
+                        Character? target2 = Room.FindCharacterInRoom(player.GetRoom(), parameters[3]);
                         if (target2 != null && target1 != null)
                         {
                             return true;

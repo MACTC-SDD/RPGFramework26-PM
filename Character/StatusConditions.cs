@@ -9,7 +9,8 @@ namespace RPGFramework
     // CODE REVIEW: Mr. Brown - no this cannot be removed as it is a stepping stool for both members of the combat team to work on the same thing
     internal partial class Character
     {
-        
+        public int HitPenalty { get; set; } = 0;
+        public int HealPenalty { get; set; } = 0;
         public void Poisoned()
         {
             // add a way to grant disadvantage or -7 to attack rolls
@@ -17,8 +18,8 @@ namespace RPGFramework
         }
         public void Burn()
         {
-            this.TakeDamage(this.MaxHealth / 16);
-            this.healPenalty = (int)Math.Ceiling((double)this.MaxHealth / 20);
+            TakeDamage(this.MaxHealth / 16);
+            HealPenalty -= MaxHealth / 20;
         }
         public void Blinded()
         {

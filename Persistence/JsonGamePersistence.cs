@@ -38,14 +38,14 @@ namespace RPGFramework.Persistence
 
         private static void CreateStarterArea()
         {
-            Area area = new Area
+            Area area = new()
             {
                 Id = 0,
                 Name = "Starter Area",
                 Description = "The first place new players enter."
             };
 
-            Room room = new Room
+            Room room = new()
             {
                 Id = 0,
                 AreaId = 0,
@@ -69,7 +69,7 @@ namespace RPGFramework.Persistence
             string runtimePlayersDir = Path.Combine(runtimeDataDir, "players");
             string runtimeCatalogsDir = Path.Combine(runtimeDataDir, "catalogs");
 
-            List<DirectoryInfo> dataDirectories = new List<DirectoryInfo>();
+            List<DirectoryInfo> dataDirectories = [];
             dataDirectories.Add(Directory.CreateDirectory(runtimeDataDir));
             dataDirectories.Add(Directory.CreateDirectory(runtimeAreasDir));
             dataDirectories.Add(Directory.CreateDirectory(runtimePlayersDir));

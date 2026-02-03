@@ -63,6 +63,13 @@ namespace RPGFramework
             Weapon w = new() 
               { MaxDamage = 1, MaxDice = 1, Description = "A Fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
+
+            if (Class != null)
+            {
+                GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c);
+                if (c != null)
+                    Class = c;
+            }
         }
 
         #region Consider Method
@@ -161,7 +168,29 @@ namespace RPGFramework
         // Add some amount to health
         public void Heal(int heal)
         {
-            SetHealth(Health + heal - healPenalty);
+            SetHealth(Health + heal - HealPenalty);
+        }
+
+        public Item? FindItem(string itemName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == itemName.ToLower());
+        }
+
+        public Item? FindItem(int itemId)
+        {
+            return BackPack.Items.Find(x => x.Id == itemId);
+        }
+
+        public Item? FindConsumable(string consumableName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == consumableName.ToLower() 
+            && x is Consumable);
+        }
+
+        public Item? FindConsumable(int consumableId)
+        {
+            return BackPack.Items.Find(x => x.Id == consumableId 
+            && x is Consumable);
         }
 
         public IRenderable ShowSummary()
