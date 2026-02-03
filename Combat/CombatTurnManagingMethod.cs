@@ -48,7 +48,7 @@ namespace RPGFramework.Workflows
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
             if (ActiveCombatant is NonPlayer npc)
             {
-                ProcessStatusEffects(npc);
+                npc.ProcessStatusEffects();
                 NonPlayer.TakeTurn(npc, this);
                 TurnTimer++;
             }
@@ -61,7 +61,7 @@ namespace RPGFramework.Workflows
                     {
                         // update timer for player turns if it is the same player as the last run of this task
                         if (TurnTimer == 1)
-                            ProcessStatusEffects(ActiveCombatant);
+                            ActiveCombatant.ProcessStatusEffects();
                         TurnTimer++;
                         if (TurnTimer >= 30)
                         {
@@ -127,74 +127,6 @@ namespace RPGFramework.Workflows
 
             return af;
         }
-        #region StatusEffectMethods
-        public void ProcessStatusEffects(Character c)
-        {
-            if (c.IsPetrified)
-            {
-                c.Petrified();
-            }
-            if (c.IsBleed)
-            {
-                c.Bleed();
-            }
-            if (c.IsBlind)
-            { 
-                c.Blinded();
-            }
-            if (c.IsBurn)
-            {
-                c.Burn();
-            }
-            if (c.IsDeafened)
-            {
-                c.Deafened();
-            }
-            if (c.IsFreightened)
-            {
-                c.Freightened();
-            }
-            if (c.IsGappled)
-            { 
-                c.Grappled();
-            }
-            if (c.IsParalyzed)
-            {
-                c.Paralyzed();
-            }
-            if (c.IsPoisoned)
-            { 
-                c.Poisoned();
-            }
-            if (c.IsStun)
-            { 
-                c.Stun();
-            }
-            if (c.IsUnconcious)
-            {
-                c.Unconscious();
-            }
-            if (c.IsIncapacitated)
-            {
-                c.Incapacitated();
-            }
-        }
-        /*private void ClearStatusEffects(Character c)
-        {
-            c.IsBleed = false;
-            c.IsBlind = false;
-            c.IsBurn = false;
-            c.IsDeafened = false;
-            c.IsFreightened = false;
-            c.IsGappled = false;
-            c.IsIncapacitated = false;
-            c.IsParalyzed = false;
-            c.IsPoisoned = false;
-            c.IsPetrified = false;
-            c.IsStun = false;
-            c.IsUnconcious = false;
-        }*/
         
-        #endregion
     }
 }

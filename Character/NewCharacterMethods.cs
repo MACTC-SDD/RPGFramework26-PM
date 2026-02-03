@@ -92,8 +92,8 @@ namespace RPGFramework
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                a.DropItem(weapon);
-                a.TakeDamage(1);
+                attacker.DropItem(weapon);
+                attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             {
@@ -116,7 +116,58 @@ namespace RPGFramework
         {
             if (!InCombat)
             {
-                FindCombat().ProcessStatusEffects(this);
+                ProcessStatusEffects();
+            }
+        }
+        public void ProcessStatusEffects()
+        {
+            if (IsPetrified)
+            {
+                Petrified();
+            }
+            if (IsBleed)
+            {
+                Bleed();
+            }
+            if (IsBlind)
+            {
+                Blinded();
+            }
+            if (IsBurn)
+            {
+                Burn();
+            }
+            if (IsDeafened)
+            {
+                Deafened();
+            }
+            if (IsFreightened)
+            {
+                Freightened();
+            }
+            if (IsGappled)
+            {
+                Grappled();
+            }
+            if (IsParalyzed)
+            {
+                Paralyzed();
+            }
+            if (IsPoisoned)
+            {
+                Poisoned();
+            }
+            if (IsStun)
+            {
+                Stun();
+            }
+            if (IsUnconcious)
+            {
+                Unconscious();
+            }
+            if (IsIncapacitated)
+            {
+                Incapacitated();
             }
         }
     }
