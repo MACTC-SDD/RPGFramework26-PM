@@ -14,6 +14,12 @@ namespace RPGFramework.Commands
         IEnumerable<string> Aliases { get; }
 
         /// <summary>
+        /// Instructions on how to use this command. These will be displayed
+        /// in the help system.
+        /// </summary>
+        string Help { get; }
+        
+        /// <summary>
         /// Execute the command.
         /// Returns true if the command was successfully handled.
         /// </summary>

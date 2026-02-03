@@ -16,24 +16,49 @@ namespace RPGFramework.Geography
 
         // Description of the room
         public string Description { get; set; } = "";
-        public List<Item> Items { get; set; } = new List<Item>();
+        public List<Item> Items { get; set; } = [];
 
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
 
+        public int MaxMobs {  get; set; } = 1; // Maximum number of Mob NPCs allowed in the room
+        public Dictionary<string, double> MobSpawnList { get; private set; } = []; // Mob name and spawn chance
+
         // Name of the room
         public string Name { get; set; } = "";
-       
-        public List<string> Tags { get; set; } = new List<string>(); // (for scripting or special behavior)
+
+        public List<NonPlayer> NonPlayers { get; set; } = [];
+
+        public List<string> Tags { get; set; } = []; // (for scripting or special behavior)
 
         // List of exits from the room
-        public List<int> ExitIds { get; set; } = new List<int>();
+        public List<int> ExitIds { get; set; } = [];
 
         #endregion --- Properties ---
 
         #region --- Methods ---
+
+        #region AddMobSpawn Method
+        public bool AddMobSpawn(string mobName, double spawnChance)
+        {
+            if (!GameState.Instance.MobCatalog.TryGetValue(mobName, out var mob))
+            {
+                return false; // Mob does not exist
+            }
+
+            if (mob == null || MobSpawnList.ContainsKey(mob.Name))
+            {
+                return false; // Mob already in spawn list
+            }
+
+            MobSpawnList.Add(mob.Name, spawnChance);
+            return true;
+        }
+        #endregion
+
+        #region AddExits Method
         /// <summary>
         /// This is for creating a new exit (and return exit), not linking existing exit items.
         /// </summary>
@@ -60,12 +85,15 @@ namespace RPGFramework.Geography
             }
 
             // Create a new Exit object from this room
-            Exit exit = new Exit();
-            exit.Id = Exit.GetNextId(AreaId);
-            exit.SourceRoomId = Id;
-            exit.DestinationRoomId = destinationRoom.Id;
-            exit.ExitDirection = direction;
-            exit.Description = exitDescription;
+            Exit exit = new()
+            {
+                Id = Exit.GetNextId(AreaId),
+                SourceRoomId = Id,
+                DestinationRoomId = destinationRoom.Id,
+                ExitDirection = direction,
+                Description = exitDescription
+            };
+
             // Keep ExitType default unless modified later.
             // Apply sensible open/close defaults based on ExitType
             exit.ApplyDefaultsForType();
@@ -76,11 +104,13 @@ namespace RPGFramework.Geography
             // Create a new exit from the destination room back to this room
             if (returnExit)
             {
-                Exit exit1 = new Exit();
-                exit1.Id = Exit.GetNextId(destinationRoom.AreaId);
-                exit1.SourceRoomId = destinationRoom.Id;
-                exit1.DestinationRoomId = Id;
-                exit1.ExitDirection = Navigation.GetOppositeDirection(direction);
+                Exit exit1 = new()
+                {
+                    Id = Exit.GetNextId(destinationRoom.AreaId),
+                    SourceRoomId = destinationRoom.Id,
+                    DestinationRoomId = Id,
+                    ExitDirection = Navigation.GetOppositeDirection(direction)
+                };
                 exit1.Description = exitDescription.Replace(direction.ToString(), exit1.ExitDirection.ToString());
                 // Mirror the exit type and defaults
                 exit1.ExitType = exit.ExitType;
@@ -90,6 +120,7 @@ namespace RPGFramework.Geography
                 GameState.Instance.Areas[destinationRoom.AreaId].Exits.Add(exit1.Id, exit1);
             }
         }
+        #endregion
 
         #region CheckForExit Methods (Static)
         /// <summary>
@@ -125,10 +156,12 @@ namespace RPGFramework.Geography
         /// <returns></returns>
         public static Room CreateRoom(int areaId, string name, string description)
         {
-            Room room = new Room();
-            room.Id = GetNextId(areaId);
-            room.Name = name;
-            room.Description = description;
+            Room room = new()
+            {
+                Id = GetNextId(areaId),
+                Name = name,
+                Description = description
+            };
             GameState.Instance.Areas[areaId].Rooms.Add(room.Id, room);
 
             return room;
@@ -140,6 +173,7 @@ namespace RPGFramework.Geography
         }
         #endregion
 
+        #region DeleteRoom Methods (Static)
         /// <summary>
         /// Delete a room (and its linked exits) from the specified area
         /// </summary>
@@ -151,8 +185,9 @@ namespace RPGFramework.Geography
             GameState.Instance.Areas[areaId].Rooms.Remove(roomId);
 
             // Remove all exits from the room
-            List<Exit> exits = GameState.Instance.Areas[areaId].Exits.Values
-                .Where(e => e.SourceRoomId == roomId || e.DestinationRoomId == roomId).ToList();
+            List<Exit> exits = [.. GameState.Instance.Areas[areaId]
+                    .Exits.Values
+                    .Where(e => e.SourceRoomId == roomId || e.DestinationRoomId == roomId)];
 
             foreach (Exit e in exits)
             {
@@ -164,19 +199,41 @@ namespace RPGFramework.Geography
         {
             DeleteRoom(room.AreaId, room.Id);
         }
+        #endregion
 
+        #region GetExits Methods 
         /// <summary>
         /// Return a list of Exit objects that are in this room.
         /// </summary>
         /// <returns></returns>
         public List<Exit> GetExits()
         {
-            // This works just like the loop in GetPlaysersInRoom, but is shorter
+            // This works just like the loop in GetPlayersInRoom, but is shorter
             // This style of list maniuplation is called "LINQ"
-            return GameState.Instance.Areas[AreaId].Exits.Values
-                .Where(e => e.SourceRoomId == Id).ToList();
+            return [.. GameState.Instance.Areas[AreaId].Exits.Values
+                .Where(e => e.SourceRoomId == Id)];
         }
+        #endregion
 
+        #region FindCharacterInRoom Method (Static)
+        public static Character? FindCharacterInRoom(Room room, string name)
+        {
+            // Search players first
+            Character? character = GetPlayersInRoom(room)
+                .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (character != null)
+            {
+                return character;
+            }
+
+            // Search NPCs next
+            character = room.NonPlayers
+                .FirstOrDefault(npc => npc.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return character;
+        }
+        #endregion
+
+        #region GetExitByName/Id Methods
         /// <summary>
         /// Returns the first exit in this room that matches the specified name.
         /// </summary>
@@ -195,7 +252,9 @@ namespace RPGFramework.Geography
         {
             return GetExits().Find(e => e.Id == id);
         }
+        #endregion
 
+        #region GetNextId Method (Static)
         /// <summary>
         /// Get the next available room ID for the specified area.
         /// </summary>
@@ -210,26 +269,7 @@ namespace RPGFramework.Geography
 
             return GameState.Instance.Areas[areaId].Rooms.Keys.Max() + 1;
         }
-
-        /// <summary>
-        /// Return a list of Player objects that are in this room.
-        /// </summary>
-        /// <note>
-        /// We have both an instance method (GetPlayers) and a static method (GetPlayersInRoom) that do the same thing.
-        /// </note>
-        /// <returns></returns>
-        public List<Player> GetPlayers()
-        {
-            return GetPlayersInRoom(this);
-        }
-        public List<NonPlayer> GetNonPlayers()
-        {
-            return GetCharactersInRoom(this);
-        }
-        public List<Character> GetCharacters()
-        {
-            return GetPlayers().Cast<Character>().Concat(GetNonPlayers().Cast<Character>()).ToList();
-        }
+        #endregion
 
         #region GetPlayersInRoom Method (Static)
         /// <summary>
@@ -240,7 +280,7 @@ namespace RPGFramework.Geography
         public static List<Player> GetPlayersInRoom(Room room)
         {
             // Loop through GameState.ConnectedPlayers and return a list of players in the room
-            List<Player> playersInRoom = new List<Player>();
+            List<Player> playersInRoom = [];
             foreach (Player p in GameState.Instance.Players.Values)
             {
                 if (p.IsOnline 
@@ -255,24 +295,18 @@ namespace RPGFramework.Geography
         }
         #endregion
 
-        public static List<NonPlayer> GetCharactersInRoom(Room room){ 
-            List<NonPlayer> charactersInRoom = [];
-
-            // CODE REVIEW: Rylan (PR #16)
-            // Since NPCs will be stored with the room, there will probably
-            // just be a loop through room.NPCs instead of GameState.
-            /*
-            foreach (NonPlayer npc in NPCList)
-            {
-                if (npc.AreaId == room.AreaId 
-                    && npc.LocationId == room.Id)
-                {
-                    charactersInRoom.Add(npc);
-                }
-            }
-            */
-            return charactersInRoom;
+        #region GetCharactersInRoom Method (Static)
+        /// <summary>
+        /// Return a list of both players and NPCs in the specified room
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
+        public static List<Character> GetCharactersInRoom(Room room)
+        { 
+            return [.. GetPlayersInRoom(room).Cast<Character>(),
+                .. room.NonPlayers.Cast<Character>()];
         }
+        #endregion
 
         #region FindReturnExit Methods (Static)
         public Exit? FindReturnExit(Exit exit)

@@ -13,7 +13,8 @@ namespace RPGFramework.Commands
     {
         public string Name => "/weapon";
 
-        public IEnumerable<string> Aliases => Array.Empty<string>();
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
