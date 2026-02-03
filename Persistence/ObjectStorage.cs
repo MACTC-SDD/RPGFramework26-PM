@@ -23,7 +23,7 @@ namespace RPGFramework.Persistence
 
                 string filePath = Path.Combine(path, fileName);
 
-                JsonSerializerOptions options = new JsonSerializerOptions
+                JsonSerializerOptions options = new()
                 {
                     WriteIndented = true
                 };
@@ -75,7 +75,7 @@ namespace RPGFramework.Persistence
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException($"The directory '{path}' doesn't exist");
 
-            List<T> objects = new List<T>();
+            List<T> objects = [];
 
             foreach (string file in Directory.EnumerateFiles(path))
             {

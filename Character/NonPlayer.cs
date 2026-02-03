@@ -1,4 +1,5 @@
-﻿using RPGFramework.Enums;
+﻿
+using RPGFramework.Enums;
 using RPGFramework.Workflows;
 
 namespace RPGFramework
@@ -40,25 +41,22 @@ namespace RPGFramework
             int? action = null;
             if (npc.HasElement == true)
             {
-                Random rand = new Random();
+                Random rand = new();
                 action = rand.Next(0, 3);
             }
             else
             {
-                Random rand = new Random();
+                Random rand = new();
                 action = rand.Next(0, 2);
             }
                 switch (action)
                 {
                 case 0:
                         // Attack
-                        Random rand = new Random();
+                        Random rand = new();
                         int targetIndex = rand.Next(0, combat.Combatants.Count-1);
                         Character target = combat.Combatants[targetIndex];
-                        if (target != null)
-                        {
-                            target.TakeDamage(npc.AttackPower);
-                        }
+                        target?.TakeDamage(npc.AttackPower);
                         break;
                 case 1:
                     //elemental attack(s)

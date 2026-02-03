@@ -14,6 +14,7 @@ namespace RPGFramework.Commands
             AdminCommands.GetAllCommands().ForEach(o => Register(o));
             ArmorCommands.GetAllCommands().ForEach(o => Register(o));
             BuilderCommands.GetAllCommands().ForEach(o => Register(o));
+            CCCommands.GetAllCommands().ForEach(o => Register(o));
             CombatCommands.GetAllCommands().ForEach(o => Register(o));
             CommunicationCommands.GetAllCommands().ForEach((o) => Register(o));
             CoreCommands.GetAllCommands().ForEach(o => Register(o));
@@ -21,6 +22,7 @@ namespace RPGFramework.Commands
             NavigationCommands.GetAllCommands().ForEach(o => Register(o));
             NpcCommands.GetAllCommands().ForEach(o => Register(o));
             TestCommands.GetAllCommands().ForEach(o => Register(o));
+            CharacterCommands.GetAllCommands().ForEach(o => Register(o));
             UXCommands.GetAllCommands().ForEach(o => Register(o));
         }
 
