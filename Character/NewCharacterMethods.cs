@@ -1,7 +1,5 @@
 ﻿using RPGFramework.Workflows;
-using RPGFramework;
 using System;
-﻿using RPGFramework.Workflows;
 
 
 namespace RPGFramework
@@ -20,20 +18,21 @@ namespace RPGFramework
             Random rand = new Random();
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
-                if (true) // Rylan - fix, not sure what the linebelow means.
-                {
-                    //{e(character);
-                    if (character is Player player)
-                        player.WriteLine("You successfully fled the combat!");
-                    return true;
-                }
-                else
-                {
-                    if (character is Player player)
-                        player.WriteLine("You failed to flee the combat!");
-                    return false;
-                }
-            return false;
+            // if (true) // Rylan - fix, not sure what the linebelow means.
+            {
+                //{e(character);
+                if (character is Player player)
+                    player.WriteLine("You successfully fled the combat!");
+                character.FindCombat().Combatants.Remove(character);
+                character.CurrentWorkflow = null;
+                return true;
+            }
+            else
+            {
+                if (character is Player player)
+                    player.WriteLine("You failed to flee the combat!");
+                return false;
+            }
         }
 
         public static void RollToHitS(Character attacker, Spell weapon, Character target)
@@ -48,6 +47,7 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, (target.EquippedArmor.Durability / 16));
             }
             else if (attackRoll == 1)
             {
@@ -87,6 +87,8 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, target.EquippedArmor.Durability / 16);
+                target.WriteLine("Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
             }
             else if (attackRoll == 1)
             {
@@ -96,6 +98,8 @@ namespace RPGFramework
                 // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
                 attacker.DropItem(attacker, weapon);
                 attacker.TakeDamage(1);
+                attacker.ReduceDurabilityWeapon(attacker.selectedWeapon, (attacker.selectedWeapon.Durability / 16));
+                attacker.WriteLine("Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {
@@ -114,5 +118,6 @@ namespace RPGFramework
                     player.WriteLine($"You missed {target.Name}!");
             }
         }
+
     }
 }
