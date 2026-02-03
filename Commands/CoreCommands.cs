@@ -34,6 +34,7 @@ namespace RPGFramework.Commands
                 new GetCommand(),
                 new DropCommand(),
                 new GiveCommand(),
+                new UseCommand(),
                 // Add other core commands here as they are implemented
             };
         }
@@ -233,32 +234,39 @@ namespace RPGFramework.Commands
     {
         public string Name => "use";
         public IEnumerable<string> Aliases => new List<string> { };
+        public string Help => "USe an item.\nUsage: use";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
                 return false;
 
-            // check if 2 params
-
-            // find obj in inv that matches p[1]
-
-            // is it consum
-
-            Item? i = player.BackPack.GetItemByName(parameters[1]);
-            Consumable? c = null;
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to use");
+                return false;
+            }
+     
+            // find item
+            Consumable? i = character.FindConsumable(parameters[1]);
 
             if (i == null || i is not Consumable)
             {
-                // not coukgt find
+                player.WriteLine("Nothing to use");
+                return false;
             }
             else
             {
-                c = (Consumable)i;
-                if (c.UsesLeft > 0)
+                
+                if (i.UsesLeft > 0)
                 {
-                    c.UsesLeft--;
-                    //c.Use();
-
+                   i.UsesLeft--;
+                    player.BackPack.Items.Remove(i);
+                    player.WriteLine($"Used {i}");
+                }
+                else
+                {
+                    player.WriteLine("No uses remaining");
+                    return false;
                 }
             }
 

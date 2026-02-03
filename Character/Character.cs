@@ -131,7 +131,7 @@ namespace RPGFramework
 
         public Item? FindItem(string itemName)
         {
-            return BackPack.Items.Find(x => x.Name.ToLower() == itemName.ToLower());
+            return BackPack.Items.Find(x => x.Name.Equals(itemName, StringComparison.CurrentCultureIgnoreCase));
         }
 
         public Item? FindItem(int itemId)
@@ -139,16 +139,18 @@ namespace RPGFramework
             return BackPack.Items.Find(x => x.Id == itemId);
         }
 
-        public Item? FindConsumable(string consumableName)
+        public Consumable? FindConsumable(string consumableName)
         {
-            return BackPack.Items.Find(x => x.Name.ToLower() == consumableName.ToLower() 
-            && x is Consumable);
+            return BackPack.Items.OfType<Consumable>()
+                .Where(x => x.Name.Equals(consumableName, StringComparison.CurrentCultureIgnoreCase))
+                .FirstOrDefault();
         }
 
-        public Item? FindConsumable(int consumableId)
+        public Consumable? FindConsumable(int consumableId)
         {
-            return BackPack.Items.Find(x => x.Id == consumableId 
-            && x is Consumable);
+            return BackPack.Items.OfType<Consumable>()
+                .Where(x => x.Id == consumableId)
+                .FirstOrDefault();
         }
 
     }
