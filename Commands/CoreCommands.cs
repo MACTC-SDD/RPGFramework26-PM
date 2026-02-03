@@ -43,6 +43,7 @@ namespace RPGFramework.Commands
                 new LevelCommand(),
                 new TrainCommand(),                
                 new EquipmentCommand(),
+                new ScoreCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -685,6 +686,24 @@ namespace RPGFramework.Commands
                 break;
             }
             return false;
+        }
+    }
+    internal class ScoreCommand : ICommand
+    {
+        public string Name => "score";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "shows your bonus stats";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"================================");
+                player.WriteLine($"  Name: {player.Name}");
+                player.WriteLine($"================================");
+                player.WriteLine($" Class: {player.Class}");
+                player.WriteLine($" Level: {player.Level}");
+            }
+            return true;
         }
     }
 }
