@@ -8,6 +8,7 @@ namespace RPGFramework
         public int Damage { get; set; } = 0;
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
+        public int CurrentDurability { get; set; }
         public bool AmmoLeft { get; set; } = true;
         public int Range { get; set; } = 0;
         public double Speed { get; set; } = 0;
