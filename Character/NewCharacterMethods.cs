@@ -1,22 +1,30 @@
 ﻿using RPGFramework.Workflows;
-using RPGFramework.Combat;
 using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace RPGFramework
 {
-    internal partial class Character
+    internal abstract partial class Character
     {
+        public void DropItem(Character c, Item item)
+        {
+            // Remove the item from the character's backpack Items list
+            c.BackPack.Items.Remove(item);
+            c.GetRoom().Items.Add(item);
+            item.IsDropped = true;
+        }
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {
             Random rand = new Random();
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
+            // if (true) // Rylan - fix, not sure what the linebelow means.
             {
-                combat.Combatants.Remove(character);
+                //{e(character);
                 if (character is Player player)
                     player.WriteLine("You successfully fled the combat!");
+                character.FindCombat().Combatants.Remove(character);
+                character.CurrentWorkflow = null;
                 return true;
             }
             else
@@ -39,6 +47,7 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, (target.EquippedArmor.Durability / 16));
             }
             else if (attackRoll == 1)
             {
@@ -78,13 +87,19 @@ namespace RPGFramework
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, target.EquippedArmor.Durability / 16);
+                Comm.SendToIfPlayer(target, "Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
             }
             else if (attackRoll == 1)
             {
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
+                // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
+                attacker.DropItem(attacker, weapon);
                 attacker.TakeDamage(1);
+                // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
+                //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {
@@ -103,5 +118,6 @@ namespace RPGFramework
                     player.WriteLine($"You missed {target.Name}!");
             }
         }
+
     }
 }

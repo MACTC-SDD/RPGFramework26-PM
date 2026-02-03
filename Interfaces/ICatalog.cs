@@ -30,6 +30,7 @@ namespace RPGFramework.Interfaces
         bool ContainsKey(TKey key);
         bool Remove(TKey key);
         bool TryGetValue(TKey key, out TValue? value);
+        bool TryGetValue(string keyString, out TValue? value);
     }
 }
 
