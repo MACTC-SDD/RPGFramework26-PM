@@ -24,12 +24,12 @@ namespace RPGFramework.Geography
             // (x, y) -> LocalMapCell
             var cells = new Dictionary<(int x, int y), LocalMapCell>();
 
-            // RoomId -> already visited
-            var visited = new HashSet<int>();
+            // (areaId, roomId) -> already visited (use tuple so rooms in other areas with same id are distinct)
+            var visited = new HashSet<(int areaId, int roomId)>();
 
             var queue = new Queue<(Room room, int x, int y, int dist)>();
             queue.Enqueue((startRoom, 0, 0, 0));
-            visited.Add(startRoom.Id);
+            visited.Add((startRoom.AreaId, startRoom.Id));
 
             while (queue.Count > 0)
             {
@@ -38,8 +38,9 @@ namespace RPGFramework.Geography
                 // Store cell for this room
                 cells[(x, y)] = new LocalMapCell
                 {
+                    AreaId = room.AreaId,
                     RoomId = room.Id,
-                    IsPlayerHere = room.Id == startRoom.Id,
+                    IsPlayerHere = room.Id == startRoom.Id && room.AreaId == startRoom.AreaId,
                     MapIcon = $"{room.MapColor}{room.MapIcon}[/]"
                 };
 
@@ -54,14 +55,25 @@ namespace RPGFramework.Geography
                     if (!Offsets.TryGetValue(exit.ExitDirection, out var delta))
                         continue;
 
-                    var nextRoom = area.Rooms[exit.DestinationRoomId];
-                    if (visited.Contains(nextRoom.Id))
+                    // Resolve destination room from the exit's destination area (handles cross-area exits)
+                    Room? nextRoom = null;
+                    if (GameState.Instance.Areas.TryGetValue(exit.DestinationAreaId, out var destArea))
+                    {
+                        destArea.Rooms.TryGetValue(exit.DestinationRoomId, out nextRoom);
+                    }
+
+                    // If destination not found, skip this exit
+                    if (nextRoom == null)
+                        continue;
+
+                    // Skip if we've already visited that specific area+room
+                    if (visited.Contains((nextRoom.AreaId, nextRoom.Id)))
                         continue;
 
                     var nx = x + delta.dx;
                     var ny = y + delta.dy;
 
-                    visited.Add(nextRoom.Id);
+                    visited.Add((nextRoom.AreaId, nextRoom.Id));
                     queue.Enqueue((nextRoom, nx, ny, dist + 1));
                 }
             }
@@ -127,6 +139,7 @@ namespace RPGFramework.Geography
 
         public sealed class LocalMapCell
         {
+            public int AreaId { get; init; }
             public int RoomId { get; init; }
             public bool IsPlayerHere { get; init; }
             public string MapIcon { get; init; } = DisplaySettings.RoomMapIcon;
