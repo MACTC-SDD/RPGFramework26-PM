@@ -93,8 +93,9 @@ namespace RPGFramework
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                a.DropItem(a, weapon);
-                a.TakeDamage(1);
+                // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
+                attacker.DropItem(attacker, weapon);
+                attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
             {

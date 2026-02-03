@@ -523,7 +523,7 @@ namespace RPGFramework
                         {
                             foreach (Item i in r.Items)
                             {
-                                if (i.IsDropped)
+                                if (i.IsDroppable)
                                     r.Items.Remove(i);
                             }
                         }

@@ -51,8 +51,9 @@ namespace RPGFramework.Commands
             return Comm.SendToIfPlayer(character, character.Consider(c));
         }
     }
-#endregion
+    #endregion
 
+    #region CombatStatusCommand Class
     internal class CombatStatusCommand : ICommand
     {
 
