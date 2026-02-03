@@ -27,6 +27,7 @@ namespace RPGFramework.Commands
         public string Name => "/room";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {
@@ -674,7 +675,7 @@ namespace RPGFramework.Commands
             int destAreaId = player.AreaId;
             int destRoomId;
             string destParam = parameters[3];
-            if (destParam.Contains(":"))
+            if (destParam.Contains(':'))
             {
                 string[] parts = destParam.Split(':');
                 if (parts.Length != 2
@@ -863,8 +864,8 @@ namespace RPGFramework.Commands
 
             Room r = player.GetRoom();
             player.WriteLine($"Name: {r.Name}");
-            player.WriteLine($"Id: {r.Id.ToString()}");
-            player.WriteLine($"Area Id: {r.AreaId.ToString()}");
+            player.WriteLine($"Id: {r.Id}");
+            player.WriteLine($"Area Id: {r.AreaId}");
             player.WriteLine($"Description: {r.Description}");
 
             // Show exits in the current room
@@ -878,22 +879,39 @@ namespace RPGFramework.Commands
             player.WriteLine("Exits:");
             foreach (var e in exits)
             {
-                // Resolve destination room by searching all areas (supports cross-area exits)
                 Room? destRoom = null;
+
+                // CODE REVIEW: Ashten - Since we are storing destination area and room, is there some reason
+                // We need to loop through every room in the game?
+                // I think we can just do:
+                if (GameState.Instance.Areas.TryGetValue(e.DestinationAreaId, out Area? destArea)
+                    && destArea != null)
+                {
+                    _ = destArea.Rooms.TryGetValue(e.DestinationRoomId, out destRoom);
+                }
+
+                /*
+                 * // Resolve destination room by searching all areas (supports cross-area exits)
+
                 int destAreaId = -1;
+
+
+
                 foreach (var kvp in GameState.Instance.Areas)
                 {
-                    if (kvp.Value.Rooms.ContainsKey(e.DestinationRoomId))
+                    if (kvp.Value.Rooms.TryGetValue(e.DestinationRoomId, out Room? value))
                     {
                         destAreaId = kvp.Key;
-                        destRoom = kvp.Value.Rooms[e.DestinationRoomId];
+                        destRoom = value;
                         break;
                     }
                 }
+                */
 
                 string destName = destRoom != null ? destRoom.Name : "Unknown";
                 // Show area:room id when available to avoid ambiguity across areas
-                string destId = destAreaId != -1 ? $"{destAreaId}:{e.DestinationRoomId}" : e.DestinationRoomId.ToString();
+                //string destId = destAreaId != -1 ? $"{destAreaId}:{e.DestinationRoomId}" : e.DestinationRoomId.ToString();
+                string destId = $"{e.DestinationAreaId}:{e.DestinationRoomId}";
 
                 // Include open/closed info
                 string openState = e.IsOpen ? "Open" : "Closed";
@@ -981,6 +999,7 @@ namespace RPGFramework.Commands
         public string Name => "/exit";
 
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
         {

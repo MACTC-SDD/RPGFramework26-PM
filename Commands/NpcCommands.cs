@@ -22,6 +22,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/mob";
         public IEnumerable<string> Aliases => [];
+        public string Help => "";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -46,7 +47,7 @@ namespace RPGFramework.Commands
                     MobKill(player, parameters);
                     break;
                 case "list":
-                    //ShowCommand(player, parameters);
+                    MobList(player, parameters);
                     break;
                 case "set":
                     return MobSet(player, parameters);
@@ -61,9 +62,9 @@ namespace RPGFramework.Commands
         ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
         private static bool MobCreate(Player player, List<string> parameters)
         {
-            if (parameters.Count < 4)
+            if (parameters.Count < 5)
             {
-                player.WriteLine("Provide at least a name and description.");
+                player.WriteLine("Provide at least a name, The mob classifier and description.");
                 return false;
             }
 
@@ -76,7 +77,8 @@ namespace RPGFramework.Commands
             Mob m = new()
             {
                 Name = parameters[2],
-                Description = parameters[3]
+                NpcClasification = parameters[3],
+                Description = parameters[4]
             };
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
@@ -88,7 +90,7 @@ namespace RPGFramework.Commands
         #region MobDelete Method
         private static bool MobDelete(Player player, List<string> parameters)
         {
-            if (parameters.Count < 4)
+            if (parameters.Count < 3)
             {
                 player.WriteLine("Provide at least a name and description.");
                 return false;
@@ -193,12 +195,22 @@ namespace RPGFramework.Commands
         //{
         //mob.RoomID = player.GetRoom();
         //}
+        private void MobList(Player player, List<string> parameters)
+        {
+            player.WriteLine("All the Mobs:");
+            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            foreach (Mob mob in GameState.Instance.MobCatalog.Values.OrderBy(x => x.Name))
+            {
+                player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
+            }
+  
+        }
         private  void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
             player.WriteLine("/mob name '<set room name to this>'");
-            player.WriteLine("/mob create '<name>' '<description>' <exit direction> '<exit description>'");
+            player.WriteLine("/mob create '<name>' '<description>' '' <exit direction> '<exit description>'");
         }
         #endregion
     }
