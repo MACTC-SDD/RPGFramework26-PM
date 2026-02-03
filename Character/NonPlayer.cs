@@ -27,7 +27,8 @@ namespace RPGFramework
         public bool IsElf { get; set; } = false;
         public bool IsCreature { get; set; } = false;
         public bool IsHostile { get; set; } = false;
-
+        public string NpcClasification { get; set; } = "";
+      
 
         // CODE REVIEW: Rylan (PR #16)
         // I'm adding HasElement and AttackPower properties so this will compile, but
