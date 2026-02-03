@@ -216,39 +216,86 @@ namespace RPGFramework.Commands
             if (character is not Player player)
                 return false;
 
-            List<Armor> armorItems = [];
-            foreach (Item i in player.BackPack.Items)
+
+            if (parameters.Count < 2)
             {
-                if (i is Armor a)
-                { armorItems.Add(a); }
+                player.WriteLine("Backpackitems");
+                foreach (Item i in player.BackPack.Items)
+                {
+                    player.WriteLine(i.Name);
+                    return false;
+                }
             }
-            List<Weapon> weaponItems = [];
-            foreach (Item i in player.BackPack.Items)
+            else
             {
-                if (i is Weapon a)
-                { weaponItems.Add(a); }
+                List<Armor> armorItems = [];
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Armor a)
+                    { armorItems.Add(a); }
+                }
+                List<Weapon> weaponItems = new List<Weapon>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Weapon a)
+                    { weaponItems.Add(a); }
+                }
+                List<Food> foodItems = new List<Food>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Food a)
+                    { foodItems.Add(a); }
+                }
+                List<Potion> potionItems = new List<Potion>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Potion a)
+                    { potionItems.Add(a); }
+                }
             }
-            List <Food> foodItems = [];
-            foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Food a)
-                { foodItems.Add(a); }
-            }
-
-            // Another shorter way to write this:
-            List<Potion> potionItems = [.. player.BackPack.Items.OfType<Potion>()];
-            /*foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Potion a)
-                { potionItems.Add(a); }
-            }*/
 
 
 
-
-            return false;
+            return true;
         }
     }
+
+    internal class EquipCommand : ICommand
+    {
+        public string Name => "equip";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Equip an item.\nUsage: Equip <itemName|itemId>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Nothing to equip");
+            }
+
+            // find item
+            Item? i = character.FindItem(parameters[1]);
+
+            if (i == null)
+            {
+                player.WriteLine("No item to equip");
+                return false;
+            }
+            else
+            {
+                player.BackPack.Items.Remove(i);
+                player.WriteLine($"Equipped {i}");
+
+            }
+            return true;
+
+
+        }
+    }
+
     internal class UseCommand : ICommand
     {
         public string Name => "use";
