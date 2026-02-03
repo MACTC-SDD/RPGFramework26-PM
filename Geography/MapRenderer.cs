@@ -144,5 +144,7 @@ namespace RPGFramework.Geography
             public bool IsPlayerHere { get; init; }
             public string MapIcon { get; init; } = DisplaySettings.RoomMapIcon;
         }
+
     }
+
 }
