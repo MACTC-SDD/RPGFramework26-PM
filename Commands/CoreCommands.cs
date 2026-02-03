@@ -213,34 +213,47 @@ namespace RPGFramework.Commands
             if (character is not Player player)
                 return false;
 
-            List<Armor> armorItems = [];
-            foreach (Item i in player.BackPack.Items)
+
+            if (parameters.Count < 2)
             {
-                if (i is Armor a)
-                { armorItems.Add(a); }
+                player.WriteLine("Backpackitems");
+                foreach (Item i in player.BackPack.Items)
+                {
+                    player.WriteLine(i.Name);
+                    return false;
+                }
             }
-            List<Weapon> weaponItems = new List<Weapon>();
-            foreach (Item i in player.BackPack.Items)
+            else
             {
-                if (i is Weapon a)
-                { weaponItems.Add(a); }
-            }
-            List <Food> foodItems = new List<Food>();
-            foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Food a)
-                { foodItems.Add(a); }
-            }
-            List<Potion> potionItems = new List<Potion>();
-            foreach (Item i in player.BackPack.Items)
-            {
-                if (i is Potion a)
-                { potionItems.Add(a); }
+                List<Armor> armorItems = [];
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Armor a)
+                    { armorItems.Add(a); }
+                }
+                List<Weapon> weaponItems = new List<Weapon>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Weapon a)
+                    { weaponItems.Add(a); }
+                }
+                List<Food> foodItems = new List<Food>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Food a)
+                    { foodItems.Add(a); }
+                }
+                List<Potion> potionItems = new List<Potion>();
+                foreach (Item i in player.BackPack.Items)
+                {
+                    if (i is Potion a)
+                    { potionItems.Add(a); }
+                }
             }
 
 
 
-            return false;
+            return true;
         }
     }
 
