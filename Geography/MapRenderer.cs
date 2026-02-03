@@ -122,7 +122,7 @@ namespace RPGFramework.Geography
             };
 
             player.Write(panel);
-            player.WriteLine("[bold black on yellow] @ [/]: You   [green]■[/]: Room   (blank): Unknown");
+            player.WriteLine($" [black on yellow] {DisplaySettings.YouAreHereMapIcon} [/]: You   {DisplaySettings.RoomMapIconColor}■[/]: Room   (blank): Unknown");
         }
 
         public sealed class LocalMapCell
