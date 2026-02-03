@@ -1,10 +1,12 @@
 ﻿using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
+using RPGFramework;
 
 
 namespace RPGFramework.Commands
 {
+    
     internal class CombatCommands
     {
         public static List<ICommand> GetAllCommands()
@@ -49,7 +51,9 @@ namespace RPGFramework.Commands
             return Comm.SendToIfPlayer(character, character.Consider(c));
         }
     }
+    #endregion
 
+    #region CombatStatusCommand Class
     internal class CombatStatusCommand : ICommand
     {
 
@@ -112,8 +116,9 @@ namespace RPGFramework.Commands
             }
         }
     }
+    #endregion
 
-    // CODE REVIEW: Rylan - I think the logic here could be simplified a bit.
+    #region StartCombatCommand
     internal class StartCombatCommand : ICommand
     {
         public string Name => "attack";
@@ -217,8 +222,8 @@ namespace RPGFramework.Commands
                     {
                         if (target == null)
                             return false;
-                        // CODE REVIEW: Rylan - The method AdminStartCombatUntargeted is missing.
-                        // AdminStartCombatUntargeted(target); 
+                        // AdminStartCombatUntargeted(target);
+                        // apparently this method got deleted at somepoint
                         return true;
                     }
 
@@ -251,6 +256,8 @@ namespace RPGFramework.Commands
                         Character? target2 = Room.FindCharacterInRoom(player.GetRoom(), parameters[3]);
                         if (target2 != null && target1 != null)
                         {
+                            // AdminStartCombatTargeted(target1, target2);
+                            // apparently this method got deleted at somepoint
                             return true;
                         }
                         return false;

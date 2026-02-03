@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RPGFramework.Workflows;
+using RPGFramework;
+using System;
 ﻿using RPGFramework.Workflows;
 
 
@@ -8,11 +10,11 @@ namespace RPGFramework
     {
         public void DropItem(Character c, Item item)
         {
+            // Remove the item from the character's backpack Items list
             c.BackPack.Items.Remove(item);
             c.GetRoom().Items.Add(item);
             item.IsDropped = true;
         }
-
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {
             Random rand = new Random();
@@ -91,6 +93,8 @@ namespace RPGFramework
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
+                // Rylan - is "a" supposed to be "attacker" here? I changed it to that since "a" is undefined.
+                attacker.DropItem(attacker, weapon);
                 attacker.TakeDamage(1);
             }
             else if (totalAttack >= targetAC)
