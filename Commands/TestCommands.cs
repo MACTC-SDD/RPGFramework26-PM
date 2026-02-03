@@ -7,7 +7,7 @@
             return
             [
                 new TestItemSizeCommand(),
-                new ExampleCommand()
+                new ExampleCommand(),
                 // Add more test commands here as needed
             ];
         }
@@ -46,7 +46,6 @@
         }
     }
 
-
     /// <summary>
     /// Measures the memory usage of creating a large number of <see cref="Item"/> instances.
     /// </summary>
@@ -75,7 +74,6 @@
                     Weight = (i % 50) * 0.75,
                     IsDroppable = true,
                     IsGettable = true,
-                    UsesRemaining = -1
                 };
                 items.Add(item);
             }

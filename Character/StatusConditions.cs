@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace RPGFramework
 {
     internal abstract partial class Character
     {
+        public int HitPenalty { get; set; } = 0;
+        public int HealPenalty { get; set; } = 0;
         public void Poisoned()
         {
             if (this.CountPoisoned == 0)
@@ -15,7 +18,7 @@ namespace RPGFramework
             }
             if (this.CountPoisoned < 3)
             {
-                this.TakeDamage(this.MaxHealth / 10);
+            this.TakeDamage(this.MaxHealth / 10);
                 this.CountPoisoned++;
             }
             else
@@ -90,7 +93,7 @@ namespace RPGFramework
             {
                 if (c.Combatants.Contains(this))
                     currentCombat = c;
-            }
+        }
             return currentCombat;
         }
 
@@ -123,7 +126,7 @@ namespace RPGFramework
                 this.HealPenalty = (int)Math.Ceiling((double)this.MaxHealth / 20);
                 this.IsBleed = false;
                 this.CountBleed = 0;
-            }
+        }
                 
             if (this.CountBurn < 3)
             {
@@ -141,7 +144,7 @@ namespace RPGFramework
         {
             if (this.CountBlind == 0)
             {
-                HitPenalty -= 12;
+            HitPenalty -= 12;
             }
             if (this.CountBlind < 3)
             {
@@ -191,7 +194,7 @@ namespace RPGFramework
                 this.IsIncapacitated = false;
                 this.CountGappled = 0;
                 this.IsGappled = false;
-            }
+        }
         }
         public void Paralyzed()
         {
@@ -203,7 +206,7 @@ namespace RPGFramework
             {
                 this.Disadvantage += 5;
                 this.DamageResistance = 0.5;
-            }
+        }
             if (this.CountParalyzed < 3)
             {
                 this.CountParalyzed++;
@@ -217,7 +220,7 @@ namespace RPGFramework
                 this.DamageResistance = 1;
             }
         }
-
+        
         public void Unconscious()
         {
             // also incapacitated
@@ -234,15 +237,15 @@ namespace RPGFramework
             {
                 this.CountUnconcious++;
                 this.IsIncapacitated = true;
-            }
+        }
             else
             {
                 this.Disadvantage -= 5;
                 this.IsUnconcious = false;
                 this.CountUnconcious = 0;
                 this.DamageResistance = 1;
-            }
-        }
+    }
+}
 
         /*Poisoned,
         Bleed,

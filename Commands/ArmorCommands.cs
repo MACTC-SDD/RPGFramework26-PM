@@ -65,9 +65,9 @@ namespace RPGFramework.Commands
             {
                 Name = parameters[2],
                 Description = parameters[3],
-                protection = Convert.ToInt32(parameters[4]),
+                Protection = Convert.ToInt32(parameters[4]),
                 Durability = Convert.ToInt32(parameters[5]),
-                weight = Convert.ToInt32(parameters[6])
+                Weight = Convert.ToInt32(parameters[6])
             };
 
 

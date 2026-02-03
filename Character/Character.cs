@@ -1,8 +1,11 @@
 ﻿
+using RPGFramework.Display;
 using RPGFramework.Combat;
 using RPGFramework.Enums;
 using RPGFramework.Items;
 using RPGFramework.Geography;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 using RPGFramework.Workflows;
 using System.Text.Json.Serialization;
 
@@ -27,7 +30,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; protected set; } = 0;
+        public int Health { get; set; } = 0;
         public bool IsEngaged { get; protected set; } = false;
         public Inventory BackPack { get; protected set; } = new Inventory();
         public int Level { get; protected set; } = 1;
@@ -35,8 +38,8 @@ namespace RPGFramework
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
-        public CharacterClass Class { get; set; } = CharacterClass.None;
         public List<Armor> EquippedArmor { get; set; } = [];
+        public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;
         public int Initiative { get; set; }
@@ -61,6 +64,13 @@ namespace RPGFramework
             Weapon w = new() 
               { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
+
+            if (Class != null)
+            {
+                GameState.Instance.CCCatalog.TryGetValue(Class.Name, out CharacterClass? c);
+                if (c != null)
+                    Class = c;
+            }
         }
 
         #region Consider Method
@@ -162,6 +172,41 @@ namespace RPGFramework
             SetHealth(Health + heal - HealPenalty);
         }
 
+        public Item? FindItem(string itemName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == itemName.ToLower());
+        }
+
+        public Item? FindItem(int itemId)
+        {
+            return BackPack.Items.Find(x => x.Id == itemId);
+        }
+
+        public Item? FindConsumable(string consumableName)
+        {
+            return BackPack.Items.Find(x => x.Name.ToLower() == consumableName.ToLower() 
+            && x is Consumable);
+        }
+
+        public Item? FindConsumable(int consumableId)
+        {
+            return BackPack.Items.Find(x => x.Id == consumableId 
+            && x is Consumable);
+        }
+
+        public IRenderable ShowSummary()
+        { var table = new Table();
+            table.AddColumn("Background");
+            table.AddColumn("info");
+            table.AddRow($"Name: {Name}", $"Gold: {Gold}");
+            table.AddRow($"Class: {Class}", $"Weapon: {PrimaryWeapon.Name}");
+            table.AddRow($"Health: {Health}", $"XP: {XP}");
+            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+
+            string title = "Character Info";
+
+            return RPGPanel.GetPanel(table, title);
+        }
         
     }
 }

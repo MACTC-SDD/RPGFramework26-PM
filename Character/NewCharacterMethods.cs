@@ -1,3 +1,4 @@
+﻿using System;
 ﻿using RPGFramework.Workflows;
 using RPGFramework.Combat;
 using System;
@@ -8,13 +9,19 @@ namespace RPGFramework
 {
     internal abstract partial class Character
     {
+        public void DropItem(Character c, Item item)
+        {
+            c.BackPack.Items.Remove(item);
+            c.GetRoom().Items.Add(item);
+            item.IsDropped = true;
+        }
+
         public static bool FleeCombat(Character character, CombatWorkflow combat)
         {
             Random rand = new Random();
             int fleeRoll = rand.Next(1, 100);
             if (fleeRoll >= 80)
-            {
-                combat.Combatants.Remove(character);
+            {e(character);
                 if (character is Player player)
                     player.WriteLine("You successfully fled the combat!");
                 return true;
@@ -27,81 +34,80 @@ namespace RPGFramework
             }
         }
 
-        public static void RollToHitS(Character a, Spell weapon, Character t)
+        public static void RollToHitS(Character attacker, Spell weapon, Character target)
         {
             Random rand = new Random();
             int attackRoll = rand.Next(1, 20);
-            int attackModifier = (a.Intelligence - 10) / 2;
-            int totalAttack = attackRoll + attackModifier + a.Advantage - a.HitPenalty - a.Disadvantage;
-            int tAC = 10 + ((t.Dexterity - 10) / 2) + t.Advantage - t.Disadvantage; //simplified AC calculation
-            int damageModifier = (a.Intelligence - 10) / 2;
+            int attackModifier = (attacker.Intelligence - 10) / 2;
+            int totalAttack = attackRoll + attackModifier;
+            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            int damageModifier = (attacker.Intelligence - 10) / 2;
             int totalDamage = weapon.Damage + damageModifier;
             if (attackRoll == 20)
             {
-                t.TakeDamage(totalDamage * 2);
+                target.TakeDamage(totalDamage * 2);
             }
             else if (attackRoll == 1)
             {
-                if (a is Player player)
-                    player.WriteLine($"You missed {t.Name}!");
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
                 totalAttack = 0;
-                a.TakeDamage(1);
+                attacker.TakeDamage(1);
             }
-            else if (totalAttack >= tAC)
+            else if (totalAttack >= targetAC)
             {
-                t.TakeDamage(totalDamage);
-                if (a is Player player)
-                    player.WriteLine($"You hit {t.Name} for {totalDamage} damage!");
-                if (t is Player tPlayer)
+                target.TakeDamage(totalDamage);
+                if (attacker is Player player)
+                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
+                if (target is Player targetPlayer)
                 {
-                    tPlayer.WriteLine($"{a.Name} hit you with {weapon.Name} for {totalDamage} damage!");
+                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
                 }
             }
             else
             {
                 //miss
-                if (a is Player player)
-                    player.WriteLine($"You missed {t.Name}!");
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
             }
         }
 
 
-        public static void RollToHitW(Character a, Weapon weapon, Character t)
+        public static void RollToHitW(Character attacker, Weapon weapon, Character target)
         {
             Random rand = new Random();
             int attackRoll = rand.Next(1, 20);
-            int attackModifier = (a.Strength - 10) / 2;
-            int totalAttack = attackRoll + attackModifier + a.Advantage - a.HitPenalty - a.Disadvantage;
-            int tAC = 10 + ((t.Dexterity - 10) / 2) + t.Advantage - t.Disadvantage; //simplified AC calculation
-            int damageModifier = (a.Strength - 10) / 2;
+            int attackModifier = (attacker.Strength - 10) / 2;
+            int totalAttack = attackRoll + attackModifier;
+            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            int damageModifier = (attacker.Strength - 10) / 2;
             int totalDamage = weapon.Damage + damageModifier;
             if (attackRoll == 20)
             {
-                t.TakeDamage(totalDamage * 2);
+                target.TakeDamage(totalDamage * 2);
             }
             else if (attackRoll == 1)
             {
-                if (a is Player player)
-                    player.WriteLine($"You missed {t.Name} and hit yourself in the face!");
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
                 totalAttack = 0;
-                a.DropItem(weapon);
-                a.TakeDamage(1);
+                attacker.TakeDamage(1);
             }
-            else if (totalAttack >= tAC)
+            else if (totalAttack >= targetAC)
             {
-                t.TakeDamage(totalDamage);
-                if (a is Player player)
-                    player.WriteLine($"You hit {t.Name} for {totalDamage} damage!");
-                if (t is Player tPlayer)
+                target.TakeDamage(totalDamage);
+                if (attacker is Player player)
+                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
+                if (target is Player targetPlayer)
                 {
-                    tPlayer.WriteLine($"{a.Name} hit you with {weapon.Name} for {totalDamage} damage!");
+                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
                 }
             }
             else
             {
                 //miss
-                if (a is Player player)
-                    player.WriteLine($"You missed {t.Name}!");
+                if (attacker is Player player)
+                    player.WriteLine($"You missed {target.Name}!");
             }
         }
     }
