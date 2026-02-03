@@ -12,6 +12,61 @@ namespace RPGFramework.Items
 
         public FoodType FoodType { get; set; } = 0;
 
+        public void FoodValue()
+        {
+            switch (FoodType)
+            {
+                case FoodType.Apple:
+                    Value = 5;
+                    break;
+
+                case FoodType.Bread:
+                    Value = 3;
+                    break;
+
+                case FoodType.Cheesewheel:
+                    Value = 15;
+                    break;
+
+                case FoodType.Stew:
+                    Value = 30;
+                    break;
+
+                case FoodType.Chicken_Leg:
+                    Value = 10;
+                    break;
+
+                case FoodType.Wolf_Meat:
+                    Value = 15;
+                    break;
+
+                case FoodType.Boar_Meat:
+                    Value = 15;
+                    break;
+
+                case FoodType.Pie:
+                    Value = 30;
+                    break;
+
+                case FoodType.Berries:
+                    Value = 2;
+                    break;
+
+                case FoodType.Water_Bottle:
+                    Value = 3;
+                    break;
+
+                case FoodType.Milk_Bottle:
+                    Value = 5;
+                    break;
+
+                case FoodType.Wine:
+                    Value = 10;
+                    break;
+            }
+        }
+
+
         public void FoodHeal()
         {
             switch (FoodType)

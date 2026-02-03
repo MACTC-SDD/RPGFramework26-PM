@@ -13,6 +13,17 @@ namespace RPGFramework.Items
         public PotionType PotionType { get; set; } = 0;
 
         //Need strength potion
+
+        public void PotionValue()
+        {
+            switch (PotionType)
+            {
+                case PotionType.Potion_Of_Healing:
+                    Value = 65;
+                    break;
+            }
+        }
+
         public void PotionHeal()
         {
             switch (PotionType)

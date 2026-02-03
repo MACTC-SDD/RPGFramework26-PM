@@ -17,51 +17,136 @@ namespace RPGFramework
         // Implement attack methods
         // Maybe some kind of Weapon generator (random stats, etc.)
 
-        //ADD THE STAFFS AND GLASS BOTTLES
 
+        public void WeaponValue()
+        {
+            switch(this.WeaponType)
+            {
+                case WeaponType.Bow:
+                    Value = 30;
+                    break;
+                case WeaponType.Flail:
+                    Value = 30;
+                    break;
+                case WeaponType.Crossbow:
+                    Value = 200;
+                    break;
+                case WeaponType.Knife:
+                    Value = 10;
+                    break;
+                case WeaponType.LongSword:
+                    Value = 90;
+                    break;
+                case WeaponType.Sword:
+                    Value = 45;
+                    break;
+                case WeaponType.Mace:
+                    Value = 65;
+                    break;
+                case WeaponType.Musket:
+                    Value = 5000;
+                    break;
+                case WeaponType.Rock:
+                    Value = 1;
+                    break;
+                case WeaponType.ShortSword:
+                    Value = 25;
+                    break;
+                case WeaponType.Spear:
+                    Value = 75;
+                    break;
+                case WeaponType.WarAxe:
+                    Value = 300;
+                    break;
+                case WeaponType.GlassBottle:
+                    Value = 5;
+                    break;
+                case WeaponType.FireStaff:
+                    Value = 500;
+                    break;
+                case WeaponType.LightStaff:
+                    Value = 500;
+                    break;
+                case WeaponType.IceStaff:
+                    Value = 500;
+                    break;
+                case WeaponType.DarkStaff:
+                    Value = 500;
+                    break;
+                case WeaponType.AirStaff:
+                    Value = 500;
+                    break;
+                case WeaponType.EarthStaff:
+                    Value = 500;
+                    break;
+
+
+            }
+        }
 
         public void WeaponDamage()
         {
             switch (this.WeaponType)
             {
                 case WeaponType.Bow:
-                    Damage = 30;
+                    Damage = 50;
                     break;
                 case WeaponType.Flail:
-                    Damage = 25;
+                    Damage = 30;
                     break;
                 case WeaponType.Hands:
-                    Damage = 10;
+                    Damage = 5;
                     break;
                 case WeaponType.Crossbow:
-                    Damage = 35;
+                    Damage = 65;
                     break;
                 case WeaponType.Knife:
-                    Damage = 20;
+                    Damage = 25;
                     break;
                 case WeaponType.LongSword:
-                    Damage = 35;
+                    Damage = 50;
                     break;
                 case WeaponType.Sword:
                     Damage = 30;
                     break;
                 case WeaponType.Mace:
-                    Damage = 20;
+                    Damage = 35;
                     break;
                 case WeaponType.Musket:
-                    Damage = 50;
+                    Damage = 250;
                     break;
                 case WeaponType.Rock:
-                    Damage = 15;
+                    Damage = 10;
                     break;
                 case WeaponType.ShortSword:
-                    Damage = 20;
+                    Damage = 30;
                     break;
                 case WeaponType.Spear:
-                    Damage = 25;
+                    Damage = 40;
                     break;
                 case WeaponType.WarAxe:
-                    Damage = 35;
+                    Damage = 50;
+                    break;
+                case WeaponType.GlassBottle:
+                    Damage = 15;
+                    break;
+                case WeaponType.FireStaff:
+                    Damage = 100;
+                    break;
+                case WeaponType.LightStaff:
+                    Damage = 100;
+                    break;
+                case WeaponType.IceStaff:
+                    Damage = 100;
+                    break;
+                case WeaponType.DarkStaff:
+                    Damage = 100;
+                    break;
+                case WeaponType.AirStaff:
+                    Damage = 100;
+                    break;
+                case WeaponType.EarthStaff:
+                    Damage = 100;
                     break;
             }
         }
@@ -71,10 +156,10 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Spear:
-                    Durability = 25;
+                    Durability = 50;
                     break;
                 case WeaponType.Bow:
-                    Durability = 25;
+                    Durability = 30;
                     break;
                 case WeaponType.Hands:
                     Durability = 100;
@@ -83,25 +168,46 @@ namespace RPGFramework
                     Durability = 10;
                     break;
                 case WeaponType.Knife:
-                    Durability = 15;
+                    Durability = 25;
                     break;
                 case WeaponType.LongSword:
-                    Durability = 25;
+                    Durability = 50;
                     break;
                 case WeaponType.ShortSword:
-                    Durability = 25;
+                    Durability = 40;
                     break;
                 case WeaponType.Mace:
-                    Durability = 25;
+                    Durability = 40;
                     break;
                 case WeaponType.Sword:
-                    Durability = 25;
+                    Durability = 40;
                     break;
                 case WeaponType.Rock:
-                    Durability = 35;
+                    Durability = 10;
                     break;
                 case WeaponType.WarAxe:
-                    Durability = 25;
+                    Durability = 50;
+                    break;
+                case WeaponType.GlassBottle:
+                    Durability = 5;
+                    break;
+                case WeaponType.FireStaff:
+                    Durability = 15;
+                    break;
+                case WeaponType.LightStaff:
+                    Durability = 15;
+                    break;
+                case WeaponType.IceStaff:
+                    Durability = 15;
+                    break;
+                case WeaponType.DarkStaff:
+                    Durability = 15;
+                    break;
+                case WeaponType.AirStaff:
+                    Durability = 15;
+                    break;
+                case WeaponType.EarthStaff:
+                    Durability = 15;
                     break;
             }
         }
@@ -111,7 +217,7 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    Range = 2;
+                    Range = 1;
                     break;
                 case WeaponType.Bow:
                     Range = 15;
@@ -141,13 +247,34 @@ namespace RPGFramework
                     Range = 35;
                     break;
                 case WeaponType.Rock:
-                    Range = 10;
+                    Range = 2;
                     break;
                 case WeaponType.Spear:
-                    Range = 15;
+                    Range = 10;
                     break;
                 case WeaponType.WarAxe:
                     Range = 5;
+                    break;
+                case WeaponType.GlassBottle:
+                    Range = 2;
+                    break;
+                case WeaponType.FireStaff:
+                    Range = 20;
+                    break;
+                case WeaponType.LightStaff:
+                    Range = 20;
+                    break;
+                case WeaponType.IceStaff:
+                    Range = 20;
+                    break;
+                case WeaponType.DarkStaff:
+                    Range = 20;
+                    break;
+                case WeaponType.AirStaff:
+                    Range = 20;
+                    break;
+                case WeaponType.EarthStaff:
+                    Range = 20;
                     break;
             }
         }
@@ -158,43 +285,64 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Hands:
-                    Speed = 1;
+                    Speed = 3;
                     break;
                 case WeaponType.Bow:
-                    Speed = 1;
+                    Speed = 30;
                     break;
                 case WeaponType.Sword:
-                    Speed = 1;
+                    Speed = 2;
                     break;
                 case WeaponType.Musket:
-                    Speed = 1;
+                    Speed = 100;
                     break;
                 case WeaponType.Crossbow:
-                    Speed = 1;
+                    Speed = 50;
                     break;
                 case WeaponType.Flail:
-                    Speed = 1;
+                    Speed = 3;
                     break;
                 case WeaponType.Knife:
-                    Speed = 1;
+                    Speed = 5;
                     break;
                 case WeaponType.LongSword:
                     Speed = 1;
                     break;
                 case WeaponType.Mace:
-                    Speed = 1;
+                    Speed = 2;
                     break;
                 case WeaponType.Rock:
-                    Speed = 1;
+                    Speed = 2;
                     break;
                 case WeaponType.ShortSword:
-                    Speed = 1;
+                    Speed = 3;
                     break;
                 case WeaponType.Spear:
                     Speed = 1;
                     break;
                 case WeaponType.WarAxe:
                     Speed = 1;
+                    break;
+                case WeaponType.GlassBottle:
+                    Speed = 3;
+                    break;
+                case WeaponType.FireStaff:
+                    Speed = 2;
+                    break;
+                case WeaponType.LightStaff:
+                    Speed = 2;
+                    break;
+                case WeaponType.IceStaff:
+                    Speed = 2;
+                    break;
+                case WeaponType.DarkStaff:
+                    Speed = 2;
+                    break;
+                case WeaponType.AirStaff:
+                    Speed = 2;
+                    break;
+                case WeaponType.EarthStaff:
+                    Speed = 2;
                     break;
             }
         }
@@ -242,6 +390,27 @@ namespace RPGFramework
                     break;
                 case WeaponType.WarAxe:
                     base.Weight = 10;
+                    break;
+                case WeaponType.GlassBottle:
+                    Weight = 1;
+                    break;
+                case WeaponType.FireStaff:
+                    Weight = 25;
+                    break;
+                case WeaponType.LightStaff:
+                    Weight = 25;
+                    break;
+                case WeaponType.IceStaff:
+                   Weight = 25;
+                    break;
+                case WeaponType.DarkStaff:
+                    Weight = 25;
+                    break;
+                case WeaponType.AirStaff:
+                    Weight = 25;
+                    break;
+                case WeaponType.EarthStaff:
+                    Weight = 25;
                     break;
             }
         }
