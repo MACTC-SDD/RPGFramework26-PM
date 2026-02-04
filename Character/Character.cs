@@ -204,7 +204,7 @@ namespace RPGFramework
             table.AddColumn("Background");
             table.AddColumn("info");
             table.AddRow($"Name: {Name}", $"Gold: {Gold}");
-            table.AddRow($"Class: {Class}", $"Weapon: {PrimaryWeapon.Name}");
+            table.AddRow($"Class: {Class?.Name ?? "None"}", $"Weapon: {PrimaryWeapon.Name}");
             table.AddRow($"Health: {Health}", $"XP: {XP}");
             table.AddRow($"level: {Level}", $"Location: {LocationId}");
 
