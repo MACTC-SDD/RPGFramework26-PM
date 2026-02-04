@@ -66,7 +66,7 @@ namespace RPGFramework
         {
             get
             {
-                if (!_items.TryGetValue((TKey)key, out var value))
+                if (!_items.TryGetValue((TKey)key, out var value) || value == null)
                 {
                     throw new KeyNotFoundException($"The key '{key}' was not found in the catalog.");
                 }
