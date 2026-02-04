@@ -208,9 +208,13 @@ namespace RPGFramework.Commands
                 return;
 
             }
-
-
-            
+            Mob? clone = Utility.Clone<Mob>(m);
+            if (clone == null)
+            {
+                return;
+            }
+            player.GetRoom().Mobs.Add(clone);
+            player.WriteLine($"mob {clone.Name} added to room");
         }
 
 

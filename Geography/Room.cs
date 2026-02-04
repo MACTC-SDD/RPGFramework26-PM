@@ -24,6 +24,7 @@ namespace RPGFramework.Geography
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
 
         public int MaxMobs {  get; set; } = 1; // Maximum number of Mob NPCs allowed in the room
+        public List<Mob> Mobs { get; set; } = [];
         public Dictionary<string, double> MobSpawnList { get; private set; } = []; // Mob name and spawn chance
 
         // Name of the room
