@@ -95,8 +95,8 @@ namespace RPGFramework
                 totalAttack = 0;
                 attacker.DropItem(weapon);
                 attacker.TakeDamage(1);
-                // FIX: attacker.ReduceDurabilityWeaponattacker.selectedWeapon, (attacker.PrimaryWeapon.Durability / 16));
-                //Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + target.selectedWeapon.CurrentDurability);
+                attacker.ReduceDurabilityWeapon(weapon, (weapon.Durability / 16));
+                Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + weapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {
