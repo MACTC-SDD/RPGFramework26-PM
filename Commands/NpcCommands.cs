@@ -46,6 +46,9 @@ namespace RPGFramework.Commands
                 case "kill":
                     MobKill(player, parameters);
                     break;
+                case "load":
+                    MobLoad(player, parameters);
+                    break;
                 case "list":
                     //ShowCommand(player, parameters);
                     break;
@@ -190,6 +193,27 @@ namespace RPGFramework.Commands
 
             player.WriteLine($"{m.Name} was removed the mob catalog.");
         }
+        private void MobLoad(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+
+            {
+                player.WriteLine("Usage: /mob load <name>");
+                return;
+            }
+
+            if (!GameState.Instance.MobCatalog.TryGetValue(parameters[02],out Mob? m ))
+               {
+                player.WriteLine("The mob you are trying to summon is not avalible in the current mob catolog");
+                return;
+
+            }
+
+
+            
+        }
+
+
         // private  void Roomset(Player player, List<string> parameters)
         //{
         //mob.RoomID = player.GetRoom();
