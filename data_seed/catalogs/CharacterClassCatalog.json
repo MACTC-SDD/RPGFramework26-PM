@@ -1,1 +1,84 @@
-{}
+{
+  "Items": {
+    "mage": {
+      "Name": "mage",
+      "Description": "This class is the primary class that specializes in using magic to cast long and short range spells in battle with 3 split classes to choose from",
+      "StrengthMod": 4,
+      "DexterityMod": 3,
+      "ConstitutionMod": 4,
+      "IntelligenceMod": 2,
+      "WisdomMod": 5,
+      "CharismaMod": 1
+    },
+    "warrior": {
+      "Name": "warrior",
+      "Description": "This class is the primary class that specializes in using physical strength and melee combat in battle with 3 split classes to choose from",
+      "StrengthMod": 5,
+      "DexterityMod": 2,
+      "ConstitutionMod": 4,
+      "IntelligenceMod": 2,
+      "WisdomMod": 5,
+      "CharismaMod": 1
+    },
+    "rogue": {
+      "Name": "rogue",
+      "Description": "This class is the primary class that specializes in stealth, agility, and dexterity in battle with 3 split classes to choose from",
+      "StrengthMod": 3,
+      "DexterityMod": 5,
+      "ConstitutionMod": 3,
+      "IntelligenceMod": 3,
+      "WisdomMod": 4,
+      "CharismaMod": 2
+    },
+    "druid": {
+      "Name": "druid",
+      "Description": "This class is the primary class that specializes in nature magic and healing in battle with 3 split classes to choose from",
+      "StrengthMod": 4,
+      "DexterityMod": 2,
+      "ConstitutionMod": 4,
+      "IntelligenceMod": 3,
+      "WisdomMod": 5,
+      "CharismaMod": 2
+    },
+    "paladin": {
+      "Name": "paladin",
+      "Description": "This class is the primary class that specializes in holy magic and melee combat in battle with 3 split classes to choose from",
+      "StrengthMod": 5,
+      "DexterityMod": 2,
+      "ConstitutionMod": 4,
+      "IntelligenceMod": 2,
+      "WisdomMod": 4,
+      "CharismaMod": 3
+    },
+    "necromancer": {
+      "Name": "necromancer",
+      "Description": "This class is the primary class that specializes in dark magic and summoning undead creatures in battle with 3 split classes to choose from",
+      "StrengthMod": 3,
+      "DexterityMod": 2,
+      "ConstitutionMod": 4,
+      "IntelligenceMod": 2,
+      "WisdomMod": 4,
+      "CharismaMod": 2
+    },
+    "bard": {
+      "Name": "bard",
+      "Description": "This class is the primary class that specializes in music, charm, and support magic in battle with 3 split classes to choose from",
+      "StrengthMod": 2,
+      "DexterityMod": 4,
+      "ConstitutionMod": 3,
+      "IntelligenceMod": 3,
+      "WisdomMod": 3,
+      "CharismaMod": 5
+    },
+    "drunkenmaster": {
+      "Name": "drunkenmaster",
+      "Description": "This class is a split class of the rogue that specializes in unpredictable and erratic fighting styles, using agility and dexterity to outmaneuver opponents",
+      "StrengthMod": 3,
+      "DexterityMod": 6,
+      "ConstitutionMod": 3,
+      "IntelligenceMod": 2,
+      "WisdomMod": 4,
+      "CharismaMod": 2
+    }
+  }
+}
