@@ -334,7 +334,7 @@ namespace RPGFramework.Commands
     // CODE REVIEW: Aidan - The RoleCommand had several issues similar to those I addressed in SummonCommand.
     internal class RoleCommand : ICommand
     {
-        public string Name => "role";
+        public string Name => "/role";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";
@@ -445,7 +445,7 @@ namespace RPGFramework.Commands
     #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "summon";        
+        public string Name => "/summon";        
         public IEnumerable<string> Aliases => [];
         public string Help => "";
 
@@ -508,8 +508,8 @@ namespace RPGFramework.Commands
     #region TeleportRoomCommand
     internal class TeleportRoomCommand : ICommand
     {
-        public string Name => "teleportroom";
-        public IEnumerable<string> Aliases => [ "tpr" ];
+        public string Name => "/teleportroom";
+        public IEnumerable<string> Aliases => [ /tpr" ];
         public string Help => "Teleport to a specific room by ID. Usage: teleportroom <areaId>:<roomId> or teleportroom <roomId> (uses your current area)";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -630,7 +630,7 @@ namespace RPGFramework.Commands
     #region BackupCommand Class
     internal class BackupCommand : ICommand
     {
-        public string Name => "backup";
+        public string Name => "/backup";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";
