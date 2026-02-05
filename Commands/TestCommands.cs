@@ -8,7 +8,6 @@
             [
                 new TestItemSizeCommand(),
                 new ExampleCommand(),
-                new C00lCommand(),
                 // Add more test commands here as needed
             ];
         }
