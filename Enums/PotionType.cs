@@ -6,6 +6,8 @@ namespace RPGFramework.Enums
 {
     internal enum PotionType
     {
-        Potion_Of_Healing
+        HealingPotion,
+        StrengthPotion,
+        ManaPotion
     }
 }
