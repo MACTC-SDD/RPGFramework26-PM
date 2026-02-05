@@ -256,6 +256,7 @@ namespace RPGFramework.Commands
                 return false;
             }
         }
+    }
     #endregion
 
         #region ReloadSeedDataCommand Class
