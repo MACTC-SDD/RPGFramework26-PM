@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Combat;
 using RPGFramework.Enums;
+using RPGFramework.Geography;
 using RPGFramework.Workflows;
 
 namespace RPGFramework
@@ -15,7 +16,7 @@ namespace RPGFramework
         // npc team need to fill this method out with logic for npc actions
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
-
+        public List<string> Dialog = [];
         public bool IsAlive { get; set; } = false;
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
@@ -35,7 +36,18 @@ namespace RPGFramework
         public bool HasElement { get; set; } = false;
         public int AttackPower { get; set; } = 0;
 
+        public void SaySomething()
+        {
+            if(Dialog.Count == 0)
+            {  return; }
 
+            // pick a dialog to display
+            int n=GameState.Instance.Random.Next(Dialog.Count);
+            Room r = GetRoom();
+            Console.WriteLine($"room {r.Name}");
+            Console.WriteLine($"d {Dialog[n]}");
+            Comm.SendToRoomExcept(r,Dialog[n], this);
+        }
         public static void TakeTurn(NonPlayer npc, CombatWorkflow combat)
         {
             // NPC turn logic to be implemented
