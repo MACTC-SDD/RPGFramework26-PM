@@ -37,7 +37,7 @@ namespace RPGFramework
         public int MaxHealth { get; protected set; } = 0;
         public string Name { get; set; } = "";
         public int XP { get; protected set; } = 0;
-        public Armor EquippedArmor { get; set; }
+        public Armor? EquippedArmor { get; set; }
         public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }
         public int StatPoints { get; set; } = 0;

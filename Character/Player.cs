@@ -48,7 +48,6 @@ namespace RPGFramework
         {
             // We could add colors and other things later, for now, just afk
             return Name + (IsAFK ? " (AFK)" : "");
-
         }
 
         #region Exists Method (Static)
