@@ -6,5 +6,3 @@
         public int HealAmount { get; set; } = 0;
     }
 }
-
-//POTIONS here?
