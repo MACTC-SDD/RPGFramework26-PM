@@ -33,7 +33,7 @@ namespace RPGFramework.Commands
     internal class UXCommand : ICommand
     {
         // This is the command a player would type to execute this command
-        public string Name => "/ux";
+        public string Name => "info";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
