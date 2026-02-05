@@ -2,6 +2,7 @@
 using RPGFramework;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 namespace RPGFramework.Commands
 {
@@ -54,6 +55,8 @@ namespace RPGFramework.Commands
                     break;
                 case "set":
                     return MobSet(player, parameters);
+                case "specify":
+                    return MobSpecify(player, parameters);
                 default:
                     ShowHelp(player);
                     break;
@@ -174,18 +177,18 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-        private void MobKill(Player player, List<string> parameters)
+        private static bool MobKill(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} is not alive or does not exist");
-                return;
+                return false;
             }
 
             //player.GetRoom
@@ -193,29 +196,31 @@ namespace RPGFramework.Commands
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
 
             player.WriteLine($"{m.Name} was removed the mob catalog.");
+            return true;
         }
-        private void MobLoad(Player player, List<string> parameters)
+        private static bool MobLoad(Player player, List<string> parameters)
         {
             if (parameters.Count < 3)
 
             {
                 player.WriteLine("Usage: /mob load <name>");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.TryGetValue(parameters[02],out Mob? m ))
                {
                 player.WriteLine("The mob you are trying to summon is not avalible in the current mob catolog");
-                return;
+                return false;
 
             }
             Mob? clone = Utility.Clone<Mob>(m);
             if (clone == null)
             {
-                return;
+                return false;
             }
             player.GetRoom().Mobs.Add(clone);
             player.WriteLine($"mob {clone.Name} added to room");
+            return true;
         }
 
 
@@ -223,7 +228,7 @@ namespace RPGFramework.Commands
         //{
         //mob.RoomID = player.GetRoom();
         //}
-        private void MobList(Player player, List<string> parameters)
+        private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
             player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
@@ -231,9 +236,36 @@ namespace RPGFramework.Commands
             {
                 player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
             }
-  
+            return true;
         }
-        private  void ShowHelp(Player player)
+
+        private static bool MobSpecify(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Provide at least the name of the mob");
+                return false;
+            }
+
+            if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The mob {parameters[2]} is not alive or does not exist within the current catolog");
+                return false;
+            }
+
+            //player.GetRoom
+
+            Mob m = GameState.Instance.MobCatalog[parameters[2]];
+
+           player.WriteLine($"Max Health: {m.MaxHealth}");
+           player.WriteLine($"Level: {m.Level}");
+           player.WriteLine($"Class: {m.Class?.Name ?? "None"}");
+          // player.WriteLine($"Element: {m.Element}");
+           player.WriteLine($"XP: {m.XP}");
+           player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
+            return true;
+        }
+        private void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
