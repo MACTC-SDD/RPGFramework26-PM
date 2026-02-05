@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RPGFramework.Commands
 {
@@ -383,7 +384,7 @@ public bool Execute(Character character, List<string> parameters)
     internal class LookCommand : ICommand
     {
         public string Name => "look";
-        public IEnumerable<string> Aliases => [ "l" ];
+        public IEnumerable<string> Aliases => ["l"];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
@@ -395,7 +396,12 @@ public bool Execute(Character character, List<string> parameters)
                 content += "[red]Exits:[/]\n";
                 foreach (var exit in player.GetRoom().GetExits())
                 {
-                    content += $"{exit.Description} to the {exit.ExitDirection}\n";
+                    if (exit.ExitType == ExitType.LockedDoor)
+                    {
+                        content += $"{exit.Description} [red](🗝️Locked)[/] to the {exit.ExitDirection}\n";
+                    }
+                    else
+                        content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
                 content += "[Green]Players Here:[/]\n";
                 content += $"{player.DisplayName()}";
