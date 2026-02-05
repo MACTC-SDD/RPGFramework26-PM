@@ -221,8 +221,7 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is not Player player)
-                return false;
+            if (character is not Player player) return false;
 
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
@@ -230,32 +229,37 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (parameters[1] == null)
+            if (parameters.Count < 1 || string.IsNullOrWhiteSpace(parameters[0]))
             {
-                player.WriteLine("Player not found.");
+                player.WriteLine("Usage: /kick <playername>");
                 return false;
             }
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
+            string targetName = parameters[0];
+            Player? target = GameState.Instance.GetPlayerByName(targetName);
+
             if (target == null)
             {
-                player.WriteLine($"Player ({parameters[1]}) not found.");
+                player.WriteLine($"Player ({targetName}) not found.");
                 return false;
             }
 
-            if (target.IsOnline == true)
+            if (target.IsOnline)
+            {
                 target.Logout();
-
-            player.WriteLine($"You have disconnected {target.DisplayName()}.");
-            return true;
+                player.WriteLine($"You have disconnected {target.DisplayName()}.");
+                return true;
+            }
+            else
+            {
+                player.WriteLine($"{target.DisplayName()} is not currently online.");
+                return false;
+            }
         }
-    }
     #endregion
 
-    #region ReloadSeedDataCommand Class
-    internal class ReloadSeedDataCommand : ICommand
+        #region ReloadSeedDataCommand Class
+        internal class ReloadSeedDataCommand : ICommand
     {
         public string Name => "/reloadseeddata";
         public IEnumerable<string> Aliases => [];
