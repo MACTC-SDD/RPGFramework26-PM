@@ -202,13 +202,18 @@ namespace RPGFramework
         }
 
 
+        public void LevelUp(int levelsToAdd)
+        {
+            XP = _levels[Level + levelsToAdd+1].RequiredXp;
+            LevelUp();
+        }
 
-        
+
 
 
         public void LevelUp()
         {
-            if (XP > _levels[Level].RequiredXp)
+            if (XP >= _levels[Level].RequiredXp)
             {
                 MaxHealth += _levels[Level].Health;
                 Health = MaxHealth;
