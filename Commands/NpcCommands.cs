@@ -92,7 +92,6 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-
         #region MobDelete Method
         private static bool MobDelete(Player player, List<string> parameters)
         {
@@ -114,7 +113,6 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-
         #region MobSet Method
         private static bool MobSet(Player player, List<string> parameters)
         {
@@ -177,6 +175,7 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
+        #region MobKill Method
         private static bool MobKill(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
@@ -198,6 +197,8 @@ namespace RPGFramework.Commands
             player.WriteLine($"{m.Name} was removed the mob catalog.");
             return true;
         }
+        #endregion
+        #region MobLoad Method
         private static bool MobLoad(Player player, List<string> parameters)
         {
             if (parameters.Count < 3)
@@ -222,12 +223,8 @@ namespace RPGFramework.Commands
             player.WriteLine($"mob {clone.Name} added to room");
             return true;
         }
-
-
-        // private  void Roomset(Player player, List<string> parameters)
-        //{
-        //mob.RoomID = player.GetRoom();
-        //}
+        #endregion
+        #region MobList Method
         private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
@@ -238,7 +235,8 @@ namespace RPGFramework.Commands
             }
             return true;
         }
-
+        #endregion
+        #region MobSpecify Method
         private static bool MobSpecify(Player player, List<string> parameters)
         {
             if (parameters.Count < 2)
@@ -265,6 +263,8 @@ namespace RPGFramework.Commands
            player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
             return true;
         }
+        #endregion
+        #region ShowHelp Method
         private void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
