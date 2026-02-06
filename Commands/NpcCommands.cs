@@ -13,6 +13,7 @@ namespace RPGFramework.Commands
             return
             [
                 new MobBuilderCommand(),
+                new NpcBuilderCommand()
                 // Add other Npc commands here as they are implemented
             ];
         }
@@ -274,6 +275,87 @@ namespace RPGFramework.Commands
         }
         #endregion
     }
-   #endregion
+    internal class NpcBuilderCommand : ICommand
+    {
+        public string Name => "/npc";
+        public IEnumerable<string> Aliases => [];
+
+        public string Help => "Usage: \n "
+            + "/npc create 'Name' 'NpcClassifier' 'Description'";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    return NpcCreate(player, parameters);
+                case "list":
+                    return NpcList(player, parameters);
+                default:
+                    ShowHelp(player);
+                    break;
+            }
+            return false;
+        }
+        #region ShowHelp Method
+        private void ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            
+        }
+        #endregion
+        #region NpcCreate Method
+        private static bool NpcCreate(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine("Provide at least a name, The npc classifier and description.");
+                player.WriteLine("Npc Clasifier Examples: Villager, Farm Animal, Shop Keeper, Knight, Wizard");
+                return false;
+            }
+
+            if (GameState.Instance.NPCCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The Npc {parameters[2]} already exists.");
+                return false;
+            }
+
+            NonPlayer n = new()
+            {
+                Name = parameters[2],
+                NpcClasification = parameters[3],
+                Description = parameters[4]
+            };
+
+            GameState.Instance.NPCCatalog.Add(n.Name, n);
+            player.WriteLine($"{n.Name} was added to the Npc catalog.");
+            return true;
+        }
+        #endregion
+        #region NpcList Method
+        private static bool NpcList(Player player, List<string> parameters)
+        {
+            player.WriteLine("All the Mobs:");
+            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            foreach (NonPlayer npc in GameState.Instance.NPCCatalog.Values.OrderBy(x => x.Name))
+            {
+                player.WriteLine($"{npc.Name} - {npc.NpcClasification} - {npc.Description}");
+            }
+            return true;
+        }
+        #endregion
+    }
+
+    #endregion
 
 }

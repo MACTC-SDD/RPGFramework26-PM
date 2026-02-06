@@ -378,6 +378,10 @@ namespace RPGFramework.Geography
         }
         #endregion
 
+        #region Sparatic Spawning Method
+        public static bool SparaticSpawning;
+        #endregion
+
         #endregion --- Methods ---
 
         #region --- Methods (Events) ---
