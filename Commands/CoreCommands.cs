@@ -52,6 +52,7 @@ namespace RPGFramework.Commands
                 new DropCommand(),
                 new GiveCommand(),
                 new UseCommand(),
+                new ManaCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -884,7 +885,7 @@ public bool Execute(Character character, List<string> parameters)
             if (character is Player player)
             {
                 player.WriteLine($"You are level {player.Level} you will gain an additional "
-                    + $"{Player.Levels[player.Level].Health} health and you will have " + 
+                    + $"{Player.Levels[player.Level].Health} health along with {Player.Levels[player.Level].Mana} Mana and you will have " + 
                     $"{Player.Levels[player.Level].StatPoints} points upon level up.");
                 return true;
             }
@@ -1044,6 +1045,21 @@ public bool Execute(Character character, List<string> parameters)
             Panel panel = RPGPanel.GetPanel(item.Description, item.Name);
             player.Write(panel);
             return true;
+        }
+    }
+    internal class ManaCommand : ICommand
+    {
+        public string Name => "mana";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "tells you your mana";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"you have {character.Mana} out of {player.MaxMana} mana");
+                return true;
+            }
+            return false;
         }
     }
 }

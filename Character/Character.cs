@@ -29,14 +29,14 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; set; } = 0;
+        public int Health { get; set; } = 100;
         public bool IsEngaged { get; protected set; } = false;
-        public Inventory BackPack { get; protected set; } = new Inventory();
-        public int Level { get; protected set; } = 1;
+        [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
+        [JsonInclude] public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
-        public int MaxHealth { get; protected set; } = 0;
+        [JsonInclude] public int MaxHealth { get; protected set; } = 100;
         public string Name { get; set; } = "";
-        public int XP { get; protected set; } = 0;
+        [JsonInclude] public int XP { get; protected set; } = 0;
         public Armor? EquippedArmor { get; set; }
         public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }
@@ -46,6 +46,8 @@ namespace RPGFramework
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
         public double MaxCarryWeight { get; private set; } = 150;
+        public int MaxMana { get; set; } = 100;
+        public int Mana { get; set; } = 100;
         
         
         #endregion
@@ -134,12 +136,13 @@ namespace RPGFramework
             // Doesn't make sense if player is dead
             if (Alive == false)
                 return;
-            
+
 
             // Can't have health < 0
             if (health < 0)
-                health = 0;           
-
+            {
+                health = 0;
+            }
             // Can't have health > MaxHealth
             if (health > MaxHealth)
                 health = MaxHealth;
@@ -218,5 +221,27 @@ namespace RPGFramework
             return RPGPanel.GetPanel(table, title);
         }
         
+        // basic set up of max mana
+        public void SetMaxMana( int maxMana)
+        {
+            if (maxMana < 100)
+                maxMana = 100;
+            MaxMana = maxMana;
+            //mana is equal to maxmana
+            Mana = MaxMana;
+        }
+        public void SetMana(int mana)
+        {
+            //mana cant be less than 0
+            if (mana < 0)
+            {
+                Mana = 0;
+            }
+            //mana has to equal max mana
+            if (mana > MaxMana)
+            { 
+                Mana = MaxMana;
+            }
+        }
     }
 }
