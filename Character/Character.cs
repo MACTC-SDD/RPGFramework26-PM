@@ -45,6 +45,7 @@ namespace RPGFramework
         public StatusCondition StatusConditon = StatusCondition.None;
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
+        public double MaxCarryWeight { get; private set; } = 150;
         
         
         #endregion
@@ -173,6 +174,10 @@ namespace RPGFramework
         public void Heal(int heal)
         {
             SetHealth(Health + heal - HealPenalty);
+        }
+        public void SetCarryCapacity()
+        {
+            MaxCarryWeight = Strength * 15;
         }
 
         public Item? FindItem(string itemName)

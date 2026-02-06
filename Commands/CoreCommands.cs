@@ -169,12 +169,20 @@ namespace RPGFramework.Commands
                 return false;
             }
             else
+            // checking to see if the player can pick it up
             {
-                room.Items.Remove(i);
-                player.BackPack.Items.Add(i);
-                player.WriteLine($"Picked up {i}");
+                if (player.BackPack.CheckCarryWeight(player, i) == true)
+                {
+                    room.Items.Remove(i);
+                    player.BackPack.Items.Add(i);
+                    player.WriteLine($"Picked up {i}");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            return true;
 
 
         }
@@ -751,10 +759,10 @@ public bool Execute(Character character, List<string> parameters)
                     player.WriteLine("No Damage amount stated.");
                     return false;
                 }
-                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
-                Target.Health -= int.Parse(parameters[2]);
-                player.WriteLine($"you have damaged {Target} by {parameters[1]}");
-                return true;
+                    Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                    Target.Health -= int.Parse(parameters[2]);
+                    player.WriteLine($"you have damaged {Target} by {parameters[1]}");
+                    return true;
             }
             return false;
 
