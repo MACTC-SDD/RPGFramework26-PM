@@ -228,13 +228,15 @@ namespace RPGFramework.Geography
             Character? character = GetPlayersInRoom(room)
                 .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (character != null)
-            {
-                return character;
-            }
-
+            
             // Search NPCs next
-            character = room.NonPlayers
+            character ??= room.NonPlayers
                 .FirstOrDefault(npc => npc.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            character ??= room.Mobs
+                .FirstOrDefault(mob => mob.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+
             return character;
         }
         #endregion
