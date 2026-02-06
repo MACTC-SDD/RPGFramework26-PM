@@ -9,5 +9,6 @@ namespace RPGFramework
         public int RequiredXp { get; set; } = 0;
         public int StatPoints { get; set; } = 0;
         public int Health { get; set; } = 0;
+        public int Mana {  get; set; } = 0;
     }
 }
