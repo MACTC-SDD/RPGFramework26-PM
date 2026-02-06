@@ -33,6 +33,7 @@ namespace RPGFramework.Commands
                 new BackupCommand(),
                 new RestoreCommand(),
                 new MotdCommand(),
+                new LevelUpCommand(),
             ];
         }
     }
@@ -734,6 +735,30 @@ namespace RPGFramework.Commands
             }
             player.WriteLine($"successfully set motd");
             GameState.Instance.MessageCatalog["motd"] = parameters[1];
+            return true;
+        }
+    }
+
+    internal class LevelUpCommand : ICommand
+    {
+        public string Name => "/levelup";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            player.LevelUp(1);
+            player.WriteLine("you have given yourself one level");
             return true;
         }
     }
