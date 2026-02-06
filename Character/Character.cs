@@ -45,6 +45,7 @@ namespace RPGFramework
         public StatusCondition StatusConditon = StatusCondition.None;
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
+        public double MaxCarryWeight { get; private set; } = 150;
         public int MaxMana { get; set; } = 100;
         public int Mana { get; set; } = 100;
         
@@ -67,7 +68,7 @@ namespace RPGFramework
         {
             Health = MaxHealth;
             Weapon w = new() 
-              { Damage = 2, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
+              { MaxDamage = 4, MaxDice = 1, Description = "A fist", Name = "Fist", Value = 0, Weight = 0, WeaponType = WeaponType.Hands };
             PrimaryWeapon = w;
 
             if (Class != null)
@@ -176,6 +177,10 @@ namespace RPGFramework
         public void Heal(int heal)
         {
             SetHealth(Health + heal - HealPenalty);
+        }
+        public void SetCarryCapacity()
+        {
+            MaxCarryWeight = Strength * 15;
         }
 
         public Item? FindItem(string itemName)

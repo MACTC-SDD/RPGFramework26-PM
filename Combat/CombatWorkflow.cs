@@ -210,7 +210,7 @@ namespace RPGFramework.Workflows
                             case "attack":
                             case "1":
                                 player.WriteLine($"What do you attack with?");
-                                foreach (Weapon weapon in player.Inventory)
+                                foreach (Weapon weapon in player.BackPack.Items)
                                 {
                                     player.WriteLine($"- {weapon.Name}");
                                 }
@@ -232,7 +232,7 @@ namespace RPGFramework.Workflows
                             case "items":
                                 player.WriteLine("You open your inventory:");
                                 // Rylan - See my note in ChooseItem about filtering by type.
-                                foreach (Consumable item in player.Inventory)
+                                foreach (Consumable item in player.BackPack.Items)
                                 {
                                     player.WriteLine($"- {item.Name}");
                                 }

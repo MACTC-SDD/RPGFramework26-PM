@@ -39,7 +39,18 @@ namespace RPGFramework
             int attackRoll = rand.Next(1, 20);
             int attackModifier = (attacker.Intelligence - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
-            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            int targetAC = target.EquippedArmor.AC + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            if (target.EquippedArmor.HasDex == true)
+                {
+                    if (target.EquippedArmor.DexMax > ((target.Dexterity - 10) / 2))
+                    {
+                        targetAC += target.EquippedArmor.DexMax;
+                    }
+                    else
+                    {
+                        targetAC += (target.Dexterity - 10) / 2;
+                    }
+                }
             int damageModifier = (attacker.Intelligence - 10) / 2;
             int totalDamage = weapon.Damage + damageModifier;
             if (attackRoll == 20)
@@ -79,9 +90,20 @@ namespace RPGFramework
             int attackRoll = rand.Next(1, 20);
             int attackModifier = (attacker.Strength - 10) / 2;
             int totalAttack = attackRoll + attackModifier;
-            int targetAC = 10 + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            int targetAC = target.EquippedArmor.AC + ((target.Dexterity - 10) / 2); //simplified AC calculation
+            if (target.EquippedArmor.HasDex == true)
+            {
+                if (target.EquippedArmor.DexMax > ((target.Dexterity - 10) / 2))
+                {
+                    targetAC += target.EquippedArmor.DexMax;
+                }
+                else
+                {
+                    targetAC += (target.Dexterity - 10) / 2;
+                }
+            }
             int damageModifier = (attacker.Strength - 10) / 2;
-            int totalDamage = weapon.Damage + damageModifier;
+            int totalDamage = weapon.RollDamage();
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
