@@ -32,14 +32,14 @@ namespace RPGFramework
         #region --- Fields ---
         private static readonly List<LevelEntry> _levels =
         [
-            new() {RequiredXp = 0, StatPoints = 0, Health = 0},
-            new() {RequiredXp = 500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25}
+            new() {RequiredXp = 0, StatPoints = 0, Health = 0, Mana = 0},
+            new() {RequiredXp = 500, StatPoints = 1, Health = 25, Mana=25},
+            new() {RequiredXp = 1000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 1500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 25}
         ];
 
         #endregion
@@ -214,6 +214,7 @@ namespace RPGFramework
                 MaxHealth += _levels[Level].Health;
                 Health = MaxHealth;
                 StatPoints += _levels[Level].StatPoints;
+                MaxMana += _levels[Level].Mana;
                 Level++;
                 
             }

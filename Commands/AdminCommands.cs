@@ -509,7 +509,7 @@ namespace RPGFramework.Commands
     internal class TeleportRoomCommand : ICommand
     {
         public string Name => "/teleportroom";
-        public IEnumerable<string> Aliases => [ /tpr" ];
+        public IEnumerable<string> Aliases => [ "/tpr" ];
         public string Help => "Teleport to a specific room by ID. Usage: teleportroom <areaId>:<roomId> or teleportroom <roomId> (uses your current area)";
         public bool Execute(Character character, List<string> parameters)
         {
