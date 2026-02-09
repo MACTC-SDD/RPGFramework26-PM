@@ -461,14 +461,17 @@ namespace RPGFramework
             IsRunning = false;
 
             // Wait for threads to finish
-            _saveCts?.Cancel();
-            _timeOfDayCts?.Cancel();
-            _tickCts?.Cancel();
-            _weatherCts?.Cancel();
-            _npcCts?.Cancel();
-            _itemDecayCts?.Cancel();
             _announcementsCts?.Cancel();
             _combatManagerCts?.Cancel();
+            _itemCleanUpCts?.Cancel();
+            _itemDecayCts?.Cancel();
+            _npcCts?.Cancel();
+            _saveCts?.Cancel();
+            _spawnMobsCts?.Cancel();
+            _statusConditionManagerCts?.Cancel();
+            _tickCts?.Cancel();
+            _timeOfDayCts?.Cancel();
+            _weatherCts?.Cancel();
             // Exit program
             Environment.Exit(0);
         }
