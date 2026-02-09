@@ -16,11 +16,15 @@ namespace RPGFramework.Commands
         {
             return
             [
+                new AdminHealCommand(),
                 new AdminHelpCommand(),
                 new AnnounceCommand(),
+                new BackupCommand(),
                 new GoToCommand(),
                 new HelpEditCommand(),
                 new KickCommand(),
+                new LevelUpCommand(),
+                new MotdCommand(),
                 new ReloadSeedDataCommand(),
                 new RenameCommand(),
                 new RoleCommand(),
@@ -30,11 +34,7 @@ namespace RPGFramework.Commands
                 new WhereCommand(),
                 new WhoCommand(),
                 new TeleportRoomCommand(), // added teleport by room id
-                new BackupCommand(),
                 new RestoreCommand(),
-                new MotdCommand(),
-                new LevelUpCommand(),
-                new HealCommand(),
             ];
         }
     }
@@ -763,9 +763,9 @@ namespace RPGFramework.Commands
             return true;
         }
     }
-    internal class HealCommand : ICommand
+    internal class AdminHealCommand : ICommand
     {
-        public string Name => "heal";
+        public string Name => "/heal";
         public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
