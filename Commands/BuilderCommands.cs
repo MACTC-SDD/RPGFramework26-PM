@@ -33,8 +33,20 @@ namespace RPGFramework.Commands
                 return false;
             }
 
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("No item");
+                return false;
+            }
 
-            
+            if (!GameState.Instance.ItemCatalog.TryGetValue(parameters[1], out var i) || i == null)
+            {
+                player.WriteLine("No item");
+                return false;
+            }
+
+            Item? i2 = Utility.Clone(i);
+            player.GetRoom().Items.Add(i2!);
             return true;
         }
         #endregion
