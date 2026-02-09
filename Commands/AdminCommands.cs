@@ -34,6 +34,7 @@ namespace RPGFramework.Commands
                 new RestoreCommand(),
                 new MotdCommand(),
                 new LevelUpCommand(),
+                new HealCommand(),
             ];
         }
     }
@@ -760,6 +761,39 @@ namespace RPGFramework.Commands
             player.LevelUp(1);
             player.WriteLine("you have given yourself one level");
             return true;
+        }
+    }
+    internal class HealCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No health amount stated.");
+                    return false;
+                }
+                Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+                target.Health += int.Parse(parameters[2]);
+                player.WriteLine($"you have healed {target} by {parameters[1]}");
+                return true;
+            }
+            return false;
+
         }
     }
 }

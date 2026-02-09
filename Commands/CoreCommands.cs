@@ -53,6 +53,7 @@ namespace RPGFramework.Commands
                 new GiveCommand(),
                 new UseCommand(),
                 new ManaCommand(),
+                new HealSpellCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -1052,6 +1053,27 @@ public bool Execute(Character character, List<string> parameters)
                 return true;
             }
             return false;
+        }
+    }
+    internal class HealSpellCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "heals 50% of your mana";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (character.Mana < 20)
+            {
+                player.WriteLine("you dont have enough mana!");
+                return false;
+            }
+            character.Heal(player.MaxHealth, 20);
+            player.WriteLine("you healed up to full health!");
+            return true;
         }
     }
 }
