@@ -351,6 +351,34 @@ namespace RPGFramework.Geography
 
         #endregion
 
+        #region SpawnMobs Method
+        public void SpawnMobs()
+        {
+            if (MobSpawnList.Count == 0 || Mobs.Count >= MaxMobs)
+                return; // No mobs to spawn or already at max            
+
+            if (GetPlayersInRoom(this).Count == 0)
+                return; // Don't spawn mobs if no players are present
+
+            foreach (var kvp in MobSpawnList)
+            {               
+                string mobName = kvp.Key;
+                double spawnChance = kvp.Value;
+                if (GameState.Instance.Random.NextDouble() <= spawnChance
+                    && (GameState.Instance.MobCatalog.TryGetValue(mobName, out var mobTemplate))
+                    && mobTemplate != null)
+                {
+                    Mob? newMob = Utility.Clone<Mob>(mobTemplate);
+                    if (newMob != null) Mobs.Add(newMob);
+                }
+
+                if (Mobs.Count >= MaxMobs)
+                    break; // Stop spawning if we've reached the maximum number of mobs
+            }
+        }
+        
+        #endregion
+
         #region TryParseId Method (Static)
         public static bool TryParseId(string input, int defaultArea, out int roomId, out int areaId)
         {
@@ -380,37 +408,6 @@ namespace RPGFramework.Geography
         }
         #endregion
 
-        #region SpawnMobs Method
-        public void SpawnMobs()
-        {
-            if (MobSpawnList.Count == 0 || Mobs.Count >= MaxMobs)
-            {
-                return; // No mobs to spawn or already at max
-            }
-
-            foreach (var kvp in MobSpawnList)
-            {
-                if (Mobs.Count >= MaxMobs)
-                {
-                    break; // Stop spawning if we've reached the maximum number of mobs
-                }
-
-                string mobName = kvp.Key;
-                double spawnChance = kvp.Value;
-                if (GameState.Instance.Random.NextDouble() <= spawnChance)
-                {
-                    if (GameState.Instance.MobCatalog.TryGetValue(mobName, out var mobTemplate))
-                    {
-                        if (mobTemplate != null)
-                        {
-                            Mob? newMob = Utility.Clone<Mob>(mobTemplate);
-                            if (newMob != null) Mobs.Add(newMob);
-                        }
-                    }
-                }
-            }
-        }
-        #endregion
 
         #endregion --- Methods ---
 
