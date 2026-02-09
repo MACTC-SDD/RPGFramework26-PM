@@ -1,4 +1,5 @@
-﻿using RPGFramework.Enums;
+﻿using System.Reflection.Metadata.Ecma335;
+using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 using RPGFramework.Workflows;
@@ -17,6 +18,28 @@ namespace RPGFramework.Commands
             ];
         }
     }
+
+    #region ---Item Spawn---
+    internal class ItemsSpawn : ICommand
+    {
+        public string Name => "/spawnitem";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+
+            
+            return true;
+        }
+        #endregion
+    }
+
 
     #region --- Room Builder ---
     /// <summary>
@@ -1290,11 +1313,11 @@ namespace RPGFramework.Commands
             }//this code above very specifically needs [[ ]] instead of [ ]
             return true;
         }
-        
-       
+
+        #endregion
 
 
     }
     #endregion
-    #endregion
+
 }
