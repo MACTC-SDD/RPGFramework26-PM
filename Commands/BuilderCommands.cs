@@ -508,13 +508,7 @@ namespace RPGFramework.Commands
         #endregion
 
         #region RoomSetExit Method
-        // CODE REVIEW: Ashten PR #18
-        // This is a big method with a lot of logic - consider breaking it into smaller helper methods for each subcommand.
-        // Some things like FindReturnExit might make sense as part of the Exit class so others could use it too.
-        // When searching for an exit id, keep in mind that they IDs are NOT unique across areas.
-        // Overall a great set of features for exit management!
-        // You can delete this once you've read it. Let me know if you have any questions.
-
+       
         /// <summary>
         /// /room set exit ...
         /// Supports:
