@@ -249,13 +249,15 @@ namespace RPGFramework.Geography
             Character? character = GetPlayersInRoom(room)
                 .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (character != null)
-            {
-                return character;
-            }
-
+            
             // Search NPCs next
-            character = room.NonPlayers
+            character ??= room.NonPlayers
                 .FirstOrDefault(npc => npc.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            character ??= room.Mobs
+                .FirstOrDefault(mob => mob.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+
             return character;
         }
         #endregion
@@ -368,6 +370,34 @@ namespace RPGFramework.Geography
         }
 
 
+        #endregion
+
+        #region SpawnMobs Method
+        public void SpawnMobs()
+        {
+            if (MobSpawnList.Count == 0 || Mobs.Count >= MaxMobs)
+                return; // No mobs to spawn or already at max            
+
+            if (GetPlayersInRoom(this).Count == 0)
+                return; // Don't spawn mobs if no players are present
+
+            foreach (var kvp in MobSpawnList)
+            {               
+                string mobName = kvp.Key;
+                double spawnChance = kvp.Value;
+                if (GameState.Instance.Random.NextDouble() <= spawnChance
+                    && (GameState.Instance.MobCatalog.TryGetValue(mobName, out var mobTemplate))
+                    && mobTemplate != null)
+                {
+                    Mob? newMob = Utility.Clone<Mob>(mobTemplate);
+                    if (newMob != null) Mobs.Add(newMob);
+                }
+
+                if (Mobs.Count >= MaxMobs)
+                    break; // Stop spawning if we've reached the maximum number of mobs
+            }
+        }
+        
         #endregion
 
         #region TryParseId Method (Static)

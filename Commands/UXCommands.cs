@@ -1,6 +1,6 @@
 ﻿using RPGFramework.Display;
 using Spectre.Console;
-
+using RPGFramework.Geography;
 namespace RPGFramework.Commands
 {
     /// <summary>
@@ -33,7 +33,7 @@ namespace RPGFramework.Commands
     internal class UXCommand : ICommand
     {
         // This is the command a player would type to execute this command
-        public string Name => "/ux";
+        public string Name => "info";
 
         // These are the aliases that can also be used to execute this command. This can be empty.
         public IEnumerable<string> Aliases => new List<string>() { };
@@ -42,29 +42,32 @@ namespace RPGFramework.Commands
         // Change code in here to experiment with the RPGPanel UX component
         public bool Execute(Character character, List<string> parameters)
         {
+            
             // Exit if the caller isn't a player
             if (character is not Player player)
                 return false;
 
-            // This is an example of how we can use Spectre.Console to make a table
-            // We'll put this inside our panel
-            var table = new Table();
-            table.AddColumn("Command");
-            table.AddColumn("Description");
-            table.AddRow("[dim][red]/ux[/][/]\n\n", "[bold]This command[/]\n");
-            table.AddRow("[red]/ux[/]\n", "[bold]This command[/]\n");
-            table.AddRow("/uxpanel 'title' 'the content'", "Use RPGPanel to create a panel");
-            table.AddRow("/uxcolor", "Test different colors");
-            table.AddRow("/uxdecoration", "[slowblink]Test different text decorations[/]\n");
-            table.AddRow("/uxtree", "See how trees work");
-            table.AddRow("/uxbarchart", "See how bar charts work");
-            table.AddRow("/uxcanvas", "See how canvas works");
+            if (parameters.Count < 2)
+            {
+                player.Write(player.ShowSummary());
+                return true;
 
-            string title = "UX Testing Commands";
+            }
 
-            Panel panel = RPGPanel.GetPanel(table, title);
-            //player.Write(panel);
-            player.Write(player.ShowSummary());
+            // If parameters, find target and show summary for them
+            if (parameters.Count >= 2)
+            {
+                Character? target = Room.FindCharacterInRoom(player.GetRoom(), parameters[1]);
+                if(target != null)
+                {
+                    player.Write(target.ShowSummary());
+                }
+                else
+                {
+                    player.WriteLine($"No character named {parameters[1]} found in the current room.");
+                    return false;
+                }
+            }
             return true;
         }
     }
