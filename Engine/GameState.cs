@@ -57,6 +57,8 @@ namespace RPGFramework
         private Task? _combatManagerTask;
         private CancellationTokenSource? _statusConditionManagerCts;
         private Task? _statusConditionManagerTask;
+        private CancellationTokenSource? _spawnMobsCts;
+        private Task? _spawnMobsTask;
 
         private int _tickCount = 0;
         private readonly int _logSuppressionSeconds = 30;
@@ -288,6 +290,7 @@ namespace RPGFramework
             return Persistence.SavePlayerAsync(p);
         }
         #endregion
+
         #region CreateBackup Method
         public static void CreateBackup()
         {
@@ -313,6 +316,7 @@ namespace RPGFramework
             );
         }
         #endregion
+
         #region RestoreBackup Method
         public static void RestoreBackup(string backupName)
         {
@@ -353,6 +357,7 @@ namespace RPGFramework
             ZipFile.ExtractToDirectory(zipPath, dataPath);
         }
         #endregion
+
         #region Start Method (Async)
         /// <summary>
         /// Initializes and starts the game server 
@@ -402,6 +407,9 @@ namespace RPGFramework
 
             _saveCts = new CancellationTokenSource();
             _saveTask = RunAutosaveLoopAsync(TimeSpan.FromMilliseconds(10000), _saveCts.Token);
+            
+            _spawnMobsCts = new CancellationTokenSource();
+            _spawnMobsTask = RunSpawnMobLoopAsync(TimeSpan.FromSeconds(30), _spawnMobsCts.Token);
 
             _timeOfDayCts = new CancellationTokenSource();
             _timeOfDayTask = RunTimeOfDayLoopAsync(TimeSpan.FromMilliseconds(15000), _timeOfDayCts.Token);
@@ -453,14 +461,17 @@ namespace RPGFramework
             IsRunning = false;
 
             // Wait for threads to finish
-            _saveCts?.Cancel();
-            _timeOfDayCts?.Cancel();
-            _tickCts?.Cancel();
-            _weatherCts?.Cancel();
-            _npcCts?.Cancel();
-            _itemDecayCts?.Cancel();
             _announcementsCts?.Cancel();
             _combatManagerCts?.Cancel();
+            _itemCleanUpCts?.Cancel();
+            _itemDecayCts?.Cancel();
+            _npcCts?.Cancel();
+            _saveCts?.Cancel();
+            _spawnMobsCts?.Cancel();
+            _statusConditionManagerCts?.Cancel();
+            _tickCts?.Cancel();
+            _timeOfDayCts?.Cancel();
+            _weatherCts?.Cancel();
             // Exit program
             Environment.Exit(0);
         }
@@ -683,6 +694,34 @@ namespace RPGFramework
                 await Task.Delay(interval, ct);
             }
             GameState.Log(DebugLevel.Alert, "NPC thread stopping.");
+        }
+        #endregion
+
+        #region RunSpawnMobLoopAsync Method
+        private async Task RunSpawnMobLoopAsync(TimeSpan interval, CancellationToken ct)
+        {
+            GameState.Log(DebugLevel.Alert, "Spawn mobs started.");
+            while (!ct.IsCancellationRequested && IsRunning)
+            {
+                try
+                {
+                    GameState.Log(DebugLevel.Debug, "Spawning Mobs...");
+                    foreach (Area area in GameState.Instance.Areas.Values)
+                    {
+                        foreach (Room room in area.Rooms.Values)
+                        {
+                            room.SpawnMobs();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Error, $"Error during Mobs spawning: {ex.Message}");
+                }
+
+                await Task.Delay(interval, ct);
+            }
+            GameState.Log(DebugLevel.Alert, "Mobs spawn thread stopping.");
         }
         #endregion
 

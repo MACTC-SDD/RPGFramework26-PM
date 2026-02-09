@@ -18,5 +18,24 @@ namespace RPGFramework.Items
             }
             return null;
         }
+        public bool CheckCarryWeight(Player player, Item NewItem)
+        {
+            double CurrentInventory = 0;
+            foreach (Item item in Items)
+            {
+                CurrentInventory += item.Weight;
+            }
+            if ((NewItem.Weight + CurrentInventory) >= player.MaxCarryWeight)
+            {
+                double diff = (NewItem.Weight + CurrentInventory) - player.MaxCarryWeight;
+                player.WriteLine($"You can't pick up {NewItem.Name} because it exceeds your max carry capacity by {diff}");
+                return false;
+            } else
+            {
+                player.WriteLine($"You are currently holding {(CurrentInventory + NewItem.Weight)}.");
+                return true;
+            }
+
+        }
     }
 }

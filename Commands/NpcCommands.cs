@@ -2,6 +2,7 @@
 using RPGFramework;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 namespace RPGFramework.Commands
 {
@@ -12,6 +13,7 @@ namespace RPGFramework.Commands
             return
             [
                 new MobBuilderCommand(),
+                new NpcBuilderCommand()
                 // Add other Npc commands here as they are implemented
             ];
         }
@@ -54,6 +56,8 @@ namespace RPGFramework.Commands
                     break;
                 case "set":
                     return MobSet(player, parameters);
+                case "specify":
+                    return MobSpecify(player, parameters);
                 default:
                     ShowHelp(player);
                     break;
@@ -89,7 +93,6 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-
         #region MobDelete Method
         private static bool MobDelete(Player player, List<string> parameters)
         {
@@ -111,7 +114,6 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-
         #region MobSet Method
         private static bool MobSet(Player player, List<string> parameters)
         {
@@ -174,18 +176,19 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-        private void MobKill(Player player, List<string> parameters)
+        #region MobKill Method
+        private static bool MobKill(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name and description.");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
                 player.WriteLine($"The mob {parameters[2]} is not alive or does not exist");
-                return;
+                return false;
             }
 
             //player.GetRoom
@@ -193,37 +196,37 @@ namespace RPGFramework.Commands
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
 
             player.WriteLine($"{m.Name} was removed the mob catalog.");
+            return true;
         }
-        private void MobLoad(Player player, List<string> parameters)
+        #endregion
+        #region MobLoad Method
+        private static bool MobLoad(Player player, List<string> parameters)
         {
             if (parameters.Count < 3)
 
             {
                 player.WriteLine("Usage: /mob load <name>");
-                return;
+                return false;
             }
 
             if (!GameState.Instance.MobCatalog.TryGetValue(parameters[02],out Mob? m ))
                {
                 player.WriteLine("The mob you are trying to summon is not avalible in the current mob catolog");
-                return;
+                return false;
 
             }
             Mob? clone = Utility.Clone<Mob>(m);
             if (clone == null)
             {
-                return;
+                return false;
             }
             player.GetRoom().Mobs.Add(clone);
             player.WriteLine($"mob {clone.Name} added to room");
+            return true;
         }
-
-
-        // private  void Roomset(Player player, List<string> parameters)
-        //{
-        //mob.RoomID = player.GetRoom();
-        //}
-        private void MobList(Player player, List<string> parameters)
+        #endregion
+        #region MobList Method
+        private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
             player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
@@ -231,9 +234,39 @@ namespace RPGFramework.Commands
             {
                 player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
             }
-  
+            return true;
         }
-        private  void ShowHelp(Player player)
+        #endregion
+        #region MobSpecify Method
+        private static bool MobSpecify(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("Provide at least the name of the mob");
+                return false;
+            }
+
+            if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The mob {parameters[2]} is not alive or does not exist within the current catolog");
+                return false;
+            }
+
+            //player.GetRoom
+
+            Mob m = GameState.Instance.MobCatalog[parameters[2]];
+
+           player.WriteLine($"Max Health: {m.MaxHealth}");
+           player.WriteLine($"Level: {m.Level}");
+           player.WriteLine($"Class: {m.Class?.Name ?? "None"}");
+          // player.WriteLine($"Element: {m.Element}");
+           player.WriteLine($"XP: {m.XP}");
+           player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
+            return true;
+        }
+        #endregion
+        #region ShowHelp Method
+        private void ShowHelp(Player player)
         {
             player.WriteLine("Usage: ");
             player.WriteLine("/mob description '<set room desc to this>'");
@@ -242,6 +275,87 @@ namespace RPGFramework.Commands
         }
         #endregion
     }
-   // #endregion
+    internal class NpcBuilderCommand : ICommand
+    {
+        public string Name => "/npc";
+        public IEnumerable<string> Aliases => [];
+
+        public string Help => "Usage: \n "
+            + "/npc create 'Name' 'NpcClassifier' 'Description'";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    return NpcCreate(player, parameters);
+                case "list":
+                    return NpcList(player, parameters);
+                default:
+                    ShowHelp(player);
+                    break;
+            }
+            return false;
+        }
+        #region ShowHelp Method
+        private void ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            
+        }
+        #endregion
+        #region NpcCreate Method
+        private static bool NpcCreate(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine("Provide at least a name, The npc classifier and description.");
+                player.WriteLine("Npc Clasifier Examples: Villager, Farm Animal, Shop Keeper, Knight, Wizard");
+                return false;
+            }
+
+            if (GameState.Instance.NPCCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The Npc {parameters[2]} already exists.");
+                return false;
+            }
+
+            NonPlayer n = new()
+            {
+                Name = parameters[2],
+                NpcClasification = parameters[3],
+                Description = parameters[4]
+            };
+
+            GameState.Instance.NPCCatalog.Add(n.Name, n);
+            player.WriteLine($"{n.Name} was added to the Npc catalog.");
+            return true;
+        }
+        #endregion
+        #region NpcList Method
+        private static bool NpcList(Player player, List<string> parameters)
+        {
+            player.WriteLine("All the Mobs:");
+            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            foreach (NonPlayer npc in GameState.Instance.NPCCatalog.Values.OrderBy(x => x.Name))
+            {
+                player.WriteLine($"{npc.Name} - {npc.NpcClasification} - {npc.Description}");
+            }
+            return true;
+        }
+        #endregion
+    }
+
+    #endregion
 
 }

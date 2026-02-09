@@ -12,12 +12,10 @@ namespace RPGFramework
     {
         public List<Spell> Spellbook { get; set; } = [];
 
-        // Isn't this a duplicate of Character.Backpack?
-        public List<Item> Inventory { get; set; } = [];
 
         public List<Consumable> GetConsumables()
         {
-            return [.. Inventory.OfType<Consumable>()];
+            return [.. BackPack.Items.OfType<Consumable>()];
         }
     }
 }

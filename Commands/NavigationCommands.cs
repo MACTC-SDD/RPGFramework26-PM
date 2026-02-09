@@ -26,7 +26,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "map";
 
-        public IEnumerable<string> Aliases => [];
+        public IEnumerable<string> Aliases => [ "m" ];
         public string Help => "Display a local map.";
 
         public bool Execute(Character character, List<string> parameters)
