@@ -18,13 +18,18 @@ namespace RPGFramework.Commands
             ];
         }
     }
-
-    #region MobBuilderCommand Class
+    #region Mob Commands
     internal class MobBuilderCommand : ICommand
     {
         public string Name => "/mob";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Usage: \n"
+           + "/mob list \n"
+           + "/mob create 'Name' 'MobClassifier' 'Description' \n"
+           + "/mob delete 'Name' \n"
+           + "/mob set 'Name' 'MobProporty' \n"
+           + "/mob load 'Name' \n"
+           + "/mob specify 'Name'";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -44,9 +49,6 @@ namespace RPGFramework.Commands
                     return MobCreate(player, parameters);
                 case "delete":
                     MobDelete(player, parameters);
-                    break;
-                case "kill":
-                    MobKill(player, parameters);
                     break;
                 case "load":
                     MobLoad(player, parameters);
@@ -176,29 +178,6 @@ namespace RPGFramework.Commands
             return true;
         }
         #endregion
-        #region MobKill Method
-        private static bool MobKill(Player player, List<string> parameters)
-        {
-            if (parameters.Count < 4)
-            {
-                player.WriteLine("Provide at least a name and description.");
-                return false;
-            }
-
-            if (!GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
-            {
-                player.WriteLine($"The mob {parameters[2]} is not alive or does not exist");
-                return false;
-            }
-
-            //player.GetRoom
-
-            Mob m = GameState.Instance.MobCatalog[parameters[2]];
-
-            player.WriteLine($"{m.Name} was removed the mob catalog.");
-            return true;
-        }
-        #endregion
         #region MobLoad Method
         private static bool MobLoad(Player player, List<string> parameters)
         {
@@ -268,20 +247,24 @@ namespace RPGFramework.Commands
         #region ShowHelp Method
         private void ShowHelp(Player player)
         {
-            player.WriteLine("Usage: ");
-            player.WriteLine("/mob description '<set room desc to this>'");
-            player.WriteLine("/mob name '<set room name to this>'");
-            player.WriteLine("/mob create '<name>' '<description>' '' <exit direction> '<exit description>'");
+            player.WriteLine(Help);
         }
         #endregion
     }
+
+    #endregion
+
+    #region npc Commands
+
     internal class NpcBuilderCommand : ICommand
     {
         public string Name => "/npc";
         public IEnumerable<string> Aliases => [];
 
-        public string Help => "Usage: \n "
-            + "/npc create 'Name' 'NpcClassifier' 'Description'";
+        public string Help => "Usage: \n"
+            + "/npc list \n"
+            + "/npc create 'Name' 'NpcClassifier' 'Description' \n"
+            + "/npc delete 'Name'";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -301,6 +284,8 @@ namespace RPGFramework.Commands
                     return NpcCreate(player, parameters);
                 case "list":
                     return NpcList(player, parameters);
+                case "delete":
+                    return NpcDelete(player, parameters);
                 default:
                     ShowHelp(player);
                     break;
@@ -311,7 +296,6 @@ namespace RPGFramework.Commands
         private void ShowHelp(Player player)
         {
             player.WriteLine(Help);
-            
         }
         #endregion
         #region NpcCreate Method
@@ -339,6 +323,32 @@ namespace RPGFramework.Commands
 
             GameState.Instance.NPCCatalog.Add(n.Name, n);
             player.WriteLine($"{n.Name} was added to the Npc catalog.");
+            return true;
+        }
+        #endregion
+        #region NpcDelete Method
+        private static bool NpcDelete(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 5)
+            {
+                player.WriteLine("Provide at least a name");
+            }
+
+            if (GameState.Instance.NPCCatalog.ContainsKey(parameters[2]))
+            {
+                player.WriteLine($"The Npc {parameters[2]} already exists.");
+                return false;
+            }
+
+            NonPlayer n = new()
+            {
+                Name = parameters[2],
+                NpcClasification = parameters[3],
+                Description = parameters[4]
+            };
+
+            GameState.Instance.NPCCatalog.Remove(n.Name);
+            player.WriteLine($"{n.Name} was Removed to the Npc catalog.");
             return true;
         }
         #endregion
