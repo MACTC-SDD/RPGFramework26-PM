@@ -38,7 +38,6 @@ namespace RPGFramework.Commands
                 new CheckWeatherCommand(),
                 new WeatherSetCommand(),
                 new GoldCommand(),
-                new HealCommand(),
                 new DamageCommand(),
                 new PurgeRoomCommand(),
                 new XPCommand(),
@@ -53,6 +52,7 @@ namespace RPGFramework.Commands
                 new GiveCommand(),
                 new UseCommand(),
                 new ManaCommand(),
+                new HealSpellCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -703,39 +703,7 @@ public bool Execute(Character character, List<string> parameters)
 
         }
     }
-    internal class HealCommand : ICommand
-    {
-        public string Name => "heal";
-        public IEnumerable<string> Aliases => [];
-        public string Help => "";
-        public bool Execute(Character character, List<string> parameters)
-        {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                if (parameters[1] == null)
-                {
-                    player.WriteLine("Player not found.");
-                    return false;
-                }
-                if (parameters[2] == null)
-                {
-                    player.WriteLine("No health amount stated.");
-                    return false;
-                }
-                Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-                target.Health += int.Parse(parameters[2]);
-                player.WriteLine($"you have healed {target} by {parameters[1]}");
-                return true;
-            }
-            return false;
-
-        }
-    }
+    
     internal class DamageCommand : ICommand
     {
         public string Name => "damage";
@@ -1060,6 +1028,27 @@ public bool Execute(Character character, List<string> parameters)
                 return true;
             }
             return false;
+        }
+    }
+    internal class HealSpellCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "heals 50% of your mana";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (character.Mana < 20)
+            {
+                player.WriteLine("you dont have enough mana!");
+                return false;
+            }
+            character.Heal(player.MaxHealth, 20);
+            player.WriteLine("you healed up to full health!");
+            return true;
         }
     }
 }

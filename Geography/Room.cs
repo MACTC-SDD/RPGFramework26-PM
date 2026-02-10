@@ -18,11 +18,14 @@ namespace RPGFramework.Geography
         public string Description { get; set; } = "";
         public List<Item> Items { get; set; } = [];
 
+        public Dictionary<string, double> ItemSpawnList { get; private set; } = [];
+
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
 
+        public int MaxItems { get; set; } = 3;
         public int MaxMobs {  get; set; } = 1; // Maximum number of Mob NPCs allowed in the room
         public List<Mob> Mobs { get; set; } = [];
         public Dictionary<string, double> MobSpawnList { get; private set; } = []; // Mob name and spawn chance
@@ -40,6 +43,24 @@ namespace RPGFramework.Geography
         #endregion --- Properties ---
 
         #region --- Methods ---
+
+        #region AddWeaponSpawn Method
+        public bool AddItemSpawn(string itemName, double spawnChance)
+        {
+            if (!GameState.Instance.ItemCatalog.TryGetValue(itemName, out var item) || item == null)
+            {
+                return false; // Item does not exist
+            }
+
+            if (Items == null || ItemSpawnList.ContainsKey(item.Name))
+            {
+                return false; // Mob already in spawn list
+            }
+
+            ItemSpawnList.Add(item.Name, spawnChance);
+            return true;
+        }
+        #endregion
 
         #region AddMobSpawn Method
         public bool AddMobSpawn(string mobName, double spawnChance)
@@ -408,6 +429,24 @@ namespace RPGFramework.Geography
         }
         #endregion
 
+        public void SpawnItems()
+        {
+            foreach(string itemName in ItemSpawnList.Keys )
+            {
+                if (Items.Count >= MaxItems)
+                    { break; }
+                
+                double spawnChance = Math.Clamp(ItemSpawnList[itemName], 0, 1);
+                if (GameState.Instance.Random.NextDouble() > spawnChance)
+                { continue; }
+
+                if (GameState.Instance.ItemCatalog.TryGetValue(itemName, out var i) || i == null)
+                {
+                    Item? i2 = Utility.Clone(i);
+                    Items.Add(i2!);
+                }
+            }
+        }
 
         #endregion --- Methods ---
 
