@@ -18,12 +18,16 @@ namespace RPGFramework.Geography
         public string Description { get; set; } = "";
         public List<Item> Items { get; set; } = [];
 
+        public Dictionary<string, double> ItemSpawnList { get; private set; } = [];
+
 
         // Icon to display on map
         public string MapIcon { get; set; } = DisplaySettings.RoomMapIcon;
         public string MapColor { get; set; } = DisplaySettings.RoomMapIconColor;
 
+        public int MaxItems { get; set; } = 3;
         public int MaxMobs {  get; set; } = 1; // Maximum number of Mob NPCs allowed in the room
+        public List<Mob> Mobs { get; set; } = [];
         public Dictionary<string, double> MobSpawnList { get; private set; } = []; // Mob name and spawn chance
 
         // Name of the room
@@ -39,6 +43,24 @@ namespace RPGFramework.Geography
         #endregion --- Properties ---
 
         #region --- Methods ---
+
+        #region AddWeaponSpawn Method
+        public bool AddItemSpawn(string itemName, double spawnChance)
+        {
+            if (!GameState.Instance.ItemCatalog.TryGetValue(itemName, out var item) || item == null)
+            {
+                return false; // Item does not exist
+            }
+
+            if (Items == null || ItemSpawnList.ContainsKey(item.Name))
+            {
+                return false; // Mob already in spawn list
+            }
+
+            ItemSpawnList.Add(item.Name, spawnChance);
+            return true;
+        }
+        #endregion
 
         #region AddMobSpawn Method
         public bool AddMobSpawn(string mobName, double spawnChance)
@@ -227,13 +249,15 @@ namespace RPGFramework.Geography
             Character? character = GetPlayersInRoom(room)
                 .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (character != null)
-            {
-                return character;
-            }
-
+            
             // Search NPCs next
-            character = room.NonPlayers
+            character ??= room.NonPlayers
                 .FirstOrDefault(npc => npc.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            character ??= room.Mobs
+                .FirstOrDefault(mob => mob.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+
             return character;
         }
         #endregion
@@ -348,6 +372,34 @@ namespace RPGFramework.Geography
 
         #endregion
 
+        #region SpawnMobs Method
+        public void SpawnMobs()
+        {
+            if (MobSpawnList.Count == 0 || Mobs.Count >= MaxMobs)
+                return; // No mobs to spawn or already at max            
+
+            if (GetPlayersInRoom(this).Count == 0)
+                return; // Don't spawn mobs if no players are present
+
+            foreach (var kvp in MobSpawnList)
+            {               
+                string mobName = kvp.Key;
+                double spawnChance = kvp.Value;
+                if (GameState.Instance.Random.NextDouble() <= spawnChance
+                    && (GameState.Instance.MobCatalog.TryGetValue(mobName, out var mobTemplate))
+                    && mobTemplate != null)
+                {
+                    Mob? newMob = Utility.Clone<Mob>(mobTemplate);
+                    if (newMob != null) Mobs.Add(newMob);
+                }
+
+                if (Mobs.Count >= MaxMobs)
+                    break; // Stop spawning if we've reached the maximum number of mobs
+            }
+        }
+        
+        #endregion
+
         #region TryParseId Method (Static)
         public static bool TryParseId(string input, int defaultArea, out int roomId, out int areaId)
         {
@@ -376,6 +428,25 @@ namespace RPGFramework.Geography
             return true;
         }
         #endregion
+
+        public void SpawnItems()
+        {
+            foreach(string itemName in ItemSpawnList.Keys )
+            {
+                if (Items.Count >= MaxItems)
+                    { break; }
+                
+                double spawnChance = Math.Clamp(ItemSpawnList[itemName], 0, 1);
+                if (GameState.Instance.Random.NextDouble() > spawnChance)
+                { continue; }
+
+                if (GameState.Instance.ItemCatalog.TryGetValue(itemName, out var i) || i == null)
+                {
+                    Item? i2 = Utility.Clone(i);
+                    Items.Add(i2!);
+                }
+            }
+        }
 
         #endregion --- Methods ---
 

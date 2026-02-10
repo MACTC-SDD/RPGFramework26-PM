@@ -35,8 +35,8 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    // Here you would add logic to apply the attack or spell effects to the chosen target
-                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
+                    if (selectedSpell != null)
+                        //Player.RollToHitS(player, chosenTarget);
 
                     if (selectedSpell.IsSave == true)
                     {
@@ -87,8 +87,8 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    // Here you would add logic to apply the attack or spell effects to the chosen target
-                    // TODO Player.RollToHitW(player, selectedWeapon, chosenTarget);
+                    if (selectedWeapon != null)
+                        Player.RollToHitW(player, selectedWeapon, chosenTarget);
 
                     CurrentStep = 0;
                     EndTurn();
@@ -106,7 +106,7 @@ namespace RPGFramework.Workflows
         {
             // Rylan - see my notes in ChooseWeapon about getting just consumables
             List<Consumable> consumables = [];
-            foreach (Consumable item in player.Inventory)
+            foreach (Consumable item in player.BackPack.Items)
             {
                 consumables.Add(item);
             }
@@ -130,7 +130,7 @@ namespace RPGFramework.Workflows
                 player.WriteLine($"You use the {chosenItem.Name}!");
                 // Here you would add logic to apply the item's effects
                 player.Heal(chosenItem.HealAmount);
-                player.Inventory.Remove(chosenItem); // Remove used item from inventory
+                player.BackPack.Items.Remove(chosenItem); // Remove used item from inventory
                 CurrentStep = 0; // End turn
                 EndTurn();
                 return true;
@@ -208,7 +208,7 @@ namespace RPGFramework.Workflows
 
             // CODE REVIEW: Rylan - Not everything in inventory will be a weapon
             // Here is a way to get a list of just the weapons
-            List<Weapon> weapons = [.. player.Inventory.OfType<Weapon>()];
+            List<Weapon> weapons = [.. player.BackPack.Items.OfType<Weapon>()];
 
             /*List<Weapon> weapons = new List<Weapon>();
 

@@ -8,6 +8,7 @@
             [
                 new TestItemSizeCommand(),
                 new ExampleCommand(),
+                new MapTestCommand(),
                 // Add more test commands here as needed
             ];
         }
@@ -40,6 +41,35 @@
             }
 
             player.WriteLine("This is an example command.");
+
+            // If the command failed to run for some reason, return false
+            return true;
+        }
+    }
+
+    internal class MapTestCommand : ICommand
+    {
+        // This is the cnd a player would type to execute this command
+        public string Name => "mt";
+
+        // These are the aliases that can also be used to execute this command. This can be empty.
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        // What will happen when the command is executed
+        public bool Execute(Character character, List<string> parameters)
+        {
+            // A lot of times we want to make sure it's a Player issuing the command, but not always
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            GameState.Instance.ItemCatalog.TryGetValue("compass", out Item? i);
+            Item? i2 = Utility.Clone(i);
+            player.BackPack.Items.Add(i2);
+
+            player.WriteLine("Added compass.");
 
             // If the command failed to run for some reason, return false
             return true;

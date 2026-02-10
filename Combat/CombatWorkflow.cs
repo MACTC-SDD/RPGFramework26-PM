@@ -175,7 +175,7 @@ namespace RPGFramework.Workflows
         {
             if (ActiveCombatant != player)
             {
-                player.WriteLine("It's not your turn!");
+                player.WriteLine("[underline]It's not your turn![/]");
                 return;
             }
             // Process any pre-process commands, if it matches, we'll execute it and return
@@ -188,13 +188,13 @@ namespace RPGFramework.Workflows
             switch (CurrentStep)
             {
                 case 0:
-                    player.WriteLine(Name + ": It's your turn! Choose an action: \n1. Attack \n2. Cast Spell \n3. Inventory \n4. Flee.");
+                    player.WriteLine(Name + ": It's your turn! Choose an action: \n1.[red] Attack [/]\n2.[cornflowerblue] Cast Spell [/]\n3.[yellow] Inventory [/]\n4.[green3] Flee.[/]");
                     CurrentStep++;
                     break;
                 case 1:
                     if (parameters.Count == 0)
                     {
-                        player.WriteLine("You must choose an action!");
+                        player.WriteLine("[underline]You must choose an action![/]");
                     }
                     else
                     {
@@ -209,8 +209,8 @@ namespace RPGFramework.Workflows
                         {
                             case "attack":
                             case "1":
-                                player.WriteLine($"What do you attack with?");
-                                foreach (Weapon weapon in player.Inventory)
+                                player.WriteLine($"[underline]What do you [red]attack[/] with?[/]");
+                                foreach (Weapon weapon in player.BackPack.Items)
                                 {
                                     player.WriteLine($"- {weapon.Name}");
                                 }
@@ -220,7 +220,7 @@ namespace RPGFramework.Workflows
                             case "cast":
                             case "2":
                             case "cast spell":
-                                player.WriteLine($"Which spell do you want to cast?");
+                                player.WriteLine($"[underline]Which [cornflowerblue]spell[/] do you want to cast?[/]");
                                 foreach (Spell spell in player.Spellbook)
                                 {
                                     player.WriteLine($"- {spell.Name}");
@@ -230,13 +230,13 @@ namespace RPGFramework.Workflows
                             case "inventory":
                             case "3":
                             case "items":
-                                player.WriteLine("You open your inventory:");
+                                player.WriteLine("[underline]You open your [yellow]inventory[/]:[/]");
                                 // Rylan - See my note in ChooseItem about filtering by type.
-                                foreach (Consumable item in player.Inventory)
+                                foreach (Consumable item in player.BackPack.Items)
                                 {
                                     player.WriteLine($"- {item.Name}");
                                 }
-                                player.WriteLine("Which item do you want to use?");
+                                player.WriteLine("[underline]Which item do you want to use?[/]");
                                 foreach (Consumable item in player.GetConsumables())
                                 {
                                     player.WriteLine($"- {item.Name}");
@@ -246,7 +246,7 @@ namespace RPGFramework.Workflows
                             case "flee":
                             case "4":
                             case "run":
-                                player.WriteLine("You attempt to flee from combat!");
+                                player.WriteLine("[underline]You attempt to [green3]flee[/] from combat![/]");
                                 // TODO Player.FleeCombat(player, currentCombat);
                                 player.CurrentWorkflow = null;
                                 break;

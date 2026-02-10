@@ -1,4 +1,5 @@
-﻿using RPGFramework.Enums;
+﻿using System.Reflection.Metadata.Ecma335;
+using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 using RPGFramework.Workflows;
@@ -13,10 +14,46 @@ namespace RPGFramework.Commands
             [
                 new RoomBuilderCommand(),
                 new ExitBuilderCommand(),
+                new FindBuilderCommand(),
+                new AreaBuilderCommand(),   // added /area
                 // Add more builder commands here as needed
             ];
         }
     }
+
+    #region ---Item Spawn---
+    internal class ItemsSpawn : ICommand
+    {
+        public string Name => "/spawnitem";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("No item");
+                return false;
+            }
+
+            if (!GameState.Instance.ItemCatalog.TryGetValue(parameters[1], out var i) || i == null)
+            {
+                player.WriteLine("No item");
+                return false;
+            }
+
+            Item? i2 = Utility.Clone(i);
+            player.GetRoom().Items.Add(i2!);
+            return true;
+        }
+        #endregion
+    }
+
 
     #region --- Room Builder ---
     /// <summary>
@@ -1290,11 +1327,678 @@ namespace RPGFramework.Commands
             }//this code above very specifically needs [[ ]] instead of [ ]
             return true;
         }
-        
-       
+
+        #endregion
 
 
     }
     #endregion
+
+    #region --- Find Builder ---
+    /// <summary>
+    /// /find command for searching rooms and exits.
+    /// </summary>
+    internal class FindBuilderCommand : ICommand
+    {
+        public string Name => "/find";
+
+        public IEnumerable<string> Aliases => ["/search", "/locate"];
+        public string Help => "Search for rooms and exits by text.\nUsage: /find room '<text>' - Search room names and descriptions\n       /find exit '<text>' - Search exit descriptions and names";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            // All find commands require at least Builder role
+            if (Utility.CheckPermission(player, PlayerRole.Builder) == false)
+            {
+                player.WriteLine("You do not have permission to do that.");
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            // Decide what to search based on the second parameter
+            switch (parameters[1].ToLower())
+            {
+                case "room":
+                case "rooms":
+                    return FindRoom(player, parameters);
+                case "exit":
+                case "exits":
+                    return FindExit(player, parameters);
+                case "help":
+                case "?":
+                    ShowHelp(player);
+                    return true;
+                default:
+                    ShowHelp(player);
+                    return false;
+            }
+        }
+
+        #region FindRoom Method
+        /// <summary>
+        /// Search room names and descriptions in the current area (or all areas if specified).
+        /// Usage: /find room '<search text>' [all]
+        /// </summary>
+        private static bool FindRoom(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Usage: /find room '<search text>' [all]");
+                player.WriteLine("Searches room names and descriptions in current area.");
+                player.WriteLine("Add 'all' at the end to search all areas.");
+                return false;
+            }
+
+            // Extract search text (handling quoted text)
+            string searchText = ExtractSearchText(parameters, 2);
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                player.WriteLine("Please provide text to search for.");
+                return false;
+            }
+
+            bool searchAllAreas = parameters.Any(p => p.Equals("all", StringComparison.OrdinalIgnoreCase));
+            searchText = searchText.ToLowerInvariant();
+
+            int matchCount = 0;
+            int areaId = player.AreaId;
+
+            player.WriteLine($"Searching for rooms containing: '{searchText}'");
+
+            if (searchAllAreas)
+            {
+                player.WriteLine("Searching ALL areas...");
+                // Search all areas
+                foreach (var areaKvp in GameState.Instance.Areas)
+                {
+                    matchCount += SearchRoomsInArea(player, areaKvp.Key, areaKvp.Value, searchText);
+                }
+            }
+            else
+            {
+                // Search only current area
+                if (!GameState.Instance.Areas.TryGetValue(areaId, out Area? currentArea))
+                {
+                    player.WriteLine($"Current area {areaId} not found.");
+                    return false;
+                }
+
+                player.WriteLine($"Searching in Area {areaId}...");
+                matchCount = SearchRoomsInArea(player, areaId, currentArea, searchText);
+            }
+
+            player.WriteLine($"Found {matchCount} matching room(s).");
+            return true;
+        }
+
+        /// <summary>
+        /// Helper method to search rooms in a specific area.
+        /// </summary>
+        private static int SearchRoomsInArea(Player player, int areaId, Area area, string searchText)
+        {
+            int matchCount = 0;
+            bool areaHeaderPrinted = false;
+
+            foreach (var roomKvp in area.Rooms)
+            {
+                Room room = roomKvp.Value;
+                bool nameMatch = room.Name?.ToLowerInvariant().Contains(searchText) ?? false;
+                bool descMatch = room.Description?.ToLowerInvariant().Contains(searchText) ?? false;
+
+                if (nameMatch || descMatch)
+                {
+                    if (!areaHeaderPrinted)
+                    {
+                        player.WriteLine($"--- Area {areaId} ---");
+                        areaHeaderPrinted = true;
+                    }
+
+                    matchCount++;
+                    string matchType = nameMatch && descMatch ? "Name & Description" :
+                                      nameMatch ? "Name" : "Description";
+
+                    // Get exit count
+                    int exitCount = room.ExitIds?.Count ?? 0;
+
+                    player.WriteLine($"  [{areaId}:{room.Id}] {room.Name}");
+                    player.WriteLine($"    Match: {matchType}, Exits: {exitCount}");
+
+                    // Show a preview of the matching text
+                    if (nameMatch)
+                    {
+                        string namePreview = GetPreviewText(room.Name, searchText);
+                        player.WriteLine($"    Name: ...{namePreview}...");
+                    }
+                    if (descMatch && !nameMatch) // Only show description preview if name didn't match
+                    {
+                        string descPreview = GetPreviewText(room.Description, searchText);
+                        player.WriteLine($"    Description: ...{descPreview}...");
+                    }
+                }
+            }
+
+            return matchCount;
+        }
+        #endregion
+
+        #region FindExit Method
+        /// <summary>
+        /// Search exit descriptions and names in the current area (or all areas if specified).
+        /// Usage: /find exit '<search text>' [all]
+        /// </summary>
+        private static bool FindExit(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("Usage: /find exit '<search text>' [all]");
+                player.WriteLine("Searches exit names and descriptions in current area.");
+                player.WriteLine("Add 'all' at the end to search all areas.");
+                return false;
+            }
+
+            // Extract search text (handling quoted text)
+            string searchText = ExtractSearchText(parameters, 2);
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                player.WriteLine("Please provide text to search for.");
+                return false;
+            }
+
+            bool searchAllAreas = parameters.Any(p => p.Equals("all", StringComparison.OrdinalIgnoreCase));
+            searchText = searchText.ToLowerInvariant();
+
+            int matchCount = 0;
+            int areaId = player.AreaId;
+
+            player.WriteLine($"Searching for exits containing: '{searchText}'");
+
+            if (searchAllAreas)
+            {
+                player.WriteLine("Searching ALL areas...");
+                // Search all areas
+                foreach (var areaKvp in GameState.Instance.Areas)
+                {
+                    matchCount += SearchExitsInArea(player, areaKvp.Key, areaKvp.Value, searchText);
+                }
+            }
+            else
+            {
+                // Search only current area
+                if (!GameState.Instance.Areas.TryGetValue(areaId, out Area? currentArea))
+                {
+                    player.WriteLine($"Current area {areaId} not found.");
+                    return false;
+                }
+
+                player.WriteLine($"Searching in Area {areaId}...");
+                matchCount = SearchExitsInArea(player, areaId, currentArea, searchText);
+            }
+
+            player.WriteLine($"Found {matchCount} matching exit(s).");
+            return true;
+        }
+
+        /// <summary>
+        /// Helper method to search exits in a specific area.
+        /// </summary>
+        private static int SearchExitsInArea(Player player, int areaId, Area area, string searchText)
+        {
+            int matchCount = 0;
+            bool areaHeaderPrinted = false;
+
+            foreach (var exitKvp in area.Exits)
+            {
+                Exit exit = exitKvp.Value;
+                bool nameMatch = exit.Name?.ToLowerInvariant().Contains(searchText) ?? false;
+                bool descMatch = exit.Description?.ToLowerInvariant().Contains(searchText) ?? false;
+
+                if (nameMatch || descMatch)
+                {
+                    if (!areaHeaderPrinted)
+                    {
+                        player.WriteLine($"--- Area {areaId} ---");
+                        areaHeaderPrinted = true;
+                    }
+
+                    matchCount++;
+
+                    // Try to get source and destination room info
+                    string sourceRoomName = "Unknown";
+                    string destRoomName = "Unknown";
+
+                    if (area.Rooms.TryGetValue(exit.SourceRoomId, out Room? sourceRoom))
+                    {
+                        sourceRoomName = sourceRoom.Name;
+                    }
+
+                    if (GameState.Instance.Areas.TryGetValue(exit.DestinationAreaId, out Area? destArea) &&
+                        destArea.Rooms.TryGetValue(exit.DestinationRoomId, out Room? destRoom))
+                    {
+                        destRoomName = destRoom.Name;
+                    }
+
+                    string matchType = nameMatch && descMatch ? "Name & Description" :
+                                      nameMatch ? "Name" : "Description";
+
+                    player.WriteLine($"  Exit [{areaId}:{exit.Id}] {exit.ExitDirection}");
+                    player.WriteLine($"    From: [{areaId}:{exit.SourceRoomId}] {sourceRoomName}");
+                    player.WriteLine($"    To: [{exit.DestinationAreaId}:{exit.DestinationRoomId}] {destRoomName}");
+                    player.WriteLine($"    Match: {matchType}, Type: {exit.ExitType}, Open: {exit.IsOpen}");
+
+                    // Show a preview of the matching text
+                    if (nameMatch)
+                    {
+                        string namePreview = GetPreviewText(exit.Name, searchText);
+                        player.WriteLine($"    Name: ...{namePreview}...");
+                    }
+                    if (descMatch)
+                    {
+                        string descPreview = GetPreviewText(exit.Description, searchText);
+                        player.WriteLine($"    Description: ...{descPreview}...");
+                    }
+                }
+            }
+
+            return matchCount;
+        }
+        #endregion
+
+        #region Helper Methods
+        /// <summary>
+        /// Extract search text from parameters, handling quoted strings.
+        /// </summary>
+        private static string ExtractSearchText(List<string> parameters, int startIndex)
+        {
+            // Check if the parameter at startIndex starts with a quote
+            if (startIndex < parameters.Count && parameters[startIndex].StartsWith('"'))
+            {
+                // Join parameters from startIndex and remove surrounding quotes
+                string joined = string.Join(" ", parameters.Skip(startIndex));
+                if (joined.StartsWith('"') && joined.EndsWith('"'))
+                {
+                    return joined[1..^1]; // Remove surrounding quotes
+                }
+                return joined.TrimStart('"'); // Just remove starting quote if no ending quote
+            }
+
+            // Simple case: just use the parameter at startIndex
+            return startIndex < parameters.Count ? parameters[startIndex] : "";
+        }
+
+        /// <summary>
+        /// Get a preview of text containing the search term.
+        /// Shows ~40 characters around the match.
+        /// </summary>
+        private static string GetPreviewText(string? text, string searchText)
+        {
+            if (string.IsNullOrEmpty(text))
+                return "";
+
+            string lowerText = text.ToLowerInvariant();
+            int matchIndex = lowerText.IndexOf(searchText, StringComparison.OrdinalIgnoreCase);
+
+            if (matchIndex < 0)
+                return "";
+
+            int start = Math.Max(0, matchIndex - 20);
+            int length = Math.Min(40 + searchText.Length, text.Length - start);
+            string preview = text.Substring(start, length);
+
+            // Add ellipsis if we didn't get the full text
+            if (start > 0)
+                preview = "..." + preview;
+            if (start + length < text.Length)
+                preview = preview + "...";
+
+            return preview;
+        }
+
+        /// <summary>
+        /// Show help for the /find command.
+        /// </summary>
+        private static void ShowHelp(Player player)
+        {
+            player.WriteLine("=== Find Command Help ===");
+            player.WriteLine("/find room '<text>' [all] - Search room names and descriptions");
+            player.WriteLine("  Adds 'all' to search all areas instead of just current area.");
+            player.WriteLine("");
+            player.WriteLine("/find exit '<text>' [all] - Search exit descriptions and names");
+            player.WriteLine("  Adds 'all' to search all areas instead of just current area.");
+            player.WriteLine("");
+            player.WriteLine("Examples:");
+            player.WriteLine("  /find room 'castle'      - Search for 'castle' in current area rooms");
+            player.WriteLine("  /find exit 'door' all    - Search for 'door' in exits in all areas");
+            player.WriteLine("  /find room 'dark cave'   - Search for phrase 'dark cave'");
+        }
+        #endregion
+    }
+    #endregion
+
+    #region --- Area Builder ---
+    /// <summary>
+    /// /area command for building and editing areas.
+    /// Supports:
+    ///   /area create '<name>' '<description>' [<roomIdToMove>]
+    ///   /area move <roomId> <areaId>
+    ///   /area show <areaId>
+    ///   /area list
+    /// The create and move operations will update room AreaId and relocate the room & its source exits to the new area.
+    /// </summary>
+    internal class AreaBuilderCommand : ICommand
+    {
+        public string Name => "/area";
+
+        public IEnumerable<string> Aliases => Array.Empty<string>();
+       public string Help => "/area create '<name>' '<description>' [[<roomIdToMove>]]";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                WriteUsage(player);
+                return false;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    AreaCreate(player, parameters);
+                    break;
+                case "move":
+                    AreaMove(player, parameters);
+                    break;
+                case "show":
+                    AreaShow(player, parameters);
+                    break;
+                case "list":
+                    AreaList(player);
+                    break;
+                default:
+                    WriteUsage(player);
+                    break;
+            }
+
+            return true;
+        }
+
+        private static void WriteUsage(Player player)
+        {
+            player.WriteLine("Usage:");
+            player.WriteLine("/area create '<name>' '<description>' [[<roomIdToMove>]]");
+            player.WriteLine("/area move <roomId> <areaId>");
+            player.WriteLine("/area show <areaId>");
+            player.WriteLine("/area list");
+        }
+
+        private static void AreaList(Player player)
+        {
+            if (GameState.Instance.Areas.Count == 0)
+            {
+                player.WriteLine("No areas loaded.");
+                return;
+            }
+
+            foreach (var kvp in GameState.Instance.Areas.OrderBy(k => k.Key))
+            {
+                player.WriteLine($"Area {kvp.Key}: {kvp.Value.Name} - {kvp.Value.Description} (Rooms: {kvp.Value.Rooms.Count})");
+            }
+        }
+
+        private static void AreaShow(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3 || !int.TryParse(parameters[2], out int areaId))
+            {
+                player.WriteLine("Usage: /area show <areaId>");
+                return;
+            }
+
+            if (!GameState.Instance.Areas.ContainsKey(areaId))
+            {
+                player.WriteLine($"Area {areaId} not found.");
+                return;
+            }
+
+            var a = GameState.Instance.Areas[areaId];
+            player.WriteLine($"Area {a.Id}: {a.Name}");
+            player.WriteLine($"Description: {a.Description}");
+            player.WriteLine($"Rooms: {a.Rooms.Count}");
+            player.WriteLine($"Exits: {a.Exits.Count}");
+        }
+
+        private static void AreaCreate(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Builder))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
+                return;
+            }
+
+            if (parameters.Count < 4)
+            {
+                WriteUsage(player);
+                return;
+            }
+
+            string name = parameters[2];
+            string description = parameters[3];
+
+            int newAreaId = GetNextAreaId();
+
+            var newArea = new Area
+            {
+                Id = newAreaId,
+                Name = name,
+                Description = description
+            };
+
+            GameState.Instance.Areas.Add(newAreaId, newArea);
+            player.WriteLine($"Area created: Id {newAreaId} Name '{name}'");
+
+            // Optional: move a room into the new area (parameters[4])
+            if (parameters.Count >= 5 && int.TryParse(parameters[4], out int roomToMoveId))
+            {
+                if (!TryFindRoom(roomToMoveId, out int srcAreaId, out Room srcRoom))
+                {
+                    player.WriteLine($"Room id {roomToMoveId} not found in any area.");
+                    return;
+                }
+
+                try
+                {
+                    int assignedNewRoomId = MoveRoomToArea(srcAreaId, srcRoom.Id, newAreaId);
+                    player.WriteLine($"Room moved to new area. Old: Area {srcAreaId} Room {roomToMoveId} -> New: Area {newAreaId} Room {assignedNewRoomId}");
+                }
+                catch (Exception ex)
+                {
+                    player.WriteLine($"Error moving room: {ex.Message}");
+                }
+            }
+        }
+
+        private static void AreaMove(Player player, List<string> parameters)
+        {
+            if (!Utility.CheckPermission(player, PlayerRole.Builder))
+            {
+                player.WriteLine("You do not have permission to do that.");
+                player.WriteLine("Your Role is: " + player.PlayerRole.ToString());
+                return;
+            }
+
+            if (parameters.Count < 4
+                || !int.TryParse(parameters[2], out int roomId)
+                || !int.TryParse(parameters[3], out int targetAreaId))
+            {
+                WriteUsage(player);
+                return;
+            }
+
+            if (!GameState.Instance.Areas.ContainsKey(targetAreaId))
+            {
+                player.WriteLine($"Target area {targetAreaId} does not exist.");
+                return;
+            }
+
+            if (!TryFindRoom(roomId, out int srcAreaId, out Room srcRoom))
+            {
+                player.WriteLine($"Room id {roomId} not found in any area.");
+                return;
+            }
+
+            try
+            {
+                int newRoomId = MoveRoomToArea(srcAreaId, srcRoom.Id, targetAreaId);
+                player.WriteLine($"Room moved: Old Area {srcAreaId} Room {roomId} -> New Area {targetAreaId} Room {newRoomId}");
+            }
+            catch (Exception ex)
+            {
+                player.WriteLine($"Error moving room: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Locate a room by id across all areas. Returns source area id and room instance if found.
+        /// </summary>
+        private static bool TryFindRoom(int roomId, out int areaId, out Room room)
+        {
+            foreach (var kvp in GameState.Instance.Areas)
+            {
+                if (kvp.Value.Rooms.ContainsKey(roomId))
+                {
+                    areaId = kvp.Key;
+                    room = kvp.Value.Rooms[roomId];
+                    return true;
+                }
+            }
+
+            areaId = -1;
+            room = null!;
+            return false;
+        }
+
+        /// <summary>
+        /// Move a room (and its source exits) from srcAreaId to destAreaId.
+        /// This assigns a new room id in the destination area and updates exits, players and return-exit destinations.
+        /// Returns the new room id assigned in the destination area.
+        /// </summary>
+        private static int MoveRoomToArea(int srcAreaId, int srcRoomId, int destAreaId)
+        {
+            if (srcAreaId == destAreaId)
+                throw new InvalidOperationException("Source and destination area are the same.");
+
+            if (!GameState.Instance.Areas.ContainsKey(srcAreaId))
+                throw new KeyNotFoundException($"Source area {srcAreaId} not found.");
+            if (!GameState.Instance.Areas.ContainsKey(destAreaId))
+                throw new KeyNotFoundException($"Destination area {destAreaId} not found.");
+
+            var srcArea = GameState.Instance.Areas[srcAreaId];
+            var destArea = GameState.Instance.Areas[destAreaId];
+
+            if (!srcArea.Rooms.ContainsKey(srcRoomId))
+                throw new KeyNotFoundException($"Room {srcRoomId} not found in area {srcAreaId}.");
+
+            // Take the room instance
+            Room room = srcArea.Rooms[srcRoomId];
+
+            // Assign a new room id in destination area
+            int newRoomId = Room.GetNextId(destAreaId);
+
+            // Remove room from source area's room map
+            srcArea.Rooms.Remove(srcRoomId);
+
+            // Update room id and area
+            int oldRoomId = room.Id;
+            room.Id = newRoomId;
+            room.AreaId = destAreaId;
+
+            // Add to destination area's room map
+            destArea.Rooms.Add(newRoomId, room);
+
+            // Move any exits that originate from this room into the destination area.
+            // For each source exit, we remove from srcArea.Exits and add to destArea.Exits with a new exit id.
+            var sourceExits = srcArea.Exits.Values.Where(e => e.SourceRoomId == oldRoomId).ToList();
+            var oldToNewExitId = new Dictionary<int, int>();
+
+            foreach (var exit in sourceExits)
+            {
+                // remove from source area
+                srcArea.Exits.Remove(exit.Id);
+
+                int oldExitId = exit.Id;
+                int newExitId = Exit.GetNextId(destAreaId);
+
+                // update exit's fields
+                exit.Id = newExitId;
+                exit.SourceRoomId = newRoomId;
+
+                // add to dest area
+                destArea.Exits.Add(exit.Id, exit);
+
+                // update room's ExitIds list (replace old id with new)
+                room.ExitIds.Remove(oldExitId);
+                room.ExitIds.Add(newExitId);
+
+                oldToNewExitId[oldExitId] = newExitId;
+
+                // Update return exits in other areas that pointed back to the old room id:
+                foreach (var kvp in GameState.Instance.Areas)
+                {
+                    var area = kvp.Value;
+                    // find return exits that had DestinationRoomId == oldRoomId and SourceRoomId == exit.DestinationRoomId
+                    var returnExits = area.Exits.Values.Where(e =>
+                        e.DestinationRoomId == oldRoomId && e.SourceRoomId == exit.DestinationRoomId).ToList();
+
+                    foreach (var ret in returnExits)
+                    {
+                        ret.DestinationRoomId = newRoomId;
+                    }
+                }
+            }
+
+            // Update any exits across all areas that had DestinationRoomId == oldRoomId (incoming links) to point to newRoomId.
+            foreach (var kvp in GameState.Instance.Areas)
+            {
+                var area = kvp.Value;
+                foreach (var incoming in area.Exits.Values.Where(e => e.DestinationRoomId == oldRoomId).ToList())
+                {
+                    incoming.DestinationRoomId = newRoomId;
+                }
+            }
+
+            // Move any players that were in the room (preserve their LocationId with the new room id and set AreaId)
+            foreach (var player in GameState.Instance.Players.Values)
+            {
+                if (!player.IsOnline) continue;
+                if (player.AreaId == srcAreaId && player.LocationId == srcRoomId)
+                {
+                    player.AreaId = destAreaId;
+                    player.LocationId = newRoomId;
+                }
+            }
+
+            return newRoomId;
+        }
+
+        private static int GetNextAreaId()
+        {
+            if (GameState.Instance.Areas.Count == 0) return 0;
+            return GameState.Instance.Areas.Keys.Max() + 1;
+        }
+    }
     #endregion
 }

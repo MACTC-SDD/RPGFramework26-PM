@@ -60,9 +60,9 @@ namespace RPGFramework.Commands
             {
                 Name = parameters[2],
                 Description = parameters[3],
-                Damage = Convert.ToInt32(parameters[4]),
+                MaxDamage = Convert.ToInt32(parameters[4]),
                 Durability = Convert.ToInt32(parameters[5]),
-                Range = Convert.ToInt32(parameters[6]),
+                //Range = Convert.ToInt32(parameters[6]),
                 Speed = Convert.ToDouble(parameters[7]),
                 Weight = Convert.ToDouble(parameters[8])
             };

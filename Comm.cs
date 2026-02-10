@@ -43,8 +43,8 @@ namespace RPGFramework
         {
             foreach (Player player in Room.GetPlayersInRoom(room))
             {
-                if (except is Player && player != except)
-                {
+                if (player != except)
+                {                   
                     player.WriteLine(message);
                 }
             }
