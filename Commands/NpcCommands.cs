@@ -71,7 +71,7 @@ namespace RPGFramework.Commands
         ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
         private static bool MobCreate(Player player, List<string> parameters)
         {
-            if (parameters.Count < 5)
+            if (parameters.Count < 7)
             {
                 player.WriteLine("Provide at least a name, The mob classifier and description.");
                 return false;
@@ -79,7 +79,21 @@ namespace RPGFramework.Commands
 
             if (GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
-                player.WriteLine($"The mob {parameters[2]} already exists.");
+                player.WriteLine($"The mob {parameters[6]} already exists.");
+                return false;
+            }
+
+            Weapon? newWeapon;
+            if (
+                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[6], out Weapon? w) ||
+                w == null ||
+                (newWeapon = Utility.Clone(w)) == null
+            ) {
+                player.WriteLine(
+                    "No such weapon in weapon catalog.\n" +
+                    "You may add it to the weapon catalog by typing:\n" 
+                   // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
+                );
                 return false;
             }
 
@@ -87,7 +101,10 @@ namespace RPGFramework.Commands
             {
                 Name = parameters[2],
                 NpcClasification = parameters[3],
-                Description = parameters[4]
+                MaxHealth = int.Parse(parameters[4]),
+                StatPoints = int.Parse(parameters[5]),
+                Description = parameters[7],
+                PrimaryWeapon = newWeapon
             };
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
@@ -332,6 +349,7 @@ namespace RPGFramework.Commands
             if (parameters.Count < 5)
             {
                 player.WriteLine("Provide at least a name");
+                return false;
             }
 
             if (GameState.Instance.NPCCatalog.ContainsKey(parameters[2]))

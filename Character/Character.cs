@@ -34,7 +34,7 @@ namespace RPGFramework
         [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
         [JsonInclude] public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
-        [JsonInclude] public int MaxHealth { get; protected set; } = 100;
+        [JsonInclude] public int MaxHealth { get; set; } = 100;
         public string Name { get; set; } = "";
         [JsonInclude] public int XP { get; protected set; } = 0;
         public Armor? EquippedArmor { get; set; }

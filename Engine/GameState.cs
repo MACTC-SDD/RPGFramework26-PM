@@ -106,6 +106,7 @@ namespace RPGFramework
         /// </summary>
         [JsonIgnore] public Catalog<string, HelpEntry> HelpCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Weapon> WeaponCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, CharacterClass> CCCatalog { get; set; } = [];
@@ -125,6 +126,7 @@ namespace RPGFramework
             Catalogs.Add(CCCatalog);
             Catalogs.Add(ItemCatalog);
             Catalogs.Add(MessageCatalog);
+            Catalogs.Add(WeaponCatalog);
         }
 
         public void AddPlayer(Player player)
