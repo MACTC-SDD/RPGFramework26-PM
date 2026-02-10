@@ -91,8 +91,8 @@ namespace RPGFramework.Commands
             ) {
                 player.WriteLine(
                     "No such weapon in weapon catalog.\n" +
-                    "You may add it to the weapon catalog by typing:\n" 
-                   // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
+                    "You may add it to the weapon catalog by typing:\n"
+                // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
                 );
                 return false;
             }
@@ -106,6 +106,78 @@ namespace RPGFramework.Commands
                 Description = parameters[7],
                 PrimaryWeapon = newWeapon
             };
+            #region Sets IsHostile To True for mobs
+            if (parameters[0] == "/mob")
+            {
+                m.IsHostile = true;
+            }
+            #endregion
+            if (parameters[3] == "undead")
+            {
+                m.IsUndead = true;
+                m.IsArmy = false;
+                m.IsVillager = false;
+                m.IsHumanoid = false;
+                m.IsElf = false;
+                m.IsCreature = false;
+            }
+            else if (parameters[3] == "villager")
+            {
+                m.IsArmy = false;
+                m.IsUndead = false;
+                m.IsVillager = true;
+                m.IsHumanoid = false;
+                m.IsElf = false;
+                m.IsCreature = false;
+            }
+            else if (parameters[3] == "army")
+            {
+                m.IsArmy = true;
+                m.IsUndead = false;
+                m.IsVillager = false;
+                m.IsHumanoid = false;
+                m.IsElf = false;
+                m.IsCreature = false;
+            }
+            else if (parameters[3] == "humanoid")
+            {
+                m.IsArmy = false;
+                m.IsUndead = false;
+                m.IsVillager = false;
+                m.IsHumanoid = true;
+                m.IsElf = false;
+                m.IsCreature = false;
+            }
+            else if (parameters[3] == "elf")
+            {
+                m.IsArmy = false;
+                m.IsUndead = false;
+                m.IsVillager = false;
+                m.IsHumanoid = false;
+                m.IsElf = true;
+                m.IsCreature = false;
+            }
+            else if (parameters[3] == "creature")
+            {
+                m.IsArmy = false;
+                m.IsUndead = false;
+                m.IsVillager = false;
+                m.IsHumanoid = false;
+                m.IsElf = false;
+                m.IsCreature = true;
+            }
+            else
+            {
+                player.WriteLine("The Classification Types \n" +
+                    "army \n" +
+                    "undead \n" +
+                    "villager \n" +
+                    "humanoid \n" +
+                    "elf \n" +
+                    "creature");
+
+
+            }
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");

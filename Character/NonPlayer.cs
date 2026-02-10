@@ -20,12 +20,14 @@ namespace RPGFramework
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
         public bool IsRanged { get; set; } = false;
+        #region Clasification
         public bool IsArmy { get; set; } = false;
         public bool IsUndead { get; set; } = false;
         public bool IsVillager { get; set; } = false;
         public bool IsHumanoid { get; set; } = false;
         public bool IsElf { get; set; } = false;
         public bool IsCreature { get; set; } = false;
+        #endregion
         public bool IsHostile { get; set; } = false;
         public string NpcClasification { get; set; } = "";
       
