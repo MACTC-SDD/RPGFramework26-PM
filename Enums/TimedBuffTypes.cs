@@ -7,7 +7,6 @@ namespace RPGFramework.Enums
     internal enum TimedBuffTypes
     {
         Healing,
-        Strength,
         Mana
     }
 }

@@ -21,9 +21,6 @@ namespace RPGFramework.Items
                 case PotionType.HealingPotion:
                     Value = 65;
                     break;
-                case PotionType.StrengthPotion:
-                    Value = 65;
-                    break;
                 case PotionType.ManaPotion:
                     Value = 65;
                     break;
@@ -36,16 +33,6 @@ namespace RPGFramework.Items
             {
                 case PotionType.HealingPotion:
                     HealAmount = 100;
-                    break;
-            }
-        }
-
-        public void Strength()
-        {
-            switch (PotionType)
-            {
-                case PotionType.StrengthPotion:
-                    StrengthAmount = 100;
                     break;
             }
         }
@@ -67,9 +54,6 @@ namespace RPGFramework.Items
             switch (this.PotionType)
             {
                 case PotionType.HealingPotion:
-                    StackAmount = 10;
-                    break;
-                case PotionType.StrengthPotion:
                     StackAmount = 10;
                     break;
                 case PotionType.ManaPotion:
