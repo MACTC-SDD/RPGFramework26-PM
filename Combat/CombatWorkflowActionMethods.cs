@@ -38,6 +38,21 @@ namespace RPGFramework.Workflows
                     // Here you would add logic to apply the attack or spell effects to the chosen target
                     // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
 
+                    if (selectedSpell.IsSave == true)
+                    {
+                        switch (selectedSpell.SaveType)
+                        {
+                            case SavingThrowType.STR:
+                                {
+                                    if(!chosenTarget.STRSave())
+                                    {
+                                        Spell.RollDamageS(selectedSpell.MaxDice, selectedSpell.MaxDamage, 1);
+                                    }
+                                }
+                        }
+                        
+                    }
+
                     CurrentStep = 0;
                     EndTurn();
                     return true;

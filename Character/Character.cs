@@ -212,6 +212,5 @@ namespace RPGFramework
 
             return RPGPanel.GetPanel(table, title);
         }
-        
     }
 }
