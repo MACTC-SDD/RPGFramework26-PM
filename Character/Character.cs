@@ -48,8 +48,8 @@ namespace RPGFramework
         public double MaxCarryWeight { get; private set; } = 150;
         public int MaxMana { get; set; } = 100;
         public int Mana { get; set; } = 100;
-        
-        
+        public Race? Race { get; set; } = new();
+
         #endregion
 
         #region --- Skill Attributes --- (0-20)
