@@ -80,10 +80,18 @@ namespace RPGFramework.Persistence
             foreach (string file in Directory.EnumerateFiles(path))
             {
                 string jsonString = File.ReadAllText(file);
-                objects.Add(
-                    JsonSerializer.Deserialize<T>(jsonString)
-                    ?? throw new InvalidDataException($"Failed to deserialize file '{file}' to type '{typeof(T).FullName}'")
-                );
+                try
+                {
+                    objects.Add(
+                        JsonSerializer.Deserialize<T>(jsonString)!
+                    );
+                }
+                catch (Exception ex)
+                {
+                    GameState.Log(DebugLevel.Warning, 
+                        $"Error loading object from file '{file}': {ex.Message}");
+                    throw new InvalidDataException($"Error loading object from file '{file}': {ex.Message}");
+                }
             }
 
             return objects;

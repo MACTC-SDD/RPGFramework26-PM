@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RPGFramework.Commands
 {
@@ -51,6 +52,8 @@ namespace RPGFramework.Commands
                 new DropCommand(),
                 new GiveCommand(),
                 new UseCommand(),
+                new ManaCommand(),
+                new HealSpellCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -168,12 +171,20 @@ namespace RPGFramework.Commands
                 return false;
             }
             else
+            // checking to see if the player can pick it up
             {
-                room.Items.Remove(i);
-                player.BackPack.Items.Add(i);
-                player.WriteLine($"Picked up {i}");
+                if (player.BackPack.CheckCarryWeight(player, i) == true)
+                {
+                    room.Items.Remove(i);
+                    player.BackPack.Items.Add(i);
+                    player.WriteLine($"Picked up {i}");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            return true;
 
 
         }
@@ -383,7 +394,7 @@ public bool Execute(Character character, List<string> parameters)
     internal class LookCommand : ICommand
     {
         public string Name => "look";
-        public IEnumerable<string> Aliases => [ "l" ];
+        public IEnumerable<string> Aliases => ["l"];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
@@ -395,7 +406,12 @@ public bool Execute(Character character, List<string> parameters)
                 content += "[red]Exits:[/]\n";
                 foreach (var exit in player.GetRoom().GetExits())
                 {
-                    content += $"{exit.Description} to the {exit.ExitDirection}\n";
+                    if (exit.ExitType == ExitType.LockedDoor)
+                    {
+                        content += $"{exit.Description} [red](🗝️Locked)[/] to the {exit.ExitDirection}\n";
+                    }
+                    else
+                        content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
                 content += "[Green]Players Here:[/]\n";
                 content += $"{player.DisplayName()}";
@@ -745,10 +761,10 @@ public bool Execute(Character character, List<string> parameters)
                     player.WriteLine("No Damage amount stated.");
                     return false;
                 }
-                Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
-                Target.Health -= int.Parse(parameters[2]);
-                player.WriteLine($"you have damaged {Target} by {parameters[1]}");
-                return true;
+                    Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
+                    Target.Health -= int.Parse(parameters[2]);
+                    player.WriteLine($"you have damaged {Target} by {parameters[1]}");
+                    return true;
             }
             return false;
 
@@ -870,7 +886,7 @@ public bool Execute(Character character, List<string> parameters)
             if (character is Player player)
             {
                 player.WriteLine($"You are level {player.Level} you will gain an additional "
-                    + $"{Player.Levels[player.Level].Health} health and you will have " + 
+                    + $"{Player.Levels[player.Level].Health} health along with {Player.Levels[player.Level].Mana} Mana and you will have " + 
                     $"{Player.Levels[player.Level].StatPoints} points upon level up.");
                 return true;
             }
@@ -1029,6 +1045,42 @@ public bool Execute(Character character, List<string> parameters)
             }
             Panel panel = RPGPanel.GetPanel(item.Description, item.Name);
             player.Write(panel);
+            return true;
+        }
+    }
+    internal class ManaCommand : ICommand
+    {
+        public string Name => "mana";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "tells you your mana";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                player.WriteLine($"you have {character.Mana} out of {player.MaxMana} mana");
+                return true;
+            }
+            return false;
+        }
+    }
+    internal class HealSpellCommand : ICommand
+    {
+        public string Name => "heal";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "heals 50% of your mana";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (character.Mana < 20)
+            {
+                player.WriteLine("you dont have enough mana!");
+                return false;
+            }
+            character.Heal(player.MaxHealth, 20);
+            player.WriteLine("you healed up to full health!");
             return true;
         }
     }

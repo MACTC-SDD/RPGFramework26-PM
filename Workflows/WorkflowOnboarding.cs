@@ -92,6 +92,7 @@ namespace RPGFramework.Workflows
                     if (parameters[0].ToLower() == "y" || parameters[0].ToLower() == "yes")
                     {
                         player.WriteLine("Stats accepted.");
+                        player.SetCarryCapacity();
                         CurrentStep++;
                     }
                     else 

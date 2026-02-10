@@ -32,14 +32,14 @@ namespace RPGFramework
         #region --- Fields ---
         private static readonly List<LevelEntry> _levels =
         [
-            new() {RequiredXp = 0, StatPoints = 0, Health = 0},
-            new() {RequiredXp = 500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25}
+            new() {RequiredXp = 0, StatPoints = 0, Health = 0, Mana = 0},
+            new() {RequiredXp = 500, StatPoints = 1, Health = 25, Mana=25},
+            new() {RequiredXp = 1000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 1500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 25}
         ];
 
         #endregion
@@ -48,7 +48,6 @@ namespace RPGFramework
         {
             // We could add colors and other things later, for now, just afk
             return Name + (IsAFK ? " (AFK)" : "");
-
         }
 
         #region Exists Method (Static)
@@ -203,17 +202,23 @@ namespace RPGFramework
         }
 
 
+        public void LevelUp(int levelsToAdd)
+        {
+            XP = _levels[Level + levelsToAdd+1].RequiredXp;
+            LevelUp();
+        }
 
-        
+
 
 
         public void LevelUp()
         {
-            if (XP > _levels[Level].RequiredXp)
+            if (XP >= _levels[Level].RequiredXp)
             {
                 MaxHealth += _levels[Level].Health;
                 Health = MaxHealth;
                 StatPoints += _levels[Level].StatPoints;
+                MaxMana += _levels[Level].Mana;
                 Level++;
                 
             }
