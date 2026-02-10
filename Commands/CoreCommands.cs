@@ -569,14 +569,15 @@ public bool Execute(Character character, List<string> parameters)
 
 
                 List<string> helpTopics = [];
+                List<HelpEntry> helpEntries = [.. GameState.Instance.HelpCatalog.Values, .. CommandHelpScanner.GetAllHelpEntries()];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
-                helpKeys.Sort();
-                foreach (string key in helpKeys)
+                //List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
+                //helpKeys.Sort();
+                foreach (HelpEntry he in helpEntries.OrderBy(o => o.Topic))
                 {
-                    HelpEntry he = GameState.Instance.HelpCatalog[key];
+                    //HelpEntry he = GameState.Instance.HelpCatalog[key];
                     //player.WriteLine($"{he.Name}");
-                    helpTopics.Add(he.Name);
+                    helpTopics.Add(he.Topic);
                     if (helpTopics.Count == 4)
                     {
                         table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
@@ -598,15 +599,24 @@ public bool Execute(Character character, List<string> parameters)
             }
             else
             {
-                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                {
-                    if (he.Name.Equals(parameters[1], StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        player.WriteLine($"{he.Name}");
-                        player.WriteLine($"{he.Content}");
+                string topic = parameters[1];
+                _ = GameState.Instance.HelpCatalog.TryGetValue(topic, out HelpEntry? help);
 
-                    }
+                help ??= CommandHelpScanner.GetAllHelpEntries().FirstOrDefault(o => o.Topic.Equals(topic, StringComparison.OrdinalIgnoreCase));
+
+                if (help == null)
+                {
+                    player.WriteLine($"Cound find help topic '{topic}'.");
+                    return false;
                 }
+
+                var table = new Table();
+
+                table.AddColumn(new TableColumn(help.Topic));
+
+                table.AddRow(help.Content);
+                player.Write(table);
+                return true;
             }
             return true;
         }
