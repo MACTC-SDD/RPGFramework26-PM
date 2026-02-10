@@ -433,7 +433,7 @@ namespace RPGFramework
             _statusConditionManagerTask = RunStatusConditionManagerLoopAsync(TimeSpan.FromSeconds(30), _statusConditionManagerCts.Token);
 
             _itemCleanUpCts = new CancellationTokenSource();
-            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(5), _itemCleanUpCts.Token);
 
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
@@ -537,10 +537,11 @@ namespace RPGFramework
         private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
-            while(ct.IsCancellationRequested && IsRunning)
+            while(!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
+                    GameState.Log(DebugLevel.Debug, "Cleaning up dropped items...");
                     foreach (Area a in GameState.Instance.Areas.Values)
                     {
                         foreach (Room r in a.Rooms.Values)

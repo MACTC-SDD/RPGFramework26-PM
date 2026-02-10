@@ -66,10 +66,14 @@ namespace RPGFramework
                 {
                 case 0:
                         // Attack
-                        Random rand = new();
+                        Random rand = new Random();
                         int targetIndex = rand.Next(0, combat.Combatants.Count-1);
                         Character target = combat.Combatants[targetIndex];
-                        target?.TakeDamage(npc.AttackPower);
+                        if (target is Player p)
+                        {
+                            p.WriteLine($"{npc.Name} attacks you for {npc.AttackPower} damage!");
+                        }
+                    target.TakeDamage(npc.AttackPower);
                         break;
                 case 1:
                     //elemental attack(s)
