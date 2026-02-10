@@ -38,20 +38,7 @@ namespace RPGFramework.Workflows
                     if (selectedSpell != null)
                         //Player.RollToHitS(player, chosenTarget);
 
-                    if (selectedSpell.IsSave == true)
-                    {
-                        switch (selectedSpell.SaveType)
-                        {
-                            case SavingThrowType.STR:
-                                {
-                                    if(!chosenTarget.STRSave())
-                                    {
-                                        Spell.RollDamageS(selectedSpell.MaxDice, selectedSpell.MaxDamage, 1);
-                                    }
-                                }
-                        }
-                        
-                    }
+
 
                     CurrentStep = 0;
                     EndTurn();
