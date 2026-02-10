@@ -1,8 +1,9 @@
 ﻿using System;
-using RPGFramework;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
+using RPGFramework;
+using Spectre.Console;
 
 namespace RPGFramework.Commands
 {
@@ -23,7 +24,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/mob";
         public IEnumerable<string> Aliases => [];
-        public string Help => "Usage: \n"
+        public string Help => "[bold underline]Usage:[/]\n"
            + "/mob list \n"
            + "/mob create 'Name' 'MobClassifier' 'Description' \n"
            + "/mob delete 'Name' \n"
@@ -264,7 +265,12 @@ namespace RPGFramework.Commands
         #region ShowHelp Method
         private void ShowHelp(Player player)
         {
-            player.WriteLine(Help);
+            var table = new Table();
+
+            table.AddColumn(new TableColumn("[mediumpurple2]Mob Help[/]"));
+
+            table.AddRow(Help);
+            player.Write(table);
         }
         #endregion
     }
@@ -305,6 +311,15 @@ namespace RPGFramework.Commands
                     return NpcDelete(player, parameters);
                 default:
                     ShowHelp(player);
+                    //Quint: gotta figure out why this doesn't work. :/
+                    /*{
+                        var table = new Table();
+
+                        table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
+
+                        table.AddRow(Help);
+                        player.Write(table);
+                    }*/
                     break;
             }
             return false;
