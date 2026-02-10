@@ -2,23 +2,58 @@
   "Items": {
     "human": {
       "Name": "human",
-      "Description": "Humans are versatile and ambitious, known for their adaptability and resilience."
+      "Description": "Humans are versatile and ambitious, known for their adaptability and resilience.",
+      "ability": "humans have a +1 bonus to all attributes",
+      "StrengthIncr": 1,
+      "DexterityIncr": 1,
+      "ConstitutionIncr": 1,
+      "IntelligenceIncr": 1,
+     "WisdomIncr": 1 ,
+      "CharismaIncr": 1
     },
     "elf": {
       "Name": "elf",
-      "Description": "Elves are graceful and wise, often possessing a deep connection to nature and magic."
+      "Description": "Elves are graceful and wise, often possessing a deep connection to nature and magic.",
+      "ability": "elves have a +2 bonus to dexterity and a +1 bonus to intelligence",
+      "StrengthIncr": 0,
+      "DexterityIncr": 2,
+      "ConstitutionIncr": 0,
+      "IntelligenceIncr": 1,
+      "WisdomIncr": 0,
+      "CharismaIncr": 0
     },
     "dwarf": {
       "Name": "dwarf",
-      "Description": "Dwarves are sturdy and hardworking, renowned for their craftsmanship and loyalty."
+      "Description": "Dwarves are sturdy and hardworking, renowned for their craftsmanship and loyalty.",
+      "ability": "dwarves have a +2 bonus to constitution and a +1 bonus to strength",
+      "StrengthIncr": 1,
+      "DexterityIncr": 0,
+      "ConstitutionIncr": 2,
+      "IntelligenceIncr": 0,
+      "WisdomIncr": 0,
+      "CharismaIncr": 0
     },
     "orc": {
       "Name": "orc",
-      "Description": "Orcs are fierce and strong, often living in tribal societies and valuing honor in battle."
+      "Description": "Orcs are fierce and strong, often living in tribal societies and valuing honor in battle.",
+      "ability": "orcs have a +2 bonus to strength and a +1 bonus to constitution",
+      "StrengthIncr": 2,
+      "DexterityIncr": 0,
+      "ConstitutionIncr": 1,
+      "IntelligenceIncr": 0,
+      "WisdomIncr": 0,
+      "CharismaIncr": 0
     },
     "gnome": {
       "Name": "gnome",
-      "Description": "Gnomes are inventive and curious, known for their cleverness and affinity for technology and magic."
+      "Description": "Gnomes are inventive and curious, known for their cleverness and affinity for technology and magic.",
+      "ability": "gnomes have a +2 bonus to intelligence and a +1 bonus to dexterity",
+      "StrengthIncr": 0,
+      "DexterityIncr": 1,
+      "ConstitutionIncr": 0,
+      "IntelligenceIncr": 2,
+      "WisdomIncr": 0,
+      "CharismaIncr": 0
     }
   }
 }

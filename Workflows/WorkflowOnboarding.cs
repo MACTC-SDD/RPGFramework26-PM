@@ -115,6 +115,13 @@ namespace RPGFramework.Workflows
                     }
                     else
                     {
+                        // add any attribute bonuses that come from race
+                        player.Strength += charRace.StrengthIncr;
+                            player.Dexterity += charRace.DexterityIncr;
+                            player.Intelligence += charRace.IntelligenceIncr;
+                            player.Wisdom += charRace.WisdomIncr;
+                            player.Constitution += charRace.ConstitutionIncr;
+                            player.Charisma += charRace.CharismaIncr;
                         player.WriteLine("You Have Successfully Chosen A Race");
                         player.WriteLine("Hit |Enter| To Continue");
                     }
