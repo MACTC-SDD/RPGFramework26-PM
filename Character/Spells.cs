@@ -6,8 +6,10 @@ using Spectre.Console;
 
 namespace RPGFramework
 {
+
     internal partial class Spell
     {
+        // these methods need to stay for spells to roll damage and check mana
         public bool CheckMana(int amount, Player p)
         {
             if (p.Mana >= amount)
@@ -31,6 +33,9 @@ namespace RPGFramework
             }
             return totalDamage;
         }
+
+        // spells are changing ignore this for now
+        /*
         public void Fireball(Player Attacker, Player Target)
         {
             if (CheckMana(5, Attacker) == false)
@@ -105,6 +110,6 @@ namespace RPGFramework
                     Attacker.WriteLine("The target has too much health for that");
                 }
             }
-        }
+        } */
     }
 }
