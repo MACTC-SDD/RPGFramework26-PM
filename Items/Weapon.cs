@@ -236,7 +236,7 @@ namespace RPGFramework
                     Value = 65;
                     break;
                 case WeaponType.Musket:
-                    Value = 5000;
+                    Value = 3000;
                     break;
                 case WeaponType.Rock:
                     Value = 1;

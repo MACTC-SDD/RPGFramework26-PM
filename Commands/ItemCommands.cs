@@ -79,19 +79,28 @@ namespace RPGFramework.Commands
                     player.WriteLine("That object already exists.");
                     return;
                 }
-
+                
                 Item i2 = new()
                 {
                     Name = parameters[2],
                     Description = parameters[3],
                     WeaponType = parameters[4],
                     Durability = int.Parse(parameters[5]),
-
+                    Value = int.Parse(parameters[6]),
 
 
                 };
 
-                GameState.Instance.ItemCatalog.Add(i2.Name, i2);
+                if (int.Parse(parameters[6]) >= 500)
+                {
+                    i2.SpawnChance = .6;
+                }
+                else if (int.Parse(parameters[6]) >= 700)
+                {
+                    i2.SpawnChance = .5;
+                        }
+                //else {return true; }
+                    GameState.Instance.ItemCatalog.Add(i2.Name, i2);
                 player.WriteLine($"Item ({i2.Name} added successfully.");
                 return;
 
