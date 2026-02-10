@@ -90,6 +90,8 @@ namespace RPGFramework.Commands
                 Description = parameters[4]
             };
 
+            //add if
+
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
             return true;
