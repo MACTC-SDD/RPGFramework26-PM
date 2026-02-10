@@ -51,7 +51,7 @@ namespace RPGFramework.Workflows
         public Character? PreviousActingCharacter { get; set; }
 
         public List<Character> Combatants = [];
-        public async Task CombatInitialization(Character attacker, Character enemy)
+        public void CombatInitialization(Character attacker, Character enemy)
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);

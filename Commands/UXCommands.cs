@@ -132,6 +132,7 @@ namespace RPGFramework.Commands
             string content = "[red]This text is red![/]\n";
             content += "[blue]This text is blue![/]\n";
             content += "[blue on green]This text is NOT blue on red![/]\n";
+            content += "\n";
             // Try out some more!
 
             string title = "Color Testing";

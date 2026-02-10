@@ -22,18 +22,18 @@ namespace RPGFramework
                 combat.Combatants.Remove(character);
                 character.CurrentWorkflow = null;
                 if (character is Player player)
-                    player.WriteLine("You successfully fled the combat!");
+                    player.WriteLine("[green3] You successfully fled the combat! [/]");
                 return true;
             }
             else
             {
                 if (character is Player player)
-                    player.WriteLine("You failed to flee the combat!");
+                    player.WriteLine("[red] You failed to flee the combat! [/]");
                 return false;
             }
         }
 
-        public static void RollToHitS(Character attacker, Spell weapon, Character target)
+        public bool RollToHitS(Character attacker, Character target)
         {
             Random rand = new Random();
             int attackRoll = rand.Next(1, 20);
@@ -50,36 +50,25 @@ namespace RPGFramework
                     {
                         targetAC += (target.Dexterity - 10) / 2;
                     }
-                }
-            int damageModifier = (attacker.Intelligence - 10) / 2;
-            int totalDamage = weapon.Damage + damageModifier;
-            if (attackRoll == 20)
-            {
-                target.TakeDamage(totalDamage * 2);
-                target.ReduceDurabilityArmor(target.EquippedArmor, (target.EquippedArmor.Durability / 16));
-            }
-            else if (attackRoll == 1)
+                }  
+            if (attackRoll == 1)
             {
                 if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name}!");
+                    player.WriteLine($"[underline][red]You missed[/] [CornflowerBlue]{target.Name}![/]");
                 totalAttack = 0;
                 attacker.TakeDamage(1);
+                return false;
             }
             else if (totalAttack >= targetAC)
             {
-                target.TakeDamage(totalDamage);
-                if (attacker is Player player)
-                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
-                if (target is Player targetPlayer)
-                {
-                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
-                }
+                return true;
             }
             else
             {
                 //miss
                 if (attacker is Player player)
                     player.WriteLine($"You missed {target.Name}!");
+                return false;
             }
         }
 
@@ -108,26 +97,26 @@ namespace RPGFramework
             {
                 target.TakeDamage(totalDamage * 2);
                 target.ReduceDurabilityArmor(target.EquippedArmor, target.EquippedArmor.Durability / 16);
-                Comm.SendToIfPlayer(target, "Your armors durability has been reduced to " + target.EquippedArmor.CurrentDurability);
+                Comm.SendToIfPlayer(target, "[DarkOrange3_1]Your armors durability has been reduced to[/] " + target.EquippedArmor.CurrentDurability);
             }
             else if (attackRoll == 1)
             {
                 if (attacker is Player player)
-                    player.WriteLine($"You missed {target.Name} and hit yourself in the face!");
+                    player.WriteLine($"[underline][red]You missed {target.Name} and hit yourself in the face![/][/] idiot...");
                 totalAttack = 0;
                 attacker.DropItem(weapon);
                 attacker.TakeDamage(1);
                 attacker.ReduceDurabilityWeapon(weapon, (weapon.Durability / 16));
-                Comm.SendToIfPlayer(target, "Your weapons durability has been reduced to " + weapon.CurrentDurability);
+                Comm.SendToIfPlayer(target, "[DarkOrange3_1]Your weapons durability has been reduced to[/] " + weapon.CurrentDurability);
             }
             else if (totalAttack >= targetAC)
             {
                 target.TakeDamage(totalDamage);
                 if (attacker is Player player)
-                    player.WriteLine($"You hit {target.Name} for {totalDamage} damage!");
+                    player.WriteLine($"[underline]You hit [CornflowerBlue]{target.Name}[/] for [red]{totalDamage} damage![/][/]");
                 if (target is Player targetPlayer)
                 {
-                    targetPlayer.WriteLine($"{attacker.Name} hit you with {weapon.Name} for {totalDamage} damage!");
+                    targetPlayer.WriteLine($"[underline][CornflowerBlue]{attacker.Name}[/] hit you with [yellow]{weapon.Name}[/] for [red]{totalDamage} damage![/][/]");
                 }
             }
             else

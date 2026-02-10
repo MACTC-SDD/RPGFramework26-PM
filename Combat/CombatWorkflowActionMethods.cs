@@ -36,7 +36,9 @@ namespace RPGFramework.Workflows
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
                     if (selectedSpell != null)
-                        Player.RollToHitS(player, selectedSpell, chosenTarget);
+                        //Player.RollToHitS(player, chosenTarget);
+
+
 
                     CurrentStep = 0;
                     EndTurn();
