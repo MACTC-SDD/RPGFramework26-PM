@@ -909,38 +909,38 @@ public bool Execute(Character character, List<string> parameters)
             }
            switch(parameters[1].ToLower())
             {
-                case "Strength":
+                case "strength" when player.Strength <= 20:
                     player.Strength++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to strength");
-                    break;
-                case "dexterity":
+                break;
+                case "dexterity" when player.Dexterity <= 20:
                     player.Dexterity++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to dexterity");
                 break;
-                case "constitution":
+                case "constitution" when player.Constitution <= 20:
                     player.Constitution++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to constitution");
                 break;
-                case "intelligence":
+                case "intelligence" when player.Intelligence <= 20:
                     player.Intelligence++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to intelligence");
                 break;
-                case "wisdom":
+                case "wisdom" when player.Wisdom <= 20:
                     player.Wisdom++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to wisdom");
                 break;
-                case "charisma":
+                case "charisma" when player.Charisma <= 20:
                     player.Charisma++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to charisma");
                 break;
                 default:
-                    player.WriteLine("unkown attribute");
+                    player.WriteLine("unkown attribute or maxed stat");
                 break;
             }
             return false;
@@ -1044,6 +1044,11 @@ public bool Execute(Character character, List<string> parameters)
             if (character.Mana < 20)
             {
                 player.WriteLine("you dont have enough mana!");
+                return false;
+            }
+            if (player.Health == player.MaxHealth)
+            {
+                player.WriteLine("you already have full health");
                 return false;
             }
             character.Heal(player.MaxHealth, 20);
