@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using RPGFramework.Enums;
+using RPGFramework.Geography;
 using Spectre.Console;
 using Spectre.Console.Rendering;
-
-using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 
 
@@ -240,6 +241,36 @@ namespace RPGFramework
                 MaxMana += _levels[Level].Mana;
                 Level++;
                 
+            }
+        }
+        public void TriggerAgro(Room room)
+        {
+            foreach (NonPlayer npc in room.NonPlayers)
+            {
+                if (npc.IsHostile)
+                {
+                    WriteLine($"{npc.Name} has attacked you!");
+                    if (npc.InCombat)
+                    {
+                        CurrentWorkflow = npc.CurrentWorkflow;
+                        CombatWorkflow combat = npc.FindCombat();
+                        combat.Combatants.Add(this);
+                        combat.RollInitiative(this);
+                        combat.InitiativeOrder();
+                    }
+                    else if (InCombat)
+                    {
+                        npc.CurrentWorkflow = CurrentWorkflow;
+                        CombatWorkflow combat = FindCombat();
+                        combat.Combatants.Add(npc);
+                        combat.RollInitiative(npc);
+                        combat.InitiativeOrder();
+                    }
+                    else
+                    {
+                        CombatWorkflow.CreateCombat(this, npc);
+                    }
+                }
             }
         }
 
