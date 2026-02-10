@@ -1,0 +1,24 @@
+{
+  "Items": {
+    "human": {
+      "Name": "human",
+      "Description": "Humans are versatile and ambitious, known for their adaptability and resilience."
+    },
+    "elf": {
+      "Name": "elf",
+      "Description": "Elves are graceful and wise, often possessing a deep connection to nature and magic."
+    },
+    "dwarf": {
+      "Name": "dwarf",
+      "Description": "Dwarves are sturdy and hardworking, renowned for their craftsmanship and loyalty."
+    },
+    "orc": {
+      "Name": "orc",
+      "Description": "Orcs are fierce and strong, often living in tribal societies and valuing honor in battle."
+    },
+    "gnome": {
+      "Name": "gnome",
+      "Description": "Gnomes are inventive and curious, known for their cleverness and affinity for technology and magic."
+    }
+  }
+}
