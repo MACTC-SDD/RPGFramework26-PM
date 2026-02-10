@@ -11,9 +11,17 @@ namespace RPGFramework
         {
             ca.CurrentDurability -= amout;
         }
-        public void ReduceDurabilityWeapon(Armor cw, int amout)
+        public void ReduceDurabilityWeapon(Weapon cw, int amout)
         {
             cw.CurrentDurability -= amout;
+        }
+        public void IncreaseDurabilityWeapon(Weapon cw, int amout)
+        {
+            cw.CurrentDurability += amout;
+        }
+        public void IncreaseDurabilityArmor(Armor ca, int amout)
+        {
+            ca.CurrentDurability += amout;
         }
     }
 }

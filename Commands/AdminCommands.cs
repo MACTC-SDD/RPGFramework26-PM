@@ -16,11 +16,15 @@ namespace RPGFramework.Commands
         {
             return
             [
+                new AdminHealCommand(),
                 new AdminHelpCommand(),
                 new AnnounceCommand(),
+                new BackupCommand(),
                 new GoToCommand(),
                 new HelpEditCommand(),
                 new KickCommand(),
+                new LevelUpCommand(),
+                new MotdCommand(),
                 new ReloadSeedDataCommand(),
                 new RenameCommand(),
                 new RoleCommand(),
@@ -30,9 +34,7 @@ namespace RPGFramework.Commands
                 new WhereCommand(),
                 new WhoCommand(),
                 new TeleportRoomCommand(), // added teleport by room id
-                new BackupCommand(),
                 new RestoreCommand(),
-                new MotdCommand(),
             ];
         }
     }
@@ -193,12 +195,12 @@ namespace RPGFramework.Commands
             
             HelpEntry h = new()
             {
-                Name = parameters[2],
+                Topic = parameters[2],
                 Category = parameters[3],
                 Content = parameters[4]
             };
 
-            GameState.Instance.HelpCatalog.Add(h.Name, h);
+            GameState.Instance.HelpCatalog.Add(h.Topic, h);
             return true;
         }
 
@@ -221,8 +223,7 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is not Player player)
-                return false;
+            if (character is not Player player) return false;
 
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
@@ -230,32 +231,38 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (parameters[1] == null)
+            if (parameters.Count < 1 || string.IsNullOrWhiteSpace(parameters[0]))
             {
-                player.WriteLine("Player not found.");
+                player.WriteLine("Usage: /kick <playername>");
                 return false;
             }
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-            
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
+            string targetName = parameters[0];
+            Player? target = GameState.Instance.GetPlayerByName(targetName);
+
             if (target == null)
             {
-                player.WriteLine($"Player ({parameters[1]}) not found.");
+                player.WriteLine($"Player ({targetName}) not found.");
                 return false;
             }
 
-            if (target.IsOnline == true)
+            if (target.IsOnline)
+            {
                 target.Logout();
-
-            player.WriteLine($"You have disconnected {target.DisplayName()}.");
-            return true;
+                player.WriteLine($"You have disconnected {target.DisplayName()}.");
+                return true;
+            }
+            else
+            {
+                player.WriteLine($"{target.DisplayName()} is not currently online.");
+                return false;
+            }
         }
     }
     #endregion
 
-    #region ReloadSeedDataCommand Class
-    internal class ReloadSeedDataCommand : ICommand
+        #region ReloadSeedDataCommand Class
+        internal class ReloadSeedDataCommand : ICommand
     {
         public string Name => "/reloadseeddata";
         public IEnumerable<string> Aliases => [];
@@ -334,7 +341,7 @@ namespace RPGFramework.Commands
     // CODE REVIEW: Aidan - The RoleCommand had several issues similar to those I addressed in SummonCommand.
     internal class RoleCommand : ICommand
     {
-        public string Name => "role";
+        public string Name => "/role";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";
@@ -445,7 +452,7 @@ namespace RPGFramework.Commands
     #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "summon";        
+        public string Name => "/summon";        
         public IEnumerable<string> Aliases => [];
         public string Help => "";
 
@@ -508,8 +515,8 @@ namespace RPGFramework.Commands
     #region TeleportRoomCommand
     internal class TeleportRoomCommand : ICommand
     {
-        public string Name => "teleportroom";
-        public IEnumerable<string> Aliases => [ "tpr" ];
+        public string Name => "/teleportroom";
+        public IEnumerable<string> Aliases => [ "/tpr" ];
         public string Help => "Teleport to a specific room by ID. Usage: teleportroom <areaId>:<roomId> or teleportroom <roomId> (uses your current area)";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -630,7 +637,7 @@ namespace RPGFramework.Commands
     #region BackupCommand Class
     internal class BackupCommand : ICommand
     {
-        public string Name => "backup";
+        public string Name => "/backup";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";
@@ -730,6 +737,63 @@ namespace RPGFramework.Commands
             player.WriteLine($"successfully set motd");
             GameState.Instance.MessageCatalog["motd"] = parameters[1];
             return true;
+        }
+    }
+
+    internal class LevelUpCommand : ICommand
+    {
+        public string Name => "/levelup";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to use this command.");
+                return false;
+            }
+            player.LevelUp(1);
+            player.WriteLine("you have given yourself one level");
+            return true;
+        }
+    }
+    internal class AdminHealCommand : ICommand
+    {
+        public string Name => "/heal";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player player)
+            {
+                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+                {
+                    player.WriteLine("You do not have permission to run this command");
+                    return false;
+                }
+                if (parameters[1] == null)
+                {
+                    player.WriteLine("Player not found.");
+                    return false;
+                }
+                if (parameters[2] == null)
+                {
+                    player.WriteLine("No health amount stated.");
+                    return false;
+                }
+                Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+                target.Health += int.Parse(parameters[2]);
+                player.WriteLine($"you have healed {target} by {parameters[1]}");
+                return true;
+            }
+            return false;
+
         }
     }
 }

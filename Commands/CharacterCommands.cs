@@ -38,9 +38,13 @@ namespace RPGFramework.Commands
                 return true;
             }
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
-            player.WriteLine($"Your character class is: {character.Class.Name}");
-            player.WriteLine($"Description: {character.Class.Description}");
+            player.WriteLine($"✦Your Character Class Is: {character.Class.Name}✦");
+            player.WriteLine($"Class Description: {character.Class.Description}");
+            player.WriteLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            player.WriteLine($"✦Your Race Is: {player.Race.Name}✦");
+            player.WriteLine($"Race Description: {player.Race.Description}");
             player.WriteLine($"════════════════════════════");
+            player.WriteLine($"°。°。°。°。°。°。°。°。°。°。");
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
             player.WriteLine("        Base Stats ");
             player.WriteLine($"════════════════════════════");
@@ -51,7 +55,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"       Wisdom: {player.Wisdom}");
             player.WriteLine($"       Charisma: {player.Charisma}");
             player.WriteLine($"════════════════════════════");
-            player.WriteLine($"");
+            player.WriteLine($"°。°。°。°。°。°。°。°。°。°。");
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
             player.WriteLine("        Modifiers ");
             player.WriteLine($"════════════════════════════");

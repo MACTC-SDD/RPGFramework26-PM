@@ -69,7 +69,6 @@ namespace RPGFramework.Workflows
                     player.WriteLine($"You have chosen the {chosenClass} class.");
                     // If class is valid, proceed, otherwise print message and stay on this step
                     // Placeholder logic
-                    CurrentStep++;
                     break;     
                 case 3:
                     // Step 2: Roll stats and loop until accepted
@@ -92,21 +91,47 @@ namespace RPGFramework.Workflows
                     if (parameters[0].ToLower() == "y" || parameters[0].ToLower() == "yes")
                     {
                         player.WriteLine("Stats accepted.");
+                        player.SetCarryCapacity();
+                        string raceList = string.Join(", ", GameState.Instance.RaceCatalog.Keys.OrderBy(x => x));
+                        player.WriteLine($"Please choose from the following races: {raceList} ");
                         CurrentStep++;
                     }
                     else 
                     {
                         player.WriteLine("Re-rolling stats...");
-                        CurrentStep--;
+                        CurrentStep++;
                         // Stay on this step to re-roll
                     }
-                    
                     break;
+                    case 5:
+                    // step 4 player chooses race 
+                    string chosenRace = parameters.Count > 0 ? parameters[0].ToLower() : string.Empty;
+                    if (!GameState.Instance.RaceCatalog.TryGetValue(chosenRace, out Race? charRace)
+                      || charRace == null)
+                    {
+                        string raceList = string.Join(", ", GameState.Instance.RaceCatalog.Keys.OrderBy(x => x));
+                        player.WriteLine($"Please choose from the following races: {raceList} ");
+                        break;
+                    }
+                    else
+                    {
+                        player.WriteLine("You Have Successfully Chosen A Race");
+                        player.WriteLine("Hit |Enter| To Continue");
+                    }
+
+                        player.Race = charRace;
+                    WorkflowData["ChosenRace"] = chosenRace;
+                    CurrentStep++;
+                    
+
+                    break;
+
                 default:
                     // Onboarding complete
                     // TODO: Set PlayerClass (or maybe do that in step above) and save Player
                     player.WriteLine(Name + ": Onboarding complete! You are now ready to explore the game world.");
                     player.WriteLine("Your class is: " + player.Class.Name);
+                    player.WriteLine("Your Race is: " + player.Race.Name);
                     player.WriteLine("Type 'help' to see a list of available commands.");
                     player.CurrentWorkflow = null;
                     break;

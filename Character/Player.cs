@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using RPGFramework.Enums;
+using RPGFramework.Geography;
 using Spectre.Console;
 using Spectre.Console.Rendering;
-
-using RPGFramework.Enums;
+using RPGFramework.Workflows;
 
 
 
@@ -32,14 +33,33 @@ namespace RPGFramework
         #region --- Fields ---
         private static readonly List<LevelEntry> _levels =
         [
-            new() {RequiredXp = 0, StatPoints = 0, Health = 0},
-            new() {RequiredXp = 500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 1500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 2500, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3000, StatPoints = 1, Health = 25},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25}
+            new() {RequiredXp = 0, StatPoints = 0, Health = 0, Mana = 0},
+            new() {RequiredXp = 500, StatPoints = 1, Health = 25, Mana=25},
+            new() {RequiredXp = 1000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 1500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 4000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 4500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 5000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 5500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 6000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 6500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 7000, StatPoints = 1, Health = 25, Mana=25},
+            new() {RequiredXp = 7500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 8000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 8500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 9000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 9500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 10000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 10500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 11000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 11500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 12000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 12500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 13000, StatPoints = 1, Health = 25, Mana = 25}
         ];
 
         #endregion
@@ -48,7 +68,6 @@ namespace RPGFramework
         {
             // We could add colors and other things later, for now, just afk
             return Name + (IsAFK ? " (AFK)" : "");
-
         }
 
         #region Exists Method (Static)
@@ -203,19 +222,55 @@ namespace RPGFramework
         }
 
 
+        public void LevelUp(int levelsToAdd)
+        {
+            XP = _levels[Level + levelsToAdd+1].RequiredXp;
+            LevelUp();
+        }
 
-        
+
 
 
         public void LevelUp()
         {
-            if (XP > _levels[Level].RequiredXp)
+            if (XP >= _levels[Level].RequiredXp)
             {
                 MaxHealth += _levels[Level].Health;
                 Health = MaxHealth;
                 StatPoints += _levels[Level].StatPoints;
+                MaxMana += _levels[Level].Mana;
                 Level++;
                 
+            }
+        }
+        public void TriggerAgro(Room room)
+        {
+            foreach (NonPlayer npc in room.NonPlayers)
+            {
+                if (npc.IsHostile)
+                {
+                    WriteLine($"{npc.Name} has attacked you!");
+                    if (npc.InCombat)
+                    {
+                        CurrentWorkflow = npc.CurrentWorkflow;
+                        CombatWorkflow combat = npc.FindCombat();
+                        combat.Combatants.Add(this);
+                        combat.RollInitiative(this);
+                        combat.InitiativeOrder();
+                    }
+                    else if (InCombat)
+                    {
+                        npc.CurrentWorkflow = CurrentWorkflow;
+                        CombatWorkflow combat = FindCombat();
+                        combat.Combatants.Add(npc);
+                        combat.RollInitiative(npc);
+                        combat.InitiativeOrder();
+                    }
+                    else
+                    {
+                        CombatWorkflow.CreateCombat(this, npc);
+                    }
+                }
             }
         }
 
