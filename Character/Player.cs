@@ -39,7 +39,26 @@ namespace RPGFramework
             new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 25},
             new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 25},
             new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 25},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 25}
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 4000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 4500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 5000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 5500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 6000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 6500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 7000, StatPoints = 1, Health = 25, Mana=25},
+            new() {RequiredXp = 7500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 8000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 8500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 9000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 9500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 10000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 10500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 11000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 11500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 12000, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 12500, StatPoints = 1, Health = 25, Mana = 25},
+            new() {RequiredXp = 13000, StatPoints = 1, Health = 25, Mana = 25}
         ];
 
         #endregion
