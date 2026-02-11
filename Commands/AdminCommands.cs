@@ -102,6 +102,10 @@ namespace RPGFramework.Commands
     }
     #endregion
 
+    // CODE REVIEW: Aidan
+    // This method was looking for the player at parameter 0 so always failing
+    // It also only set the area, not the location.
+    // I have fixed these issues and you can delete once you've read this.
     #region GoToCommand Class
     internal class GoToCommand : ICommand
     {
@@ -113,6 +117,7 @@ namespace RPGFramework.Commands
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player) return false;
+
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
                 player.WriteLine("You do not have permission to use this command.");
@@ -126,18 +131,25 @@ namespace RPGFramework.Commands
                 return false;
             }
 
+            string targetName = parameters[1];
 
-            Character target = GameState.Instance.GetPlayerByName(parameters[0]);
-            if (target == null)
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)        
             {
                 player.WriteLine("Player not found.");
                 return false;
             }
 
 
-            character.AreaId = target.AreaId;
+            player.AreaId = target.AreaId;
+            player.LocationId = target.LocationId;
             player.WriteLine($"You have been teleported to {target.Name}.");
             return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     #endregion
