@@ -18,7 +18,7 @@ namespace RPGFramework.Commands
         /// in the help system.
         /// </summary>
         string Help { get; }
-        
+
         /// <summary>
         /// Execute the command.
         /// Returns true if the command was successfully handled.
@@ -28,6 +28,5 @@ namespace RPGFramework.Commands
         /// The parsed parameters, including the command word at index 0.
         /// </param>
         bool Execute(Character character, List<string> parameters);
-        
     }
 }
