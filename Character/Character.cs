@@ -46,8 +46,8 @@ namespace RPGFramework
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
         public double MaxCarryWeight { get; private set; } = 150;
-        public int MaxMana { get; set; } = 100;
-        public int Mana { get; set; } = 100;
+        public int MaxMana { get; set; } = 35;
+        public int Mana { get; set; } = 35;
         public Race? Race { get; set; } = new();
 
         #endregion
