@@ -56,7 +56,6 @@ namespace RPGFramework.Commands
 
                     // We'll move setting name and description into this
                     //CCSet(player, parameters);
-                    break;
                 case "show":
                     //CCCommand(player);
                     break;

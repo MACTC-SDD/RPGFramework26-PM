@@ -199,12 +199,12 @@ namespace RPGFramework.Commands
 
             HelpEntry h = new()
             {
-                Name = parameters[2],
+                Topic = parameters[2],
                 Category = parameters[3],
                 Content = parameters[4]
             };
 
-            GameState.Instance.HelpCatalog.Add(h.Name, h);
+            GameState.Instance.HelpCatalog.Add(h.Topic, h);
             return true;
         }
 
