@@ -6,6 +6,7 @@ namespace RPGFramework
 {
     internal partial class Spell
     {
+        public string Name { get; set; } = "";
         public bool IsHeal { get; set; } = false;
         public int ManaCost { get; set; } = 5;
         public bool HasSave { get; set; } = false;
