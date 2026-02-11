@@ -35,10 +35,21 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    if (selectedSpell != null)
-                        //Player.RollToHitS(player, chosenTarget);
+                    // Here you would add logic to apply the attack or spell effects to the chosen target
+                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
 
-
+                    if (selectedSpell.HasSave == true)
+                    {
+                        selectedSpell.SaveSpell(player, selectedSpell, chosenTarget);
+                    }
+                    else if (selectedSpell.IsHeal == true)
+                    {
+                        selectedSpell.HealSpell(player, selectedSpell);
+                    }
+                    else
+                    {
+                        Character.RollToHitS(player, selectedSpell, chosenTarget);
+                    }
 
                     CurrentStep = 0;
                     EndTurn();

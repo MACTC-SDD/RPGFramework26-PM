@@ -2,9 +2,8 @@
 
 namespace RPGFramework
 {
-    /*internal class Spell
+    internal partial class Spell
     {
-        public int Damage { get; set; } = 0;
         public string Name { get; set; } = "";
     }*/
 
