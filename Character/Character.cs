@@ -209,13 +209,15 @@ namespace RPGFramework
         }
 
         public IRenderable ShowSummary()
-        { var table = new Table();
+        { 
+            Room r = GetRoom();
+            var table = new Table();
             table.AddColumn("Background");
             table.AddColumn("info");
             table.AddRow($"Name: {Name}", $"Gold: {Gold}");
             table.AddRow($"Class: {Class?.Name ?? "None"}", $"Weapon: {PrimaryWeapon.Name}");
             table.AddRow($"Health: {Health}", $"XP: {XP}");
-            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+            table.AddRow($"level: {Level}", $"Location: {r.Name}");
 
             string title = "Character Info";
 

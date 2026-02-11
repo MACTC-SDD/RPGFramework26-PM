@@ -233,8 +233,9 @@ namespace RPGFramework.Commands
                 player.WriteLine("Backpackitems");
                 foreach (Item i in player.BackPack.Items)
                 {
+                    if (i == null) continue;
+                    
                     player.WriteLine(i.Name);
-                    return false;
                 }
             }
             else
