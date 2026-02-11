@@ -683,7 +683,7 @@ public bool Execute(Character character, List<string> parameters)
     }
     internal class GoldCommand : ICommand
     {
-        public string Name => "gold";
+        public string Name => "/gold";
         public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
@@ -695,7 +695,8 @@ public bool Execute(Character character, List<string> parameters)
                     player.WriteLine("You do not have permission to run this command");
                     return false;
                 }
-                player.Gold += int.Parse(parameters[2]);
+                Character PlayerT = GameState.Instance.GetPlayerByName(parameters[1]);
+                PlayerT.Gold += int.Parse(parameters[2]);
                 player.WriteLine($"you have added {parameters[2]} to {parameters[1]}");
                 return true;
             }
