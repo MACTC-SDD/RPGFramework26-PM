@@ -338,7 +338,16 @@ public bool Execute(Character character, List<string> parameters)
                 if (i.UsesLeft > 0)
                 {
                    i.UsesLeft--;
-                    player.WriteLine($"Used {i}");
+                    if (c is Food f)
+                    {
+                        f.Use(character);
+                        player.WriteLine($"Used {c.Name}");
+                    }
+                    if (c is Potion p)
+                    {
+                        p.Use(character);
+                        player.WriteLine($"Used {c.Name}");
+                    }
                 }
                 
                 if (i.UsesLeft < 1)

@@ -11,6 +11,10 @@ namespace RPGFramework.Items
         public int StackMax { get; set; } = 10;
 
         public PotionType PotionType { get; set; } = 0;
+        public void Use(Character user)
+        {
+            user.Heal(HealAmount);
+        }
 
         public void PotionValue()
         {
