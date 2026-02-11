@@ -3,6 +3,7 @@ using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Persistence;
 using RPGFramework.Workflows;
+using Spectre.Console;
 
 namespace RPGFramework.Commands
 {
@@ -64,8 +65,27 @@ namespace RPGFramework.Commands
         public string Name => "/room";
 
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
-
+        public string Help => 
+            "[bold]Room Builder Commands:[/]\n"
+            + "[bold underline]Usage: [/]\n"
+            + "/room set description '<set room desc to this>'\n"
+            +"/room set name '<set room name to this>'\n"
+            +"/room create '<name>' '<description>' <exit direction> '<exit description>'\n"
+            +"/room add <direction> <destRoomId> '<exit description>'\n"
+            +"  or: /room add <direction> <areaId>:<roomId> '<exit description>'\n"
+            +"/room remove <direction>\n"
+            +"/room remove id <exitId>\n"
+            +"/room delete\n"
+            +"/room set icon '<Icon>'\n"
+            +"/room set color '<color>'\n"
+            +"/room set tags '<tag, tag, tag>'\n"
+            +"/room set exit dir <exitId> <direction>   - Changes direction (validates duplicates, updates return exit)\n"
+            +"/room set exit dest <exitId> <roomId>     - Change destination (use <areaId>:<roomId> to specify area)\n"
+            +"/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type\n"
+            +"/room set exit open <exitId> <open|close> - Open or close this exit (doors only)\n"
+            +"/room area exit <areaId> '<exit description>'  - Create a cross-area exit to specified area (creates a new room in target area).\n"
+            +"/room area list [[areaId]]               - List all rooms in an area\n"
+            +"/room set area description <areaId>:<roomId> '<desc>'";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -120,7 +140,7 @@ namespace RPGFramework.Commands
         }
 
         #region RoomSet Method
-        private static bool RoomSet(Player player, List<string> parameters)
+        private  bool RoomSet(Player player, List<string> parameters)
         {
             if (parameters.Count < 3)
             {
@@ -150,27 +170,14 @@ namespace RPGFramework.Commands
         #endregion
 
         #region ShowHelp Method
-        private static bool ShowHelp(Player player)
+        private bool ShowHelp(Player player)
         {
-            player.WriteLine("Usage: ");
-            player.WriteLine("/room set description '<set room desc to this>'");
-            player.WriteLine("/room set name '<set room name to this>'");
-            player.WriteLine("/room create '<name>' '<description>' <exit direction> '<exit description>'");
-            player.WriteLine("/room add <direction> <destRoomId> '<exit description>'");
-            player.WriteLine("  or: /room add <direction> <areaId>:<roomId> '<exit description>'");
-            player.WriteLine("/room remove <direction>");
-            player.WriteLine("/room remove id <exitId>");
-            player.WriteLine("/room delete");
-            player.WriteLine("/room set icon '<Icon>'");
-            player.WriteLine("/room set color '<color>'");
-            player.WriteLine("/room set tags '<tag, tag, tag>'");
-            player.WriteLine("/room set exit dir <exitId> <direction>   - Changes direction (validates duplicates, updates return exit)");
-            player.WriteLine("/room set exit dest <exitId> <roomId>     - Change destination (use <areaId>:<roomId> to specify area)");
-            player.WriteLine("/room set exit type <exitId> <Open|Door|LockedDoor|Impassable> - Change exit type");
-            player.WriteLine("/room set exit open <exitId> <open|close> - Open or close this exit (doors only)");
-            player.WriteLine("/room area exit <areaId> '<exit description>'  - Create a cross-area exit to specified area (creates a new room in target area).");
-            player.WriteLine("/room area list [[areaId]]               - List all rooms in an area");
-            player.WriteLine("/room set area description <areaId>:<roomId> '<desc>'");
+            var table = new Table();
+
+            table.AddColumn(new TableColumn("[mediumpurple2]Room List[/]"));
+
+            table.AddRow(Help);
+            player.Write(table);
 
             //to see tags and desc and name etc, just do /room <name of thing> and nothing after
 
@@ -561,7 +568,7 @@ namespace RPGFramework.Commands
         ///   /room set exit open <exitId> <open|close>
         /// All require Builder permission.
         /// </summary>
-        private static bool RoomSetExit(Player player, List<string> parameters)
+        private bool RoomSetExit(Player player, List<string> parameters)
         {
             if (parameters.Count < 4)
             {
@@ -713,7 +720,7 @@ namespace RPGFramework.Commands
 
             return true;
         }
-        private static bool RoomSetArea(Player player, List<string> parameters)
+        private bool RoomSetArea(Player player, List<string> parameters)
         {
             // /room set area description <areaId>:<roomId> '<desc>'
             if (parameters.Count < 6)
@@ -1030,7 +1037,7 @@ namespace RPGFramework.Commands
         }
 
         #region --- New: /room area exit ---
-        private static bool RoomArea(Player player, List<string> parameters)
+        private bool RoomArea(Player player, List<string> parameters)
         {
             // Usage: /room area exit <areaId> '<exit description>'
             if (!Utility.CheckPermission(player, PlayerRole.Builder))
@@ -1699,8 +1706,11 @@ namespace RPGFramework.Commands
         public string Name => "/area";
 
         public IEnumerable<string> Aliases => Array.Empty<string>();
-       public string Help => "/area create '<name>' '<description>' [[<roomIdToMove>]]";
-
+        public string Help => "[bold underline]Usage:[/]\n"
+             + "/area create '<name>' '<description>' [[<roomIdToMove>]]\n"
+             + "/area move <roomId> <areaId>\n"
+             + "/area show <areaId>\n"
+             + "/area list";
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -1710,7 +1720,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 2)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return false;
             }
 
@@ -1729,22 +1739,27 @@ namespace RPGFramework.Commands
                     AreaList(player);
                     break;
                 default:
-                    WriteUsage(player);
+                    ShowHelp(player);
                     break;
             }
 
             return true;
         }
 
-        private static void WriteUsage(Player player)
-        {
-            player.WriteLine("Usage:");
-            player.WriteLine("/area create '<name>' '<description>' [[<roomIdToMove>]]");
-            player.WriteLine("/area move <roomId> <areaId>");
-            player.WriteLine("/area show <areaId>");
-            player.WriteLine("/area list");
-        }
 
+        private bool ShowHelp(Player player)
+        {
+            var table = new Table();
+
+            table.AddColumn(new TableColumn("[mediumpurple2]Area List[/]"));
+
+            table.AddRow(Help);
+            player.Write(table);
+
+            //to see tags and desc and name etc, just do /room <name of thing> and nothing after
+
+            return false;
+        }
         private static void AreaList(Player player)
         {
             if (GameState.Instance.Areas.Count == 0)
@@ -1780,7 +1795,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"Exits: {a.Exits.Count}");
         }
 
-        private static void AreaCreate(Player player, List<string> parameters)
+        private void AreaCreate(Player player, List<string> parameters)
         {
             if (!Utility.CheckPermission(player, PlayerRole.Builder))
             {
@@ -1791,7 +1806,7 @@ namespace RPGFramework.Commands
 
             if (parameters.Count < 4)
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return;
             }
 
@@ -1831,7 +1846,7 @@ namespace RPGFramework.Commands
             }
         }
 
-        private static void AreaMove(Player player, List<string> parameters)
+        private void AreaMove(Player player, List<string> parameters)
         {
             if (!Utility.CheckPermission(player, PlayerRole.Builder))
             {
@@ -1844,7 +1859,7 @@ namespace RPGFramework.Commands
                 || !int.TryParse(parameters[2], out int roomId)
                 || !int.TryParse(parameters[3], out int targetAreaId))
             {
-                WriteUsage(player);
+                ShowHelp(player);
                 return;
             }
 

@@ -361,7 +361,7 @@ namespace RPGFramework.Commands
             // We don't need null checking here
             if (parameters.Count < 3)
             {
-                player.WriteLine("Usage: role <playerName> <role>");
+                player.WriteLine("[underline bold]Usage:[/] role <playerName> <role>");
                 return false;
             }
 
