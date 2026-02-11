@@ -711,61 +711,107 @@ public bool Execute(Character character, List<string> parameters)
 
         }
     }
+
+    #region GoldCommand Class
+    // CODE REVIEW: Aidan - This probably belongs in AdminCommands, just for organization
+    // Note: You had a variable named PlayerT, we want to always start internal vars with a lowercase
+    // Note: This attempted a parse, but didn't  actually fail if it was legitimate, or see if there
+    //       were enough paramters provided.
+    // I fixed and added help. You can delete this once you've read it.
     internal class GoldCommand : ICommand
     {
         public string Name => "/gold";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Give a player gold.\nUsage: /gold <target> <amount>";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                Character PlayerT = GameState.Instance.GetPlayerByName(parameters[1]);
-                PlayerT.Gold += int.Parse(parameters[2]);
-                player.WriteLine($"you have added {parameters[2]} to {parameters[1]}");
-                return true;
-            }
-            return false;
+            if (character is not Player player)
+                return false;
 
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to run this command");
+                return false;
+            }
+
+            if (parameters.Count < 3)
+                return ShowHelp(player);
+
+            string targetName = parameters[1];
+
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)
+            {
+                player.WriteLine($"I couldn't find the target player ({targetName})"); 
+                return false;
+            }
+
+            if (!int.TryParse(parameters[2], out int goldAmount))
+            {
+                player.WriteLine("Amount of gold has to be a number!");
+                return false;
+            }
+
+            target.Gold += goldAmount;
+            player.WriteLine($"you have added {goldAmount} to {targetName}");
+            return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
-    
+    #endregion
+
+    // CODE REVIEW: Aidan
+    // Added / because this is an Admin command and it should probably be moved there.
+    // NOTE: This checked if paramter was null which would still throw an index out of bounds error.
+    // I have fixed these issues and you can delete this when you read it.
+    // This parsed, but didn't do anything if the parameter wasn't actually a number
+    // This set Health directly instead of using the TakeDamage method.
     internal class DamageCommand : ICommand
     {
-        public string Name => "damage";
+        public string Name => "/damage";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Deal damage to a player.\nUsage: /damage <target> <amount>";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                if (parameters[1] == null)
-                {
-                    player.WriteLine("Player not found.");
-                    return false;
-                }
-                if (parameters[2] == null)
-                {
-                    player.WriteLine("No Damage amount stated.");
-                    return false;
-                }
-                    Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
-                    Target.Health -= int.Parse(parameters[2]);
-                    player.WriteLine($"you have damaged {Target} by {parameters[1]}");
-                    return true;
-            }
-            return false;
 
+            if (character is not Player player)
+                return false;
+
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                player.WriteLine("You do not have permission to run this command");
+                return false;
+            }
+
+            if (parameters.Count < 3)
+                return ShowHelp(player);    
+
+            string targetName = parameters[1];
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target ==  null)
+            {
+                player.WriteLine("Target player not found.");
+                return false;
+            }
+
+            if (!int.TryParse(parameters[2], out int damageAmount))
+            {
+                player.WriteLine("Damage amount has to be a number!");
+                return false;
+            }
+
+            target.TakeDamage(damageAmount);
+            player.WriteLine($"you have damaged {target.Name} by {damageAmount}");
+            return true;
+        }
+
+        private bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     internal class PurgeRoomCommand : ICommand
