@@ -51,7 +51,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"       Strength: {player.Strength}");
             player.WriteLine($"       Dexterity: {player.Dexterity}");
             player.WriteLine($"       Constitution: {player.Constitution}");
-            player.WriteLine($"       Inteligence: {player.Intelligence}");
+            player.WriteLine($"       Intelligence: {player.Intelligence}");
             player.WriteLine($"       Wisdom: {player.Wisdom}");
             player.WriteLine($"       Charisma: {player.Charisma}");
             player.WriteLine($"════════════════════════════");
