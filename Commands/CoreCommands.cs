@@ -422,8 +422,18 @@ public bool Execute(Character character, List<string> parameters)
                     else
                         content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
-                content += "[Green]Players Here:[/]\n";
-                content += $"{player.DisplayName()}";
+                content += "\n\n[green]Players Here:[/]\n";
+                foreach (Player p in Room.GetPlayersInRoom(player.GetRoom()))
+                {
+                    content += $"{p.DisplayName()} ";
+                }
+
+                content += "\n\n[purple]Mobs Here:[/]\n";
+                foreach (Mob m in player.GetRoom().Mobs)
+                {
+                    content += $"{m.Name} ";
+                }
+
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
 
