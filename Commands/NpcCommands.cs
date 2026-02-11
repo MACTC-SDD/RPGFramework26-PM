@@ -1,8 +1,9 @@
 ﻿using System;
-using RPGFramework;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
+using RPGFramework;
+using Spectre.Console;
 
 namespace RPGFramework.Commands
 {
@@ -23,7 +24,7 @@ namespace RPGFramework.Commands
     {
         public string Name => "/mob";
         public IEnumerable<string> Aliases => [];
-        public string Help => "Usage: \n"
+        public string Help => "[bold underline]Usage:[/]\n"
            + "/mob list \n"
            + "/mob create 'Name' 'MobClassifier' 'Description' \n"
            + "/mob delete 'Name' \n"
@@ -71,7 +72,7 @@ namespace RPGFramework.Commands
         ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
         private static bool MobCreate(Player player, List<string> parameters)
         {
-            if (parameters.Count < 5)
+            if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name, The mob classifier and description.");
                 return false;
@@ -82,15 +83,27 @@ namespace RPGFramework.Commands
                 player.WriteLine($"The mob {parameters[2]} already exists.");
                 return false;
             }
-
+/*
+            Weapon? newWeapon;
+            if (
+                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[2], out Weapon? w) ||
+                w == null ||
+                (newWeapon = Utility.Clone(w)) == null
+            ) {
+                player.WriteLine(
+                    "No such weapon in weapon catalog.\n" +
+                    "You may add it to the weapon catalog by typing:\n"
+                // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
+                );
+                return false;
+            }
+*/
             Mob m = new()
             {
                 Name = parameters[2],
-                NpcClasification = parameters[3],
-                Description = parameters[4]
+                Description = parameters[3],
             };
 
-            //add if
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
@@ -210,10 +223,10 @@ namespace RPGFramework.Commands
         private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
-            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            player.WriteLine("Name       Description"); //Put this into a table so it is organized for the player
             foreach (Mob mob in GameState.Instance.MobCatalog.Values.OrderBy(x => x.Name))
             {
-                player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
+                player.WriteLine($"{mob.Name} - {mob.Description}");
             }
             return true;
         }
@@ -249,7 +262,12 @@ namespace RPGFramework.Commands
         #region ShowHelp Method
         private void ShowHelp(Player player)
         {
-            player.WriteLine(Help);
+            var table = new Table();
+
+            table.AddColumn(new TableColumn("[mediumpurple2]Mob Help[/]"));
+
+            table.AddRow(Help);
+            player.Write(table);
         }
         #endregion
     }
@@ -290,6 +308,15 @@ namespace RPGFramework.Commands
                     return NpcDelete(player, parameters);
                 default:
                     ShowHelp(player);
+                    //Quint: gotta figure out why this doesn't work. :/
+                    /*{
+                        var table = new Table();
+
+                        table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
+
+                        table.AddRow(Help);
+                        player.Write(table);
+                    }*/
                     break;
             }
             return false;
@@ -334,6 +361,7 @@ namespace RPGFramework.Commands
             if (parameters.Count < 5)
             {
                 player.WriteLine("Provide at least a name");
+                return false;
             }
 
             if (GameState.Instance.NPCCatalog.ContainsKey(parameters[2]))

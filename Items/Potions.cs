@@ -16,23 +16,21 @@ namespace RPGFramework.Items
             user.Heal(HealAmount);
         }
 
-        //Need strength potion
-
         public void PotionValue()
         {
             switch (PotionType)
             {
-                case PotionType.Potion_Of_Healing:
-                    Value = 65;
+                case PotionType.HealingPotion:
+                    Value = 650;
                     break;
             }
         }
 
-        public void PotionHeal()
+        public void Healing()
         {
             switch (PotionType)
             {
-                case PotionType.Potion_Of_Healing:
+                case PotionType.HealingPotion:
                     HealAmount = 100;
                     break;
             }
@@ -42,7 +40,7 @@ namespace RPGFramework.Items
         {
             switch (this.PotionType)
             {
-                case PotionType.Potion_Of_Healing:
+                case PotionType.HealingPotion:
                     StackAmount = 10;
                     break;
             }

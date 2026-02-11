@@ -53,6 +53,7 @@ namespace RPGFramework.Commands
                 new UseCommand(),
                 new ManaCommand(),
                 new HealSpellCommand(),
+                new HelloCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -578,14 +579,15 @@ public bool Execute(Character character, List<string> parameters)
 
 
                 List<string> helpTopics = [];
+                List<HelpEntry> helpEntries = [.. GameState.Instance.HelpCatalog.Values, .. CommandHelpScanner.GetAllHelpEntries()];
                 //foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
-                helpKeys.Sort();
-                foreach (string key in helpKeys)
+                //List<string> helpKeys = [.. GameState.Instance.HelpCatalog.Keys];
+                //helpKeys.Sort();
+                foreach (HelpEntry he in helpEntries.OrderBy(o => o.Topic))
                 {
-                    HelpEntry he = GameState.Instance.HelpCatalog[key];
+                    //HelpEntry he = GameState.Instance.HelpCatalog[key];
                     //player.WriteLine($"{he.Name}");
-                    helpTopics.Add(he.Name);
+                    helpTopics.Add(he.Topic);
                     if (helpTopics.Count == 4)
                     {
                         table.AddRow(helpTopics[0], helpTopics[1], helpTopics[2], helpTopics[3]);
@@ -607,15 +609,24 @@ public bool Execute(Character character, List<string> parameters)
             }
             else
             {
-                foreach (HelpEntry he in GameState.Instance.HelpCatalog.Values)
-                {
-                    if (he.Name.Equals(parameters[1], StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        player.WriteLine($"{he.Name}");
-                        player.WriteLine($"{he.Content}");
+                string topic = parameters[1];
+                _ = GameState.Instance.HelpCatalog.TryGetValue(topic, out HelpEntry? help);
 
-                    }
+                help ??= CommandHelpScanner.GetAllHelpEntries().FirstOrDefault(o => o.Topic.Equals(topic, StringComparison.OrdinalIgnoreCase));
+
+                if (help == null)
+                {
+                    player.WriteLine($"Cound find help topic '{topic}'.");
+                    return false;
                 }
+
+                var table = new Table();
+
+                table.AddColumn(new TableColumn(help.Topic));
+
+                table.AddRow(help.Content);
+                player.Write(table);
+                return true;
             }
             return true;
         }
@@ -692,7 +703,7 @@ public bool Execute(Character character, List<string> parameters)
     }
     internal class GoldCommand : ICommand
     {
-        public string Name => "gold";
+        public string Name => "/gold";
         public IEnumerable<string> Aliases => [];
         public string Help => "";
         public bool Execute(Character character, List<string> parameters)
@@ -704,7 +715,8 @@ public bool Execute(Character character, List<string> parameters)
                     player.WriteLine("You do not have permission to run this command");
                     return false;
                 }
-                player.Gold += int.Parse(parameters[2]);
+                Character PlayerT = GameState.Instance.GetPlayerByName(parameters[1]);
+                PlayerT.Gold += int.Parse(parameters[2]);
                 player.WriteLine($"you have added {parameters[2]} to {parameters[1]}");
                 return true;
             }
@@ -918,38 +930,38 @@ public bool Execute(Character character, List<string> parameters)
             }
            switch(parameters[1].ToLower())
             {
-                case "Strength":
+                case "strength" when player.Strength <= 20:
                     player.Strength++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to strength");
-                    break;
-                case "dexterity":
+                break;
+                case "dexterity" when player.Dexterity <= 20:
                     player.Dexterity++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to dexterity");
                 break;
-                case "constitution":
+                case "constitution" when player.Constitution <= 20:
                     player.Constitution++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to constitution");
                 break;
-                case "intelligence":
+                case "intelligence" when player.Intelligence <= 20:
                     player.Intelligence++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to intelligence");
                 break;
-                case "wisdom":
+                case "wisdom" when player.Wisdom <= 20:
                     player.Wisdom++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to wisdom");
                 break;
-                case "charisma":
+                case "charisma" when player.Charisma <= 20:
                     player.Charisma++;
                     player.StatPoints--;
                     player.WriteLine($"added 1 point to charisma");
                 break;
                 default:
-                    player.WriteLine("unkown attribute");
+                    player.WriteLine("unkown attribute or maxed stat");
                 break;
             }
             return false;
@@ -1055,8 +1067,27 @@ public bool Execute(Character character, List<string> parameters)
                 player.WriteLine("you dont have enough mana!");
                 return false;
             }
-            character.Heal(player.MaxHealth, 20);
+            if (player.Health == player.MaxHealth)
+            {
+                player.WriteLine("you already have full health");
+                return false;
+            }
+            character.Heal(20);
             player.WriteLine("you healed up to full health!");
+            return true;
+        }
+    }
+
+    internal class HelloCommand : ICommand
+    {
+        public string Name => "hello";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "say hi to the server";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {  return false; }
+            player.WriteLine($"Hello {player.Name}!");
             return true;
         }
     }

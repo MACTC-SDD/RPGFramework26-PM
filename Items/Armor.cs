@@ -92,7 +92,7 @@ namespace RPGFramework
                     CurrentDurability = Durability;
                     break;
                 case ArmorType.Shield:
-                    Durability = 100;
+                    Durability = 35;
                     CurrentDurability = Durability;
                     break;
             }

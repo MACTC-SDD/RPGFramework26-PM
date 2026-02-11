@@ -34,7 +34,7 @@ namespace RPGFramework
         [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
         [JsonInclude] public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
-        [JsonInclude] public int MaxHealth { get; protected set; } = 100;
+        [JsonInclude] public int MaxHealth { get; set; } = 100;
         public string Name { get; set; } = "";
         [JsonInclude] public int XP { get; protected set; } = 0;
         public Armor? EquippedArmor { get; set; }
@@ -46,10 +46,10 @@ namespace RPGFramework
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
         public double MaxCarryWeight { get; private set; } = 150;
-        public int MaxMana { get; set; } = 100;
-        public int Mana { get; set; } = 100;
-        
-        
+        public int MaxMana { get; set; } = 35;
+        public int Mana { get; set; } = 35;
+        public Race? Race { get; set; } = new();
+
         #endregion
 
         #region --- Skill Attributes --- (0-20)
@@ -174,10 +174,9 @@ namespace RPGFramework
         }
 
         // Add some amount to health
-        public void Heal(int heal, int manacost=0)
+        public void Heal(int heal)
         {
             SetHealth(Health + heal - HealPenalty);
-            Mana-=manacost;
         }
         public void SetCarryCapacity()
         {
@@ -194,6 +193,11 @@ namespace RPGFramework
             return BackPack.Items.Find(x => x.Id == itemId);
         }
 
+        /// <summary>
+        /// Returns the first consummable found, or null if no consumable with the given name exists in the backpack. Search is case-insensitive.
+        /// </summary>
+        /// <param name="consumableName"></param>
+        /// <returns></returns>
         public Consumable? FindConsumable(string consumableName)
         {
             return BackPack.Items.OfType<Consumable>()
@@ -206,6 +210,14 @@ namespace RPGFramework
             return BackPack.Items.OfType<Consumable>()
                 .Where(x => x.Id == consumableId)
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Retrieves a list of all consumable items currently stored in the backpack.
+        /// </summary>
+        public List<Consumable> GetConsumables()
+        {
+            return [.. BackPack.Items.OfType<Consumable>()];
         }
 
         public IRenderable ShowSummary()

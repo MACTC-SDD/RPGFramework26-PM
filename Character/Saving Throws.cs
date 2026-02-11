@@ -6,9 +6,9 @@ using RPGFramework.Enums;
 namespace RPGFramework
     // Written by Aidan-- this is mainly for spells but could be used for enviroment or something else
 {
-    internal class SavingThrows
+    internal partial class Character
     {
-        public bool STRSavingThrow(int DC, Player Target)
+        public bool STRSavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -16,16 +16,18 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Strength Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Strength Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Strength Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Strength Saving Throw.");
                 return false;
             }
         }
-        public bool INTSavingThrow(int DC, Player Target)
+        public bool INTSavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -33,16 +35,18 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Inteligence Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Inteligence Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Inteligence Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Inteligence Saving Throw.");
                 return false;
             }
         }
-        public bool WISSavingThrow(int DC, Player Target)
+        public bool WISSavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -50,16 +54,18 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Wisdom Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Wisdom Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Wisdom Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Wisdom Saving Throw.");
                 return false;
             }
         }
-        public bool CONSavingThrow(int DC, Player Target)
+        public bool CONSavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -67,16 +73,18 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Constitution Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Constitution Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Dextarity Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Dextarity Saving Throw.");
                 return false;
             }
         }
-        public bool DEXSavingThrow(int DC, Player Target)
+        public bool DEXSavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -84,16 +92,18 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Dextarity Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Dextarity Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Dextarity Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Dextarity Saving Throw.");
                 return false;
             }
         }
-        public bool CHASavingThrow(int DC, Player Target)
+        public bool CHASavingThrow(int DC, Character Target)
         {
             Random rand = new Random();
             int Roll = rand.Next(1, 20);
@@ -101,12 +111,14 @@ namespace RPGFramework
             int totalRoll = Roll + RollMod;
             if (totalRoll >= DC)
             {
-                Target.WriteLine("You Succeded your Charisma Saving throw.");
+                if (Target is Player p)
+                    p.WriteLine("You Succeded your Charisma Saving throw.");
                 return true;
             }
             else
             {
-                Target.WriteLine("You have failed your Charisma Saving Throw.");
+                if (Target is Player p)
+                    p.WriteLine("You have failed your Charisma Saving Throw.");
                 return false;
             }
         }

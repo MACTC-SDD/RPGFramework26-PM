@@ -84,15 +84,15 @@ namespace RPGFramework.Items
                     break;
 
                 case FoodType.Cheesewheel:
-                    HealAmount = 45;
+                    HealAmount = 20;
                     break;
 
                 case FoodType.Stew:
-                    HealAmount = 100;
+                    HealAmount = 50;
                     break;
 
                 case FoodType.Chicken_Leg:
-                    HealAmount = 30;
+                    HealAmount = 25;
                     break;
 
                 case FoodType.Wolf_Meat:
@@ -100,11 +100,11 @@ namespace RPGFramework.Items
                     break;
 
                 case FoodType.Boar_Meat:
-                    HealAmount = 15;
+                    HealAmount = 25;
                     break;
 
                 case FoodType.Pie:
-                    HealAmount = 45;
+                    HealAmount = 30;
                     break;
 
                 case FoodType.Berries:
@@ -112,15 +112,15 @@ namespace RPGFramework.Items
                     break;
 
                 case FoodType.Water_Bottle:
-                    HealAmount = 25;
+                    HealAmount = 15;
                     break;
 
                 case FoodType.Milk_Bottle:
-                    HealAmount = 30;
+                    HealAmount = 15;
                     break;
 
                 case FoodType.Wine:
-                    HealAmount = 1;
+                    HealAmount = 10;
                     break;
             }
         }

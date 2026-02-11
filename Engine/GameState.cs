@@ -111,7 +111,11 @@ namespace RPGFramework
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, CharacterClass> CCCatalog { get; set; } = [];
+
+        [JsonIgnore] public Catalog<string, Race> RaceCatalog { get; set; } = [];
+
         [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Spell> SpellCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
@@ -127,7 +131,9 @@ namespace RPGFramework
             Catalogs.Add(ItemCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(MessageCatalog);
+            Catalogs.Add(SpellCatalog);
             Catalogs.Add(NPCCatalog);
+            Catalogs.Add(RaceCatalog);
             Catalogs.Add(WeaponCatalog);
         }
 
@@ -429,7 +435,7 @@ namespace RPGFramework
             _statusConditionManagerTask = RunStatusConditionManagerLoopAsync(TimeSpan.FromSeconds(30), _statusConditionManagerCts.Token);
 
             _itemCleanUpCts = new CancellationTokenSource();
-            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(1), _itemCleanUpCts.Token);
+            _itemCleanUpTask = RunItemCleanUpLoopAsync(TimeSpan.FromMinutes(5), _itemCleanUpCts.Token);
 
             // This needs to be last
             this.TelnetServer = new TelnetServer(5555);
@@ -533,10 +539,11 @@ namespace RPGFramework
         private async Task RunItemCleanUpLoopAsync(TimeSpan interval, CancellationToken ct)
         {
             GameState.Log(DebugLevel.Alert, "Item Clean Up thread started.");
-            while(ct.IsCancellationRequested && IsRunning)
+            while(!ct.IsCancellationRequested && IsRunning)
             {
                 try
                 {
+                    GameState.Log(DebugLevel.Debug, "Cleaning up dropped items...");
                     foreach (Area a in GameState.Instance.Areas.Values)
                     {
                         foreach (Room r in a.Rooms.Values)
