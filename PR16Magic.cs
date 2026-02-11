@@ -5,7 +5,7 @@ namespace RPGFramework
     internal partial class Spell
     {
         public string Name { get; set; } = "";
-    }
+    }*/
 
     internal partial class Player
     {

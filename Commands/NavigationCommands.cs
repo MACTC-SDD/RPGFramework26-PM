@@ -1,6 +1,7 @@
 ﻿
 using RPGFramework.Enums;
 using RPGFramework.Geography;
+using RPGFramework.Items;
 
 namespace RPGFramework.Commands
 {
@@ -33,7 +34,11 @@ namespace RPGFramework.Commands
         {
             if (character is Player p)
             {
-                MapRenderer.RenderLocalMap(p, p.MapRadius);
+                
+                Item? i = p.BackPack.GetItemByName("compass");
+                int expand = i == null ? 0 : 2;
+
+                MapRenderer.RenderLocalMap(p, p.MapRadius+expand);
                 return true;
             }
 

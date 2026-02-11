@@ -18,27 +18,45 @@ namespace RPGFramework.Items
         {
             switch (PotionType)
             {
-                case PotionType.Potion_Of_Healing:
+                case PotionType.HealingPotion:
+                    Value = 65;
+                    break;
+                case PotionType.ManaPotion:
                     Value = 65;
                     break;
             }
         }
 
-        public void PotionHeal()
+        public void Healing()
         {
             switch (PotionType)
             {
-                case PotionType.Potion_Of_Healing:
+                case PotionType.HealingPotion:
                     HealAmount = 100;
                     break;
             }
         }
 
+        public void Mana()
+        {
+            switch (PotionType)
+            {
+                case PotionType.ManaPotion:
+                    ManaAmount = 100;
+                    break;
+            }
+        }
+
+
+
         public void PotionStack()
         {
             switch (this.PotionType)
             {
-                case PotionType.Potion_Of_Healing:
+                case PotionType.HealingPotion:
+                    StackAmount = 10;
+                    break;
+                case PotionType.ManaPotion:
                     StackAmount = 10;
                     break;
             }

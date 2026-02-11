@@ -3,9 +3,6 @@ using RPGFramework.Core;
 
 namespace RPGFramework.Commands
 {
-    /// <summary>
-    /// Provides methods for retrieving help entries from all available command types in the specified assembly.
-    /// </summary>
     internal static class CommandHelpScanner
     {
         public static List<HelpEntry> GetAllHelpEntries(Assembly? assembly = null)
@@ -30,20 +27,20 @@ namespace RPGFramework.Commands
                     if (command == null)
                         continue;
 
-                    HelpEntry h = new()
-                    { Category = "Commands", Name = command.Name, Content = command.Help };
+                    string category = command.Name.StartsWith('/')
+                        ? "System Commands"
+                        : "Commands";
 
-                    if (h.Name.StartsWith('/'))
-                        h.Category = "AdminCommands";
-
-                    entries.Add(h);
+                    entries.Add(new HelpEntry() { Topic = command.Name, Category = category, Content = command.Help });
                 }
                 catch (Exception ex)
                 {
-                    
-                    entries.Add(new HelpEntry() 
-                        { Category = "Unknown", Content = $"Help unavailable for command ({t.Name}): {ex.GetType().Name}", Name = t.Name });
-
+                    entries.Add(new HelpEntry()
+                    {
+                        Topic = t.Name,
+                        Category = "Command",
+                        Content = $"Help unavailable for command ({t.Name}): {ex.GetType().Name}"
+                    });
                 }
             }
             return entries;

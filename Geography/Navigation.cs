@@ -143,6 +143,9 @@ namespace RPGFramework.Geography
 
             character.AreaId = destinationRoom.AreaId;
             character.LocationId = destinationRoom.Id;
+
+            if (character is Player pa) 
+                pa.TriggerAgro(character.GetRoom());
         }
 
         /// <summary>
