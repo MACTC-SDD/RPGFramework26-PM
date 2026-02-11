@@ -597,19 +597,11 @@ namespace RPGFramework.Commands
     #region WhereCommand Class
     internal class WhereCommand : ICommand
     {
-        public string Name => "where";
-        // CODE REVIEW: Aidan - This method should use Utility.CheckPermission for consistency.
-        /*public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
+        public string Name => "/where";
 
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Show where a specific player is.\nUsage: where <target player>";
 
-        // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
-        // Also un-nested the code for better readability by moving checks to the start and exiting early.
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -621,17 +613,25 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            Character target = GameState.Instance.GetPlayerByName(parameters[1]);
+            if (parameters.Count < 2)
+                return ShowHelp(player);
 
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
-            if (target == null)
-            {
+            string targetName = parameters[1];
+
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)
+            { 
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            player.WriteLine("That Player is in " + target.GetRoom());
+            player.WriteLine($"That Player is in {target.GetRoom().Name} ({target.GetArea().Name})");
             return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     #endregion
