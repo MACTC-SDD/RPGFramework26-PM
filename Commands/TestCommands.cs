@@ -1,4 +1,5 @@
-﻿namespace RPGFramework.Commands
+﻿using RPGFramework.Items;
+namespace RPGFramework.Commands
 {
     internal class TestCommands
     {
@@ -39,7 +40,14 @@
             {
                 return false;               
             }
+            player.Alive = true;
+            player.SetMaxHealth(100);
+            player.SetHealth(30);
+            Food f = new Food() { Name = "bread", HealAmount = 20, UsesLeft = 2};
+            Potion p = new Potion() { Name = "Heal", HealAmount = 100, UsesLeft = 2 };
 
+            player.BackPack.Items.Add(f);
+            player.BackPack.Items.Add(p);
             player.WriteLine("This is an example command.");
 
             // If the command failed to run for some reason, return false

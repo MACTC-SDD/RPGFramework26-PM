@@ -11,6 +11,10 @@ namespace RPGFramework.Items
         public int StackMax { get; set; } = 10;
 
         public FoodType FoodType { get; set; } = 0;
+        public void Use(Character user)
+        {
+            user.Heal(HealAmount);
+        }
 
         public void FoodValue()
         {

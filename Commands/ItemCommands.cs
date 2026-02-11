@@ -68,14 +68,14 @@ namespace RPGFramework.Commands
         {
             Item newItem;
 
-            if (parameters.Count < 6 || parameters.Count > 16)
+            if (parameters.Count < 6)
             {
                 WriteUsage(player);
                 return false;
             }
 
             // Shorthand method for making item
-            if (parameters.Count == 6)
+            if (parameters.Count == 7)
             {
                 newItem = new()
                 {
@@ -85,48 +85,55 @@ namespace RPGFramework.Commands
                     Durability = int.Parse(parameters[5]),
                     Value = int.Parse(parameters[6]),
                 };
-                #region SpawnChance Statement
-                if (int.Parse(parameters[6]) >= 500)   
-                    newItem.SpawnChance = .6;
-                else if (int.Parse(parameters[6]) >= 700)
-                    newItem.SpawnChance = .5;
-                else
-                    newItem.SpawnChance = 0;
-                #endregion
 
-            } else newItem = new()
+
+            }
+            else
             {
-                // CODE REVIEW: Brayden, Tyler
-                // The boolean and double conversions here could throw exceptions if the input is invalid.
-                // I'm not sure what element 9 is supposed to be since Name is already at 2.
-                Name = parameters[2],
-                Id = Convert.ToInt32(parameters[3]),
-                Description = parameters[4],
-                DisplayText = parameters[5],
-                IsDroppable = Convert.ToBoolean(parameters[6]),
-                IsGettable = Convert.ToBoolean(parameters[7]),
-                Level = Convert.ToInt32(parameters[8]),
-                Tags = [.. parameters[10].Split(",")],
-                Value = Convert.ToDouble(parameters[12]),
-                Weight = Convert.ToDouble(parameters[13]),
-                SpawnChance = Convert.ToDouble(parameters[14]),
-                UseSpeed = Convert.ToDouble(parameters[15])
-            };
+                // Every parse needs to be checked
+                if (parameters.Count < 15)
+                {
+                    player.WriteLine("The full create requires 16 parameters");
+                    return false;
+                }
 
-            //int = Convert.ToInt32(parameters[+]);
-            //bool = Convert.ToBoolean(parameters[+]);
-            //double =  Convert.ToDouble(parameters[+]);
+                newItem = new()
+                {
+                    // CODE REVIEW: Brayden, Tyler
+                    // The boolean and double conversions here could throw exceptions if the input is invalid.
+                    // I'm not sure what element 9 is supposed to be since Name is already at 2.
+                    Name = parameters[2],
+                    Id = Convert.ToInt32(parameters[3]),
+                    Description = parameters[4],
+                    DisplayText = parameters[5],
+                    IsDroppable = Convert.ToBoolean(parameters[6]),
+                    IsGettable = Convert.ToBoolean(parameters[7]),
+                    Level = Convert.ToInt32(parameters[8]),
+                    Tags = [.. parameters[10].Split(",")],
+                    Value = Convert.ToDouble(parameters[12]),
+                    Weight = Convert.ToDouble(parameters[13]),
+                    UseSpeed = Convert.ToDouble(parameters[14])
+                };
 
-            if (GameState.Instance.ItemCatalog.ContainsKey(newItem.Name))
-            {
-                player.WriteLine($"There is already an object named {newItem.Name}");
-                return false;
+                // These should all use TryParse
+                //int = Convert.ToInt32(parameters[+]);
+                //bool = Convert.ToBoolean(parameters[+]);
+                //double =  Convert.ToDouble(parameters[+]);
+
+                if (GameState.Instance.ItemCatalog.ContainsKey(newItem.Name))
+                {
+                    player.WriteLine($"There is already an object named {newItem.Name}");
+                    return false;
+                }
+
             }
 
+            // If we get here we're good
             GameState.Instance.ItemCatalog.Add(newItem.Name, newItem);
             player.WriteLine($"Item ({newItem.Name} added successfully.");
 
             return true;
+
         }
         #endregion ---
     }
