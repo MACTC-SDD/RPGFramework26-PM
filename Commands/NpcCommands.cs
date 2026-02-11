@@ -71,7 +71,7 @@ namespace RPGFramework.Commands
         ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
         private static bool MobCreate(Player player, List<string> parameters)
         {
-            if (parameters.Count < 7)
+            if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name, The mob classifier and description.");
                 return false;
@@ -79,13 +79,13 @@ namespace RPGFramework.Commands
 
             if (GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
-                player.WriteLine($"The mob {parameters[6]} already exists.");
+                player.WriteLine($"The mob {parameters[2]} already exists.");
                 return false;
             }
-
+/*
             Weapon? newWeapon;
             if (
-                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[6], out Weapon? w) ||
+                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[2], out Weapon? w) ||
                 w == null ||
                 (newWeapon = Utility.Clone(w)) == null
             ) {
@@ -96,88 +96,13 @@ namespace RPGFramework.Commands
                 );
                 return false;
             }
-
+*/
             Mob m = new()
             {
                 Name = parameters[2],
-                NpcClasification = parameters[3],
-                MaxHealth = int.Parse(parameters[4]),
-                StatPoints = int.Parse(parameters[5]),
-                Description = parameters[7],
-                PrimaryWeapon = newWeapon
+                Description = parameters[3],
             };
-            #region Sets IsHostile To True for mobs
-            if (parameters[0] == "/mob")
-            {
-                m.IsHostile = true;
-            }
-            #endregion
-            if (parameters[3] == "undead")
-            {
-                m.IsUndead = true;
-                m.IsArmy = false;
-                m.IsVillager = false;
-                m.IsHumanoid = false;
-                m.IsElf = false;
-                m.IsCreature = false;
-            }
-            else if (parameters[3] == "villager")
-            {
-                m.IsArmy = false;
-                m.IsUndead = false;
-                m.IsVillager = true;
-                m.IsHumanoid = false;
-                m.IsElf = false;
-                m.IsCreature = false;
-            }
-            else if (parameters[3] == "army")
-            {
-                m.IsArmy = true;
-                m.IsUndead = false;
-                m.IsVillager = false;
-                m.IsHumanoid = false;
-                m.IsElf = false;
-                m.IsCreature = false;
-            }
-            else if (parameters[3] == "humanoid")
-            {
-                m.IsArmy = false;
-                m.IsUndead = false;
-                m.IsVillager = false;
-                m.IsHumanoid = true;
-                m.IsElf = false;
-                m.IsCreature = false;
-            }
-            else if (parameters[3] == "elf")
-            {
-                m.IsArmy = false;
-                m.IsUndead = false;
-                m.IsVillager = false;
-                m.IsHumanoid = false;
-                m.IsElf = true;
-                m.IsCreature = false;
-            }
-            else if (parameters[3] == "creature")
-            {
-                m.IsArmy = false;
-                m.IsUndead = false;
-                m.IsVillager = false;
-                m.IsHumanoid = false;
-                m.IsElf = false;
-                m.IsCreature = true;
-            }
-            else
-            {
-                player.WriteLine("The Classification Types \n" +
-                    "army \n" +
-                    "undead \n" +
-                    "villager \n" +
-                    "humanoid \n" +
-                    "elf \n" +
-                    "creature");
 
-
-            }
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
@@ -297,10 +222,10 @@ namespace RPGFramework.Commands
         private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
-            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            player.WriteLine("Name       Description"); //Put this into a table so it is organized for the player
             foreach (Mob mob in GameState.Instance.MobCatalog.Values.OrderBy(x => x.Name))
             {
-                player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
+                player.WriteLine($"{mob.Name} - {mob.Description}");
             }
             return true;
         }
