@@ -53,6 +53,7 @@ namespace RPGFramework.Commands
                 new UseCommand(),
                 new ManaCommand(),
                 new HealSpellCommand(),
+                new HelloCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -1063,6 +1064,20 @@ public bool Execute(Character character, List<string> parameters)
             }
             character.Heal(20);
             player.WriteLine("you healed up to full health!");
+            return true;
+        }
+    }
+
+    internal class HelloCommand : ICommand
+    {
+        public string Name => "hello";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "say hi to the server";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {  return false; }
+            player.WriteLine($"Hello {player.Name}!");
             return true;
         }
     }
