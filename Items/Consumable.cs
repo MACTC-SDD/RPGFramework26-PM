@@ -10,7 +10,7 @@ namespace RPGFramework
         public ConsumType ConsumType { get; set; }
         public int StrengthAmount { get; set; } = 0;
         public int ManaAmount { get; set; } = 0;
-    }
+    
 
 
         public void ConsumableHooks()
@@ -52,7 +52,7 @@ namespace RPGFramework
                     break;
             }
         }
-    public void Durability()
+        public void Durability()
         {
             switch (ConsumType)
             {
@@ -91,4 +91,5 @@ namespace RPGFramework
                     break;
             }
         }
+    }
 }

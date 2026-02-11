@@ -570,7 +570,7 @@ namespace RPGFramework.Commands
 
                 // move the player correctly (call Leave/Enter so room notifications work)
                 Room current = character.GetRoom();
-                current.LeaveRoom(character.layer, destRoom);
+                current.LeaveRoom(character, destRoom);
                 destRoom.EnterRoom(character, current);
 
                 character.AreaId = areaId;

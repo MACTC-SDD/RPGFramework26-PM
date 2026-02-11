@@ -40,7 +40,7 @@ namespace RPGFramework
             new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 15}
+            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 500, StatPoints = 1, Health = 25, Mana=15},
             new() {RequiredXp = 1000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 1500, StatPoints = 1, Health = 25, Mana = 15},
