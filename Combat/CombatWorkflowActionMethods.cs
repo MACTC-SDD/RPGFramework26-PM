@@ -48,7 +48,8 @@ namespace RPGFramework.Workflows
                     }
                     else
                     {
-                        Character.RollToHitS(player, selectedSpell, chosenTarget);
+                        // Won't compile until there is a three param method 
+                        //Character.RollToHitS(player, selectedSpell, chosenTarget);
                     }
 
                     CurrentStep = 0;

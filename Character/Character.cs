@@ -193,6 +193,11 @@ namespace RPGFramework
             return BackPack.Items.Find(x => x.Id == itemId);
         }
 
+        /// <summary>
+        /// Returns the first consummable found, or null if no consumable with the given name exists in the backpack. Search is case-insensitive.
+        /// </summary>
+        /// <param name="consumableName"></param>
+        /// <returns></returns>
         public Consumable? FindConsumable(string consumableName)
         {
             return BackPack.Items.OfType<Consumable>()
@@ -205,6 +210,14 @@ namespace RPGFramework
             return BackPack.Items.OfType<Consumable>()
                 .Where(x => x.Id == consumableId)
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Retrieves a list of all consumable items currently stored in the backpack.
+        /// </summary>
+        public List<Consumable> GetConsumables()
+        {
+            return [.. BackPack.Items.OfType<Consumable>()];
         }
 
         public IRenderable ShowSummary()

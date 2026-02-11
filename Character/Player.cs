@@ -25,7 +25,7 @@ namespace RPGFramework
         public string Password { get; private set; } = "SomeGarbage";
         public TimeSpan PlayTime { get; set; } = new TimeSpan();
         public PlayerRole PlayerRole { get; set; }
-
+        public List<Spell> Spellbook { get; set; } = [];
         [JsonIgnore] public static List<LevelEntry> Levels { get { return _levels; } }
 
         #endregion

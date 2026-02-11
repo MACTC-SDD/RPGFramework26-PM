@@ -1061,7 +1061,7 @@ public bool Execute(Character character, List<string> parameters)
                 player.WriteLine("you already have full health");
                 return false;
             }
-            character.Heal(player.MaxHealth, 20);
+            character.Heal(20);
             player.WriteLine("you healed up to full health!");
             return true;
         }
