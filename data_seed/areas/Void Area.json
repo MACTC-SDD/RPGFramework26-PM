@@ -7,10 +7,13 @@
       "Id": 0,
       "ExitDirection": 0,
       "ExitType": 0,
-      "Name": "",
+      "Name": "second",
       "Description": "A path heads to the North",
+      "SourceAreaId": 0,
       "SourceRoomId": 0,
-      "DestinationRoomId": 1
+      "DestinationRoomId": 1,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "1": {
       "Id": 1,
@@ -18,8 +21,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "A path heads to the South",
+      "SourceAreaId": 0,
       "SourceRoomId": 1,
-      "DestinationRoomId": 0
+      "DestinationRoomId": 0,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "2": {
       "Id": 2,
@@ -27,8 +33,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "A road goes off",
+      "SourceAreaId": 0,
       "SourceRoomId": 1,
-      "DestinationRoomId": 2
+      "DestinationRoomId": 2,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "3": {
       "Id": 3,
@@ -36,8 +45,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "A road goes off",
+      "SourceAreaId": 0,
       "SourceRoomId": 2,
-      "DestinationRoomId": 1
+      "DestinationRoomId": 1,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "4": {
       "Id": 4,
@@ -45,8 +57,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "The road continues",
+      "SourceAreaId": 0,
       "SourceRoomId": 2,
-      "DestinationRoomId": 3
+      "DestinationRoomId": 3,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "5": {
       "Id": 5,
@@ -54,8 +69,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "The road continues",
+      "SourceAreaId": 0,
       "SourceRoomId": 3,
-      "DestinationRoomId": 2
+      "DestinationRoomId": 2,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "6": {
       "Id": 6,
@@ -63,8 +81,11 @@
       "ExitType": 0,
       "Name": "",
       "Description": "The road continues",
+      "SourceAreaId": 0,
       "SourceRoomId": 3,
-      "DestinationRoomId": 4
+      "DestinationRoomId": 4,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     },
     "7": {
       "Id": 7,
@@ -72,8 +93,443 @@
       "ExitType": 0,
       "Name": "",
       "Description": "The road continues",
+      "SourceAreaId": 0,
       "SourceRoomId": 4,
-      "DestinationRoomId": 3
+      "DestinationRoomId": 3,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "8": {
+      "Id": 8,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "through the horror hallway.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 0,
+      "DestinationRoomId": 6,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "9": {
+      "Id": 9,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "through the horror hallway.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 6,
+      "DestinationRoomId": 0,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "10": {
+      "Id": 10,
+      "ExitDirection": 0,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through the terror tunnel.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 1,
+      "DestinationRoomId": 8,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "11": {
+      "Id": 11,
+      "ExitDirection": 1,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through the terror tunnel.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 8,
+      "DestinationRoomId": 1,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "12": {
+      "Id": 12,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through here youll find a hallway that leads to happiness",
+      "SourceAreaId": 0,
+      "SourceRoomId": 8,
+      "DestinationRoomId": 9,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "13": {
+      "Id": 13,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through here youll find a hallway that leads to happiness",
+      "SourceAreaId": 0,
+      "SourceRoomId": 9,
+      "DestinationRoomId": 8,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "14": {
+      "Id": 14,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through here youll find motorSports.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 8,
+      "DestinationRoomId": 12,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "15": {
+      "Id": 15,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Through here youll find motorSports.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 12,
+      "DestinationRoomId": 8,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "16": {
+      "Id": 16,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "a hall",
+      "SourceAreaId": 0,
+      "SourceRoomId": 0,
+      "DestinationRoomId": 14,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "17": {
+      "Id": 17,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "a hall",
+      "SourceAreaId": 0,
+      "SourceRoomId": 14,
+      "DestinationRoomId": 0,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "18": {
+      "Id": 18,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": " As you exit youll walk into the wind tunel.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 14,
+      "DestinationRoomId": 15,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "19": {
+      "Id": 19,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": " As you exit youll walk into the wind tunel.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 15,
+      "DestinationRoomId": 14,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "20": {
+      "Id": 20,
+      "ExitDirection": 1,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "This hallway is made of million dollar diemonds.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 18,
+      "DestinationRoomId": 19,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "21": {
+      "Id": 21,
+      "ExitDirection": 0,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "This hallway is made of million dollar diemonds.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 19,
+      "DestinationRoomId": 18,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "22": {
+      "Id": 22,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see drinks on the wall.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 19,
+      "DestinationRoomId": 20,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "23": {
+      "Id": 23,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see drinks on the wall.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 20,
+      "DestinationRoomId": 19,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "24": {
+      "Id": 24,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Youll see notthing but darkness.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 19,
+      "DestinationRoomId": 21,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "25": {
+      "Id": 25,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Youll see notthing but darkness.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 21,
+      "DestinationRoomId": 19,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "26": {
+      "Id": 26,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "As you walk youll even run into a prinpical that you wish that you would have never met.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 22,
+      "DestinationRoomId": 23,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "27": {
+      "Id": 27,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "As you walk youll even run into a prinpical that you wish that you would have never met.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 23,
+      "DestinationRoomId": 22,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "28": {
+      "Id": 28,
+      "ExitDirection": 1,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see alot of candy that no one can resist.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 23,
+      "DestinationRoomId": 24,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "29": {
+      "Id": 29,
+      "ExitDirection": 0,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see alot of candy that no one can resist.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 24,
+      "DestinationRoomId": 23,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "30": {
+      "Id": 30,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "As you follow the nature walk youll smell a disgusting smell.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 26,
+      "DestinationRoomId": 27,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "31": {
+      "Id": 31,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "As you follow the nature walk youll smell a disgusting smell.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 27,
+      "DestinationRoomId": 26,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "32": {
+      "Id": 32,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Walk into darkness.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 27,
+      "DestinationRoomId": 28,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "33": {
+      "Id": 33,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Walk into darkness.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 28,
+      "DestinationRoomId": 27,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "34": {
+      "Id": 34,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see a house somewhere in the trees.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 28,
+      "DestinationRoomId": 29,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "35": {
+      "Id": 35,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "youll see a house somewhere in the trees.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 29,
+      "DestinationRoomId": 28,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "36": {
+      "Id": 36,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Keep going and it will be worse.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 29,
+      "DestinationRoomId": 30,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "37": {
+      "Id": 37,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Keep going and it will be worse.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 30,
+      "DestinationRoomId": 29,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "38": {
+      "Id": 38,
+      "ExitDirection": 1,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Youll start to smell something odd.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 30,
+      "DestinationRoomId": 31,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "39": {
+      "Id": 39,
+      "ExitDirection": 0,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Youll start to smell something odd.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 31,
+      "DestinationRoomId": 30,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "40": {
+      "Id": 40,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Soon youll see ghost or weird things.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 31,
+      "DestinationRoomId": 32,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "41": {
+      "Id": 41,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Soon youll see ghost or weird things.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 32,
+      "DestinationRoomId": 31,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "42": {
+      "Id": 42,
+      "ExitDirection": 2,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Back to start.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 32,
+      "DestinationRoomId": 33,
+      "DestinationAreaId": 0,
+      "IsOpen": true
+    },
+    "43": {
+      "Id": 43,
+      "ExitDirection": 3,
+      "ExitType": 0,
+      "Name": "",
+      "Description": "Back to start.",
+      "SourceAreaId": 0,
+      "SourceRoomId": 33,
+      "DestinationRoomId": 32,
+      "DestinationAreaId": 0,
+      "IsOpen": true
     }
   },
   "Rooms": {
@@ -81,34 +537,52 @@
       "Id": 0,
       "AreaId": 0,
       "Description": "You are in a void. There is not much here.",
+      "Items": [],
       "MapIcon": "[green]\u25A0[/]",
       "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
       "Name": "The Void",
+      "NonPlayers": [],
       "Tags": [],
       "ExitIds": [
-        0
+        0,
+        8,
+        16
       ]
     },
     "1": {
       "Id": 1,
       "AreaId": 0,
       "Description": "The room of testing",
+      "Items": [],
       "MapIcon": "[red]\u25A0[/]",
       "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
       "Name": "Testing",
+      "NonPlayers": [],
       "Tags": [],
       "ExitIds": [
         1,
-        2
+        2,
+        10
       ]
     },
     "2": {
       "Id": 2,
       "AreaId": 0,
       "Description": "The east road begins.",
+      "Items": [],
       "MapIcon": "[green]\u25A0[/]",
       "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
       "Name": "East Road",
+      "NonPlayers": [],
       "Tags": [],
       "ExitIds": [
         3,
@@ -119,9 +593,14 @@
       "Id": 3,
       "AreaId": 0,
       "Description": "The east road stretches on.",
+      "Items": [],
       "MapIcon": "\u25A0",
       "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
       "Name": "EASTROAD2",
+      "NonPlayers": [],
       "Tags": [],
       "ExitIds": [
         5,
@@ -132,13 +611,493 @@
       "Id": 4,
       "AreaId": 0,
       "Description": "The far end of the east road.",
+      "Items": [],
       "MapIcon": "\u25A0",
       "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
       "Name": "EASTROAD3",
+      "NonPlayers": [],
       "Tags": [],
       "ExitIds": [
         7
       ]
+    },
+    "5": {
+      "Id": 5,
+      "AreaId": 0,
+      "Description": "It has cars.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "RC",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "6": {
+      "Id": 6,
+      "AreaId": 0,
+      "Description": "You are at the begining",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Start",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        9
+      ]
+    },
+    "8": {
+      "Id": 8,
+      "AreaId": 0,
+      "Description": "Somewhere there is a clown in this room that eats children",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "IT",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        11,
+        12,
+        14
+      ]
+    },
+    "9": {
+      "Id": 9,
+      "AreaId": 0,
+      "Description": "In this room youll a crazy person which will not end well",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "crazy nurse",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        13
+      ]
+    },
+    "10": {
+      "Id": 10,
+      "AreaId": 0,
+      "Description": "In here youll find nothing but happiness",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Happy room",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "11": {
+      "Id": 11,
+      "AreaId": 0,
+      "Description": "You will hear nothing as you come in this room and no one will hear you.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Anxiety",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "12": {
+      "Id": 12,
+      "AreaId": 0,
+      "Description": "In here there will be a bunch of drawings.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Art",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        15
+      ]
+    },
+    "13": {
+      "Id": 13,
+      "AreaId": 0,
+      "Description": "In this room youll find cars that are only for racing. Like NASCAR.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "MotorSports",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "14": {
+      "Id": 14,
+      "AreaId": 0,
+      "Description": "In here youll find NFL player.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Football",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        17,
+        18
+      ]
+    },
+    "15": {
+      "Id": 15,
+      "AreaId": 0,
+      "Description": "Gamer play here.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Gamer",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        19
+      ]
+    },
+    "16": {
+      "Id": 16,
+      "AreaId": 0,
+      "Description": "Be careful youll get blown away.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Windy",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "17": {
+      "Id": 17,
+      "AreaId": 0,
+      "Description": "In here youll see palm trees along with sandy beaches.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Tropical",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "18": {
+      "Id": 18,
+      "AreaId": 0,
+      "Description": "In here youll find meny cats.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Cat Lady",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        20
+      ]
+    },
+    "19": {
+      "Id": 19,
+      "AreaId": 0,
+      "Description": "Youll find meny people on surgey tables.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "OR",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        21,
+        22,
+        24
+      ]
+    },
+    "20": {
+      "Id": 20,
+      "AreaId": 0,
+      "Description": "Youll see a man with gold teeth. With money falling out of his pocket.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Mansion",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        23
+      ]
+    },
+    "21": {
+      "Id": 21,
+      "AreaId": 0,
+      "Description": "In here youll see a bartender and people chaddering at the table.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Bar",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        25
+      ]
+    },
+    "22": {
+      "Id": 22,
+      "AreaId": 0,
+      "Description": "A skelton chained up on the wall, old and dingy.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Dungeon",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        26
+      ]
+    },
+    "23": {
+      "Id": 23,
+      "AreaId": 0,
+      "Description": "In here there are old rusty tools untouched.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Old Shed",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        27,
+        28
+      ]
+    },
+    "24": {
+      "Id": 24,
+      "AreaId": 0,
+      "Description": "Youll see kids scared of their principal because he is mean.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "School House",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        29
+      ]
+    },
+    "25": {
+      "Id": 25,
+      "AreaId": 0,
+      "Description": "In here there is a witch making unresistible candy.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Candy room",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": []
+    },
+    "26": {
+      "Id": 26,
+      "AreaId": 0,
+      "Description": "A cop eating donuts it in here along with meny different types of donuts.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Donut Shop",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        30
+      ]
+    },
+    "27": {
+      "Id": 27,
+      "AreaId": 0,
+      "Description": "As you are in here you find creepy fish.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "\u0016Aquarium",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        31,
+        32
+      ]
+    },
+    "28": {
+      "Id": 28,
+      "AreaId": 0,
+      "Description": "Youll see them peeing on there friends heads.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Gorillas",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        33,
+        34
+      ]
+    },
+    "29": {
+      "Id": 29,
+      "AreaId": 0,
+      "Description": "Tons of trees, super dark, and creepy noices.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Forest",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        35,
+        36
+      ]
+    },
+    "30": {
+      "Id": 30,
+      "AreaId": 0,
+      "Description": "Monkeys will come and eat you so run.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Tree House",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        37,
+        38
+      ]
+    },
+    "31": {
+      "Id": 31,
+      "AreaId": 0,
+      "Description": "In here youll hear creepy voices coming towards you.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Doll House",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        39,
+        40
+      ]
+    },
+    "32": {
+      "Id": 32,
+      "AreaId": 0,
+      "Description": "Youll see a man selling and cutting meat.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Butcher Shop",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        41,
+        42
+      ]
+    },
+    "33": {
+      "Id": 33,
+      "AreaId": 0,
+      "Description": "You finally reached the end, if you see tombstones with flowers.",
+      "Items": [],
+      "MapIcon": "\u25A0",
+      "MapColor": "[green]",
+      "MaxMobs": 1,
+      "Mobs": [],
+      "MobSpawnList": {},
+      "Name": "Grave Yard",
+      "NonPlayers": [],
+      "Tags": [],
+      "ExitIds": [
+        43
+      ]
     }
-  }
+  },
+  "Weather": "clear skies"
 }
