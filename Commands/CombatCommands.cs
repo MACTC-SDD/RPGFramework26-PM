@@ -199,7 +199,7 @@ namespace RPGFramework.Commands
             // This should be broken down into smaller methods for better
             // readability and maintainability.
             public bool Execute(Character character, List<string> parameters)
-        {
+            {
 
             if (character is not Player player)
                     return false;
@@ -232,8 +232,7 @@ namespace RPGFramework.Commands
                     {
                         if (target == null)
                             return false;
-                        // AdminStartCombatUntargeted(target);
-                        // apparently this method got deleted at somepoint
+                        AdminStartCombatUntargeted(target);
                         return true;
                     }
 
@@ -266,8 +265,7 @@ namespace RPGFramework.Commands
                         Character? target2 = Room.FindCharacterInRoom(player.GetRoom(), parameters[3]);
                         if (target2 != null && target1 != null)
                         {
-                            // AdminStartCombatTargeted(target1, target2);
-                            // apparently this method got deleted at somepoint
+                            AdminStartCombatTargeted(target1, target2);
                             return true;
                         }
                         return false;
@@ -287,6 +285,31 @@ namespace RPGFramework.Commands
                     return false;
             }
         }
+        public void AdminStartCombatUntargeted(Player player)
+        {
+            NonPlayer? target = null;
+            List<NonPlayer> possibleTargets = new List<NonPlayer>();
+            foreach (NonPlayer npc in Room.GetCharactersInRoom(player.GetRoom()))
+            {
+                if (npc.IsHostile)
+                {
+                    possibleTargets.Add(npc);
+                }
+            }
+            if (!possibleTargets.Any())
+            {
+                return;
+            }
+            Random random = new Random();
+            target = possibleTargets[random.Next(0, possibleTargets.Count - 1)];
+            CombatWorkflow.CreateCombat(player, target);
+            return;
+        }
+        public void AdminStartCombatTargeted(Character a, Character e)
+        {
+            CombatWorkflow.CreateCombat(a, e);
+        }
+
     }
     #endregion
 }

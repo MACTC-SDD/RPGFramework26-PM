@@ -66,7 +66,36 @@ namespace RPGFramework.Commands
 
         private void ItemCreate(Player player, List<string> parameters)
         {
-            // Make sure not < 4
+            if (parameters.Count < 6)
+            {
+                player.WriteLine("/item create <name> '<desc>'");
+                return;
+            }
+
+            if (parameters.Count ==6)
+            {
+                if (GameState.Instance.ItemCatalog.TryGetValue(parameters[2], out _))
+                {
+                    player.WriteLine("That object already exists.");
+                    return;
+                }
+
+                Item i2 = new()
+                {
+                    Name = parameters[2],
+                    Description = parameters[3],
+                    WeaponType = parameters[4],
+                    Durability = int.Parse(parameters[5]),
+
+
+
+                };
+
+                GameState.Instance.ItemCatalog.Add(i2.Name, i2);
+                player.WriteLine($"Item ({i2.Name} added successfully.");
+                return;
+
+            }
 
             // CODE REVIEW: Brayden, Tyler
             // The boolean and double conversions here could throw exceptions if the input is invalid.

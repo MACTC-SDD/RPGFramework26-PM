@@ -20,12 +20,14 @@ namespace RPGFramework
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
         public bool IsRanged { get; set; } = false;
+        #region Clasification
         public bool IsArmy { get; set; } = false;
         public bool IsUndead { get; set; } = false;
         public bool IsVillager { get; set; } = false;
         public bool IsHumanoid { get; set; } = false;
         public bool IsElf { get; set; } = false;
         public bool IsCreature { get; set; } = false;
+        #endregion
         public bool IsHostile { get; set; } = false;
         public string NpcClasification { get; set; } = "";
       
@@ -66,10 +68,14 @@ namespace RPGFramework
                 {
                 case 0:
                         // Attack
-                        Random rand = new();
+                        Random rand = new Random();
                         int targetIndex = rand.Next(0, combat.Combatants.Count-1);
                         Character target = combat.Combatants[targetIndex];
-                        target?.TakeDamage(npc.AttackPower);
+                        if (target is Player p)
+                        {
+                            p.WriteLine($"{npc.Name} attacks you for {npc.AttackPower} damage!");
+                        }
+                    target.TakeDamage(npc.AttackPower);
                         break;
                 case 1:
                     //elemental attack(s)
