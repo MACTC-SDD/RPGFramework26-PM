@@ -6,6 +6,7 @@ namespace RPGFramework
 {
     internal partial class Spell
     {
+        public bool IsHeal { get; set; } = false;
         public int ManaCost { get; set; } = 5;
         public bool HasSave { get; set; } = false;
         public SavingThrowType SaveType { get; set; }
@@ -118,14 +119,66 @@ namespace RPGFramework
                     case "Unconcious":
                         target.IsUnconcious = true;
                         break;
+                    case "Death":
+                        target.Health = 0;
+                        target.Alive = false;
+                        break;
                 }
             }
         }
-
-        public void HealSpell(Character c)
+        public int HealSpell(Character a, Spell s)
         {
-            if (!CheckMana(15, c))
-            c.Heal((int)Math.Ceiling(c.MaxHealth * 0.15));
+            if (!CheckMana(s.ManaCost, a))
+                return 0;
+            a.Mana -= s.ManaCost;
+            int healAmount = s.RollDamageS(s.MaxDice, s.MaxDamage, 1);
+            a.Heal(healAmount);
+            if (s.Effects.Contains("Cure"))
+            {
+                ClearStatusConditions(a);
+            }
+            else if (s.Effects.Contains("GreaterHeal"))
+            {
+                a.IsBurn = false;
+                a.IsBleed = false;
+                a.IsPoisoned = false;
+                a.IsBlind = false;
+                a.IsDeafened = false;
+            }
+            else if (s.Effects.Contains("LesserHeal"))
+            {
+                a.IsBurn = false;
+                a.IsBleed = false;
+                Random rand = new Random();
+                int bonusHeal = rand.Next(1, 4);
+                if (bonusHeal == 1)
+                    a.IsBlind = false;
+                else if (bonusHeal == 2)
+                    a.IsDeafened = false;
+                else if (bonusHeal == 3)
+                    a.IsPoisoned = false;
+                else if (bonusHeal == 4)
+                    a.Heal((int)Math.Ceiling((double)a.MaxHealth / 10));
+            }
+            else if (s.Effects.Contains("Heal"))
+            {
+                a.IsBleed = false;
+                a.IsBurn = false;
+            }
+            return healAmount;
+        }
+
+        public void ClearStatusConditions(Character target)
+        {
+            target.IsBurn = false;
+            target.IsBleed = false;
+            target.IsStun = false;
+            target.IsBlind = false;
+            target.IsPoisoned = false;
+            target.IsFreightened = false;
+            target.IsDeafened = false;
+            target.IsIncapacitated = false;
+            target.IsParalyzed = false;
         }
     }
 }

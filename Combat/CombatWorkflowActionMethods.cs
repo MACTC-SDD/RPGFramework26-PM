@@ -42,9 +42,9 @@ namespace RPGFramework.Workflows
                     {
                         selectedSpell.SaveSpell(player, selectedSpell, chosenTarget);
                     }
-                    else if (selectedSpell.Name == "Heal")
+                    else if (selectedSpell.IsHeal == true)
                     {
-                        selectedSpell.HealSpell(player);
+                        selectedSpell.HealSpell(player, selectedSpell);
                     }
                     else
                     {

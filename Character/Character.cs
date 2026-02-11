@@ -177,7 +177,6 @@ namespace RPGFramework
         public void Heal(int heal)
         {
             SetHealth(Health + heal - HealPenalty);
-            Mana-=manacost;
         }
         public void SetCarryCapacity()
         {
