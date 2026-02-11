@@ -52,7 +52,7 @@ namespace RPGFramework
                     }
                 }
             int damageModifier = (attacker.Intelligence - 10) / 2;
-            int totalDamage = weapon.Damage + damageModifier;
+            int totalDamage = weapon.RollDamageS(weapon.MaxDice, weapon.MaxDamage, 1);
             if (attackRoll == 20)
             {
                 target.TakeDamage(totalDamage * 2);
