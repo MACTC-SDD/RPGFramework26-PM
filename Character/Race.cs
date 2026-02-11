@@ -8,7 +8,7 @@ namespace RPGFramework
     {
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
-        public int ability { get; set; } = 0;
+        public int Ability { get; set; } = 0;
         public int StrengthIncr { get; set; } = 0;
         public int DexterityIncr { get; set; } = 0;
         public int ConstitutionIncr { get; set; } = 0;
