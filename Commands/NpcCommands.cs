@@ -72,7 +72,7 @@ namespace RPGFramework.Commands
         ////  what it will look like ---->  /Mob create kyler 'Long legged short hair'
         private static bool MobCreate(Player player, List<string> parameters)
         {
-            if (parameters.Count < 7)
+            if (parameters.Count < 4)
             {
                 player.WriteLine("Provide at least a name, The mob classifier and description.");
                 return false;
@@ -80,33 +80,30 @@ namespace RPGFramework.Commands
 
             if (GameState.Instance.MobCatalog.ContainsKey(parameters[2]))
             {
-                player.WriteLine($"The mob {parameters[6]} already exists.");
+                player.WriteLine($"The mob {parameters[2]} already exists.");
                 return false;
             }
-
+/*
             Weapon? newWeapon;
             if (
-                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[6], out Weapon? w) ||
+                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[2], out Weapon? w) ||
                 w == null ||
                 (newWeapon = Utility.Clone(w)) == null
             ) {
                 player.WriteLine(
                     "No such weapon in weapon catalog.\n" +
-                    "You may add it to the weapon catalog by typing:\n" 
-                   // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
+                    "You may add it to the weapon catalog by typing:\n"
+                // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
                 );
                 return false;
             }
-
+*/
             Mob m = new()
             {
                 Name = parameters[2],
-                NpcClasification = parameters[3],
-                MaxHealth = int.Parse(parameters[4]),
-                StatPoints = int.Parse(parameters[5]),
-                Description = parameters[7],
-                PrimaryWeapon = newWeapon
+                Description = parameters[3],
             };
+
 
             GameState.Instance.MobCatalog.Add(m.Name, m);
             player.WriteLine($"{m.Name} added to the mob catalog.");
@@ -226,10 +223,10 @@ namespace RPGFramework.Commands
         private static bool MobList(Player player, List<string> parameters)
         {
             player.WriteLine("All the Mobs:");
-            player.WriteLine("Name       Classification       Description"); //Put this into a table so it is organized for the player
+            player.WriteLine("Name       Description"); //Put this into a table so it is organized for the player
             foreach (Mob mob in GameState.Instance.MobCatalog.Values.OrderBy(x => x.Name))
             {
-                player.WriteLine($"{mob.Name} - {mob.NpcClasification} - {mob.Description}");
+                player.WriteLine($"{mob.Name} - {mob.Description}");
             }
             return true;
         }
