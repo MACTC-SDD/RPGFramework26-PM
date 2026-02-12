@@ -31,6 +31,7 @@ namespace RPGFramework
         #endregion
         public bool IsHostile { get; set; } = false;
         public string NpcClasification { get; set; } = "";
+        public int XPgive { get; set; } = 10;
       
 
         // CODE REVIEW: Rylan (PR #16)

@@ -186,6 +186,14 @@ namespace RPGFramework.Commands
                     }
                     m.Gold = gold;
                     break;
+                case "xp":
+                    if (!int.TryParse(propValue, out int XP))
+                    {
+                        player.WriteLine("XP must be a valid integer.");
+                        return false;
+                    }
+                    m.XPgive = XP;
+                    break;
                 default:
                     player.WriteLine($"Unknown property '{propName}'.");
                     return false;
@@ -259,7 +267,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"Level: {m.Level}");
             player.WriteLine($"Class: {m.Class?.Name ?? "None"}");
             // player.WriteLine($"Element: {m.Element}");
-            player.WriteLine($"XP: {m.XP}");
+            player.WriteLine($"XP: {m.XPgive}");
             player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
             return true;
         }
