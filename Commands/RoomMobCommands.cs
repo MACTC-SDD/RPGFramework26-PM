@@ -59,7 +59,7 @@ namespace RPGFramework.Commands
                     if (!GameState.Instance.MobCatalog.TryGetValue(mobName, out Mob? mob) || null == mob)
                         continue;
 
-                    player.WriteLine($"{mob.Name} ({r.MobSpawnList[mob.Name] * 100}%) - {mob.Description}");
+                    player.WriteLine($"{mob.Name} ({r.MobSpawnList[mob.Name.ToLower()] * 100}%) - {mob.Description}");
                 }
                 return true;
             }

@@ -234,8 +234,9 @@ namespace RPGFramework.Commands
                 player.WriteLine("Backpackitems");
                 foreach (Item i in player.BackPack.Items)
                 {
+                    if (i == null) continue;
+                    
                     player.WriteLine(i.Name);
-                    return false;
                 }
             }
             else
@@ -929,9 +930,9 @@ public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
             {
-                player.WriteLine($"You are level {player.Level} you will gain an additional "
-                    + $"{Player.Levels[player.Level].Health} health along with {Player.Levels[player.Level].Mana} Mana and you will have " + 
-                    $"{Player.Levels[player.Level].StatPoints} points upon level up.");
+                player.WriteLine($"You are level [yellow]{player.Level}[/] you will gain an additional "
+                    + $"[red]{Player.Levels[player.Level].Health}[/] health along with [cornflowerblue]{Player.Levels[player.Level].Mana}[/] Mana and you will have " + 
+                    $"[green3]{Player.Levels[player.Level].StatPoints}[/] points upon level up.");
                 return true;
             }
             return false;
