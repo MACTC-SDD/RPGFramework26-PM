@@ -30,88 +30,89 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Bow:
-                    MaxDamage = 12;
-                    MaxDice = 2;
-                    range = true;
-                    break;
+            MaxDamage = 12;
+            MaxDice = 2;
+            range = true;
+            break;
                 case WeaponType.Flail:
-                    MaxDamage = 8;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Hands:
-                    MaxDamage = 1;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Crossbow:
-                    MaxDamage = 6;
-                    MaxDice = 2;
-                    range = true;
-                    break;
-                case WeaponType.Knife:
-                    MaxDamage = 8;
-                    MaxDice = 1;
-                    break;
-                case WeaponType.LongSword:
-                    MaxDamage = 12;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Sword:
-                    MaxDamage = 8;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Mace:
-                    MaxDamage = 8;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Musket:
-                    MaxDamage = 20;
-                    MaxDice = 2;
-                    range = true;
-                    break;
-                case WeaponType.Rock:
-                    MaxDamage = 6;
-                    MaxDice = 1;
-                    break;
-                case WeaponType.ShortSword:
-                    MaxDamage = 8;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.Spear:
-                    MaxDamage = 8;
-                    MaxDice = 2;
-                    break;
-                case WeaponType.WarAxe:
-                    MaxDamage = 12;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.GlassBottle:
-                    MaxDamage = 6;
-                    MaxDice = 1;
-                    break;
-                case WeaponType.FireStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.LightStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.IceStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.DarkStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.AirStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
-                case WeaponType.EarthStaff:
-                    MaxDamage = 8;
-                    MaxDice = 3;
-                    break;
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.Hands:
+                MaxDamage = 1;
+                MaxDice = 1;
+                break;
+            case WeaponType.Crossbow:
+                MaxDamage = 8;
+                MaxDice = 2;
+                range = true;
+                break;
+            case WeaponType.Knife:
+                MaxDamage = 4;
+
+                MaxDice = 1;
+                break;
+            case WeaponType.LongSword:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.Sword:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.Mace:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.Musket:
+                MaxDamage = 12;
+                MaxDice = 1;
+                range = true;
+                break;
+            case WeaponType.Rock:
+                MaxDamage = 4;
+                MaxDice = 1;
+                break;
+            case WeaponType.ShortSword:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.Spear:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.WarAxe:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.GlassBottle:
+                MaxDamage = 4;
+                MaxDice = 1;
+                break;
+            case WeaponType.FireStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.LightStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.IceStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.DarkStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.AirStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.EarthStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
             }
         }
 
