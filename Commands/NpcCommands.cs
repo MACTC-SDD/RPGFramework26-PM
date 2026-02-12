@@ -215,6 +215,8 @@ namespace RPGFramework.Commands
                 return false;
             }
             player.GetRoom().Mobs.Add(clone);
+            clone.LocationId = player.LocationId;
+            clone.AreaId = player.AreaId;
             player.WriteLine($"mob {clone.Name} added to room");
             return true;
         }
