@@ -29,7 +29,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; set; } = 100;
+        public int Health { get; set; } = 30;
         public bool IsEngaged { get; protected set; } = false;
         [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
         [JsonInclude] public int Level { get; protected set; } = 1;

@@ -113,6 +113,69 @@ namespace RPGFramework
                     MaxDice = 3;
                     break;
 
+                MaxDice = 1;
+                break;
+            case WeaponType.LongSword:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.Sword:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.Mace:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.Musket:
+                MaxDamage = 12;
+                MaxDice = 1;
+                range = true;
+                break;
+            case WeaponType.Rock:
+                MaxDamage = 4;
+                MaxDice = 1;
+                break;
+            case WeaponType.ShortSword:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.Spear:
+                MaxDamage = 6;
+                MaxDice = 1;
+                break;
+            case WeaponType.WarAxe:
+                MaxDamage = 8;
+                MaxDice = 1;
+                break;
+            case WeaponType.GlassBottle:
+                MaxDamage = 4;
+                MaxDice = 1;
+                break;
+            case WeaponType.FireStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.LightStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.IceStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.DarkStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.AirStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
+            case WeaponType.EarthStaff:
+                MaxDamage = 6;
+                MaxDice = 3;
+                break;
             }
         }
 

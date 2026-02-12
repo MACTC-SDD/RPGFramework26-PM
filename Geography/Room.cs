@@ -34,6 +34,7 @@ namespace RPGFramework.Geography
         public string Name { get; set; } = "";
 
         public List<NonPlayer> NonPlayers { get; set; } = [];
+        public List<ShopKeeper> ShopKeeper { get; set; } = [];
 
         public List<string> Tags { get; set; } = []; // (for scripting or special behavior)
 
