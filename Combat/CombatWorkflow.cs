@@ -11,7 +11,37 @@ namespace RPGFramework.Workflows
         public int CurrentStep { get; set; } = 0;
         public string Description { get; } = "Manages the sequence of actions during a combat turn.";
         public string Name { get; } = "Combat Turn Workflow";
-        public List<ICommand> PreProcessCommands { get; private set; } = [];
+        public List<ICommand> PreProcessCommands { get; private set; } = 
+            [
+                new UXCommand(),
+                new AnnounceCommand(),
+                new ShutdownCommand(),
+                new WhereCommand(),
+                new WhoCommand(),
+                new GoToCommand(),
+                new SaveAll(),
+                new SummonCommand(),
+                new KickCommand(),
+                new RoleCommand(),
+                new RenameCommand(),
+                new HelpEditCommand(),
+                new AFKCommand(),
+                new IpCommand(),
+                new LookCommand(),
+                new QuitCommand(),
+                new SayCommand(),
+                new TimeCommand(),
+                new StatusCommand(),
+                new HelpCommand(),
+                new UXCommand(),
+                new UXColorCommand(),
+                new UXDecorationCommand(),
+                new UXPanelCommand(),
+                new UXTreeCommand(),
+                new UXBarChartCommand(),
+                new UXCanvasCommand(),
+                new CombatAdminControlsCommand()
+            ];
         public List<ICommand> PostProcessCommands { get; private set; } =
         [
                 new AnnounceCommand(),
@@ -57,7 +87,7 @@ namespace RPGFramework.Workflows
             Combatants.Add(enemy);
             foreach (NonPlayer npc in attacker.GetRoom().NonPlayers)
             {
-                //if (npc.Hostile == true || npc.Army == true)
+                if (npc.IsHostile == true && !Combatants.Contains(npc))
                 {
                     Combatants.Add(npc);
                 }
@@ -150,6 +180,10 @@ namespace RPGFramework.Workflows
         public void InitiativeOrder()
         {
             Combatants = [.. Combatants.OrderByDescending(c => c.Initiative)];
+            foreach (Character c in Combatants)
+            {
+                Console.WriteLine($"{c.Name} rolled {c.Initiative} for initiative.");
+            }
         }
         public static CombatWorkflow CreateCombat(Character attacker, Character enemy)
         {
@@ -173,14 +207,16 @@ namespace RPGFramework.Workflows
         // if this doesn't make sense. 
         public void Execute(Player player, List<string> parameters)
         {
+            if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
+                return;
+
             if (ActiveCombatant != player)
             {
                 player.WriteLine("[underline]It's not your turn![/]");
                 return;
             }
             // Process any pre-process commands, if it matches, we'll execute it and return
-            if (CommandManager.ProcessSpecificCommands(player, parameters, PreProcessCommands))
-                return;
+            
 
 
             CombatWorkflow? currentCombat = this;

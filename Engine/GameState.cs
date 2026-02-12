@@ -1,4 +1,5 @@
 ﻿
+using RPGFramework.Commands;
 using RPGFramework.Core;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
@@ -640,11 +641,17 @@ namespace RPGFramework
                     foreach (CombatWorkflow combat in Combats)
                     {
                         combat.Process();
-                    }                                                                  
+                    }         
+                    
+                    for (int i = Combats.Count - 1; i >= 0; i--)
+                    {
+                        if (Combats[i].Ended)
+                            Combats.RemoveAt(i);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message}");
+                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message} \n {ex.StackTrace}");
                 }
                 await Task.Delay(interval, ct);
             }
