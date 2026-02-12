@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using RPGFramework;
+using RPGFramework.Geography;
 using Spectre.Console;
 
 namespace RPGFramework.Commands
@@ -14,7 +15,9 @@ namespace RPGFramework.Commands
             return
             [
                 new MobBuilderCommand(),
-                new NpcBuilderCommand()
+                new NpcBuilderCommand(),
+                new ShopKeeperAdminCommand(),
+                new ShopKeeperCommand()
                 // Add other Npc commands here as they are implemented
             ];
         }
@@ -83,21 +86,21 @@ namespace RPGFramework.Commands
                 player.WriteLine($"The mob {parameters[2]} already exists.");
                 return false;
             }
-/*
-            Weapon? newWeapon;
-            if (
-                !GameState.Instance.WeaponCatalog.TryGetValue(parameters[2], out Weapon? w) ||
-                w == null ||
-                (newWeapon = Utility.Clone(w)) == null
-            ) {
-                player.WriteLine(
-                    "No such weapon in weapon catalog.\n" +
-                    "You may add it to the weapon catalog by typing:\n"
-                // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
-                );
-                return false;
-            }
-*/
+            /*
+                        Weapon? newWeapon;
+                        if (
+                            !GameState.Instance.WeaponCatalog.TryGetValue(parameters[2], out Weapon? w) ||
+                            w == null ||
+                            (newWeapon = Utility.Clone(w)) == null
+                        ) {
+                            player.WriteLine(
+                                "No such weapon in weapon catalog.\n" +
+                                "You may add it to the weapon catalog by typing:\n"
+                            // "/item create 'Name' 'type' 'damage'"  will work on when they get it finished 
+                            );
+                            return false;
+                        }
+            */
             Mob m = new()
             {
                 Name = parameters[2],
@@ -124,7 +127,7 @@ namespace RPGFramework.Commands
                 player.WriteLine($"The mob {parameters[2]} does not exist.");
                 return false;
             }
-            
+
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
             GameState.Instance.MobCatalog.Remove(m.Name);
             player.WriteLine($"{m.Name} was removed the mob catalog.");
@@ -203,8 +206,8 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (!GameState.Instance.MobCatalog.TryGetValue(parameters[02],out Mob? m ))
-               {
+            if (!GameState.Instance.MobCatalog.TryGetValue(parameters[02], out Mob? m))
+            {
                 player.WriteLine("The mob you are trying to summon is not avalible in the current mob catolog");
                 return false;
 
@@ -250,12 +253,12 @@ namespace RPGFramework.Commands
 
             Mob m = GameState.Instance.MobCatalog[parameters[2]];
 
-           player.WriteLine($"Max Health: {m.MaxHealth}");
-           player.WriteLine($"Level: {m.Level}");
-           player.WriteLine($"Class: {m.Class?.Name ?? "None"}");
-          // player.WriteLine($"Element: {m.Element}");
-           player.WriteLine($"XP: {m.XP}");
-           player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
+            player.WriteLine($"Max Health: {m.MaxHealth}");
+            player.WriteLine($"Level: {m.Level}");
+            player.WriteLine($"Class: {m.Class?.Name ?? "None"}");
+            // player.WriteLine($"Element: {m.Element}");
+            player.WriteLine($"XP: {m.XP}");
+            player.WriteLine($"Primary Weapon: {m.PrimaryWeapon.Name}");
             return true;
         }
         #endregion
@@ -308,7 +311,7 @@ namespace RPGFramework.Commands
                     return NpcDelete(player, parameters);
                 default:
                     ShowHelp(player);
-                    
+
                     break;
             }
             return false;
@@ -316,12 +319,12 @@ namespace RPGFramework.Commands
         #region ShowHelp Method
         private void ShowHelp(Player player)
         {
-                var table = new Table();
+            var table = new Table();
 
-                table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
+            table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
 
-                table.AddRow(Help);
-                player.Write(table);
+            table.AddRow(Help);
+            player.Write(table);
         }
         #endregion
         #region NpcCreate Method
@@ -395,4 +398,174 @@ namespace RPGFramework.Commands
 
     #endregion
 
+    #region Shopkeeper Command
+    internal class ShopKeeperCommand : ICommand
+    {
+        public string Name => "shopkeeper";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Interact with a shopkeeper\nUsage:shopkeeper interact\nshopkeeper buy";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "interact":
+                    return ShopkeeperInteract(player, parameters);
+                default:
+                    return ShowHelp(player);
+            }
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
+        }
+        private static bool ShopkeeperInteract(Player player, List<string> parameters)
+        {
+            if (player.GetRoom().ShopKeeper.Count > 0)
+            {
+                player.WriteLine("There is no shopkeeper in this room.");
+                return false;
+            }
+
+            ShopKeeper s = player.GetRoom().ShopKeeper[0];
+
+            player.WriteLine(s.Greeting);
+
+            // List items they have to sell
+            player.WriteLine("Items For Sale:");
+            foreach (Item i in s.BackPack.Items)
+            {
+                player.WriteLine($"{i.Name} : {i.Level} : {(int)(i.Value * s.UpCharge)}  ");
+            }
+
+            return true;
+        }
+
+    }
+    #endregion
+
+    #region ShopkeeperAdmin Command
+    internal class ShopKeeperAdminCommand : ICommand
+    {
+        public string Name => "/shopkeeper";
+        public IEnumerable<string> Aliases => [ "/sk" ];
+        public string Help => "Manage a shopkeeper\nUsage:/shopkeeper load\n/shopkeeper create";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                ShowHelp(player);
+                return false;
+            }
+
+            switch (parameters[1].ToLower())
+            {
+                case "load":
+                    return ShopKeeperLoad(player, parameters);
+                case "create":
+                    return ShopKeeperCreate(player, parameters);
+                default:
+                    return ShowHelp(player);
+            }
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
+        }
+
+        private bool ShopKeeperCreate(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 4)
+            {
+                return ShowHelp(player);
+            }
+
+            if (GameState.Instance.ShopKeeperCatalog.TryGetValue(parameters[2], out _))
+            {
+                player.WriteLine("There is already a shopkeeper with this name.");
+                return false;
+            }
+
+            ShopKeeper s = new()
+            {
+                Name = parameters[2],
+                Description = parameters[3],
+            };
+
+            GameState.Instance.ShopKeeperCatalog.Add(s.Name, s);
+            player.WriteLine($"Shopkeeper {s.Name} added to the catalog.");
+            return true;
+        }
+        
+        public bool ShopKeeperDelete(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+                return ShowHelp(player);
+
+            string name = parameters[2];
+            if (!GameState.Instance.ShopKeeperCatalog.TryGetValue(name, out ShopKeeper? s) || s == null)
+            {
+                player.WriteLine("I couldn't find that shopkeeper.");
+            }
+
+            GameState.Instance.ShopKeeperCatalog.Remove(name);
+
+            foreach (Area a in GameState.Instance.Areas.Values)
+            {
+                foreach (Room r in  a.Rooms.Values)
+                {
+                    r.ShopKeeper.Remove(s!);
+                }
+            }
+
+            player.WriteLine("Shopkeeper deleted from catalog.");
+            return true;
+        }
+
+        private static bool ShopKeeperLoad(Player player, List<string> parameters)
+        {
+            if (parameters.Count < 3)
+            {
+                player.WriteLine("You must specify a name to load.");
+                return false;
+            }
+            string name = parameters[2];
+
+            if (!GameState.Instance.ShopKeeperCatalog.TryGetValue(name, out ShopKeeper? s) || s == null)
+            {
+                player.WriteLine("I couldn't find a shopkeeper called that.");
+                return false;
+            }
+
+            ShopKeeper clone = Utility.Clone(s);
+
+            player.GetRoom().ShopKeeper.Add(clone!);
+            clone.LocationId = player.LocationId;
+            clone.AreaId = player.AreaId;
+            player.WriteLine($"Shopkeeper added to room.");
+            return true;
+        }
+    }
+    #endregion
 }
