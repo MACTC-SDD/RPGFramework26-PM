@@ -13,8 +13,8 @@ namespace RPGFramework
         public WeaponType WeaponType { get; set; }
         public int Durability { get; set; } = 0;
         public int CurrentDurability { get; set; }
-        public bool ammmoleft { get; set; } = true;
-        public bool range { get; set; } = false;
+        public bool Ammmoleft { get; set; } = true;
+        public bool Range { get; set; } = false;
         public double Speed { get; set; } = 0;
         public double Weight { get; set; } = 0;
         public double Value { get; set; } = 0;
@@ -30,25 +30,88 @@ namespace RPGFramework
             switch (this.WeaponType)
             {
                 case WeaponType.Bow:
-            MaxDamage = 12;
-            MaxDice = 2;
-            range = true;
-            break;
+                    MaxDamage = 6;
+                    MaxDice = 1;
+                    Range = true;
+                    break;
                 case WeaponType.Flail:
-                MaxDamage = 8;
-                MaxDice = 1;
-                break;
-            case WeaponType.Hands:
-                MaxDamage = 1;
-                MaxDice = 1;
-                break;
-            case WeaponType.Crossbow:
-                MaxDamage = 8;
-                MaxDice = 2;
-                range = true;
-                break;
-            case WeaponType.Knife:
-                MaxDamage = 4;
+                    MaxDamage = 8;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.Hands:
+                    MaxDamage = 1;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.Crossbow:
+                    MaxDamage = 8;
+                    MaxDice = 1;
+                    Range = true;
+                    break;
+                case WeaponType.Knife:
+                    MaxDamage = 4;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.LongSword:
+                    MaxDamage = 8;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.Sword:
+                    MaxDamage = 8;
+                    MaxDice = 2;
+                    break;
+                case WeaponType.Mace:
+                    MaxDamage = 6;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.Musket:
+                    MaxDamage = 12;
+                    MaxDice = 1;
+                    Range = true;
+                    break;
+                case WeaponType.Rock:
+                    MaxDamage = 4;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.ShortSword:
+                    MaxDamage = 6;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.Spear:
+                    MaxDamage = 6;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.WarAxe:
+                    MaxDamage = 12;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.GlassBottle:
+                    MaxDamage = 4;
+                    MaxDice = 1;
+                    break;
+                case WeaponType.FireStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+                case WeaponType.LightStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+                case WeaponType.IceStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+                case WeaponType.DarkStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+                case WeaponType.AirStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+                case WeaponType.EarthStaff:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
 
                 MaxDice = 1;
                 break;
@@ -130,7 +193,7 @@ namespace RPGFramework
                     Weight = 2;
                     break;
                 case WeaponType.Sword:
-                    Weight = 6;
+                    Weight = 5;
                     break;
                 case WeaponType.Musket:
                     Weight = 10;
@@ -139,49 +202,49 @@ namespace RPGFramework
                     Weight = 5;
                     break;
                 case WeaponType.Flail:
-                    Weight = 2;
+                    Weight = 3;
                     break;
                 case WeaponType.Knife:
                     Weight = 1;
                     break;
                 case WeaponType.LongSword:
-                    Weight = 3;
+                    Weight = 5;
                     break;
                 case WeaponType.Mace:
                     Weight = 4;
                     break;
                 case WeaponType.Rock:
-                    Weight = 10;
+                    Weight =1;
                     break;
                 case WeaponType.ShortSword:
-                    Weight = 2;
+                    Weight = 3;
                     break;
                 case WeaponType.Spear:
-                    Weight = 3;
+                    Weight = 5;
                     break;
                 case WeaponType.WarAxe:
                     Weight = 7;
                     break;
                 case WeaponType.GlassBottle:
-                    Weight = 2;
+                    Weight = 1;
                     break;
                 case WeaponType.FireStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
                 case WeaponType.LightStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
                 case WeaponType.IceStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
                 case WeaponType.DarkStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
                 case WeaponType.AirStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
                 case WeaponType.EarthStaff:
-                    Weight = 25;
+                    Weight = 10;
                     break;
             }
         }
@@ -233,25 +296,25 @@ namespace RPGFramework
                     Value = 45;
                     break;
                 case WeaponType.Mace:
-                    Value = 65;
+                    Value = 300;
                     break;
                 case WeaponType.Musket:
-                    Value = 500;
+                    Value = 1000;
                     break;
                 case WeaponType.Rock:
-                    Value = 1;
+                    Value = 10;
                     break;
                 case WeaponType.ShortSword:
-                    Value = 25;
+                    Value = 250;
                     break;
                 case WeaponType.Spear:
-                    Value = 75;
+                    Value = 400;
                     break;
                 case WeaponType.WarAxe:
                     Value = 300;
                     break;
                 case WeaponType.GlassBottle:
-                    Value = 5;
+                    Value = 50;
                     break;
                 case WeaponType.FireStaff:
                     Value = 500;
