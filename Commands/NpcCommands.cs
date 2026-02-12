@@ -281,7 +281,7 @@ namespace RPGFramework.Commands
         public string Name => "/npc";
         public IEnumerable<string> Aliases => [];
 
-        public string Help => "Usage: \n"
+        public string Help => "[bold underline]Usage: [/]\n"
             + "/npc list \n"
             + "/npc create 'Name' 'NpcClassifier' 'Description' \n"
             + "/npc delete 'Name'";
@@ -308,15 +308,7 @@ namespace RPGFramework.Commands
                     return NpcDelete(player, parameters);
                 default:
                     ShowHelp(player);
-                    //Quint: gotta figure out why this doesn't work. :/
-                    /*{
-                        var table = new Table();
-
-                        table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
-
-                        table.AddRow(Help);
-                        player.Write(table);
-                    }*/
+                    
                     break;
             }
             return false;
@@ -324,7 +316,12 @@ namespace RPGFramework.Commands
         #region ShowHelp Method
         private void ShowHelp(Player player)
         {
-            player.WriteLine(Help);
+                var table = new Table();
+
+                table.AddColumn(new TableColumn("[mediumpurple2]NPC List[/]"));
+
+                table.AddRow(Help);
+                player.Write(table);
         }
         #endregion
         #region NpcCreate Method
