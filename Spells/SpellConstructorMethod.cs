@@ -11,7 +11,7 @@ namespace RPGFramework
             Spell Fireball = new Spell
             {
                 Name = "Fireball",
-                ManaCost = 10,
+                ManaCost = 20,
                 HasSave = true,
                 SaveType = SavingThrowType.DEX,
                 MaxDice = 10,
@@ -25,15 +25,15 @@ namespace RPGFramework
                 ManaCost = 5,
                 HasSave = false,
                 SaveType = SavingThrowType.None,
-                MaxDice = 1,
-                MaxDamage = 12,
+                MaxDice = 2,
+                MaxDamage = 10,
                 Effects = new List<string> { "Burn" }
             };
             GameState.Instance.SpellCatalog.Add(FireBolt.Name, FireBolt);
             Spell PowerWordKill = new Spell
             {
                 Name = "Power Word: Kill",
-                ManaCost = 110,
+                ManaCost = 90,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
                 MaxDice = 0,
@@ -58,15 +58,15 @@ namespace RPGFramework
                 ManaCost = 10,
                 HasSave = true,
                 SaveType = SavingThrowType.STR,
-                MaxDice = 3,
-                MaxDamage = 10,
+                MaxDice = 4,
+                MaxDamage = 8,
                 Effects = new List<string> { "Bleed" }
             };
             GameState.Instance.SpellCatalog.Add(InflictWounds.Name, InflictWounds);
             Spell TimeRavage = new Spell
             {
                 Name = "Time Ravage",
-                ManaCost = 45,
+                ManaCost = 65,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
                 MaxDice = 12,
@@ -80,18 +80,18 @@ namespace RPGFramework
                 ManaCost = 10,
                 HasSave = true,
                 SaveType = SavingThrowType.WIS,
-                MaxDice = 2,
-                MaxDamage = 6,
+                MaxDice = 0,
+                MaxDamage = 0,
                 Effects = new List<string> { "Unconcious" }
             };
             GameState.Instance.SpellCatalog.Add(Sleep.Name, Sleep);
             Spell FleshToStone = new Spell
             {
                 Name = "Flesh to Stone",
-                ManaCost = 15,
+                ManaCost = 30,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
-                MaxDice = 2,
+                MaxDice = 1,
                 MaxDamage = 6,
                 Effects = new List<string> { "Petrified" }
             };
@@ -118,17 +118,17 @@ namespace RPGFramework
                 Effects = new List<string> { "Poisoned", "Bleed" }
             };
             GameState.Instance.SpellCatalog.Add(Contagion.Name, Contagion);
-            Spell Pestilence = new Spell
+            Spell CallOfApocalypse = new Spell
             {
-                Name = "Pestilence",
-                ManaCost = 80,
+                Name = "Call of Apocalypse",
+                ManaCost = 150,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
-                MaxDice = 6,
+                MaxDice = 8,
                 MaxDamage = 10,
-                Effects = new List<string> { "Poisoned", "Bleed", "Blinded", "Deafened", "Burn", "Paralyzed" }
+                Effects = new List<string> { "Poisoned", "Bleed", "Blinded", "Deafened", "Burn", "Paralyzed", "Unconcious" }
             };
-            GameState.Instance.SpellCatalog.Add(Pestilence.Name, Pestilence);
+            GameState.Instance.SpellCatalog.Add(CallOfApocalypse.Name, CallOfApocalypse);
             Spell Entangle = new Spell
             {
                 Name = "Entangle",
@@ -168,8 +168,8 @@ namespace RPGFramework
                 ManaCost = 0,
                 HasSave = false,
                 SaveType = SavingThrowType.None,
-                MaxDice = 1,
-                MaxDamage = 8,
+                MaxDice = 2,
+                MaxDamage = 6,
                 Effects = new List<string> { }
             };
             GameState.Instance.SpellCatalog.Add(MagicMissile.Name, MagicMissile);
@@ -202,25 +202,25 @@ namespace RPGFramework
                 HasSave = false,
                 SaveType = SavingThrowType.None,
                 MaxDice = 1,
-                MaxDamage = 12,
+                MaxDamage = 10,
                 Effects = new List<string> { }
             };
             GameState.Instance.SpellCatalog.Add(EldritchBlast.Name, EldritchBlast);
             Spell ShockingGrasp = new Spell
             {
                 Name = "Shocking Grasp",
-                ManaCost = 15,
+                ManaCost = 5,
                 HasSave = true,
                 SaveType = SavingThrowType.WIS,
                 MaxDice = 2,
-                MaxDamage = 8,
-                Effects = new List<string> { "Paralyzed" }
+                MaxDamage = 12,
+                Effects = new List<string> { }
             };
             GameState.Instance.SpellCatalog.Add(ShockingGrasp.Name, ShockingGrasp);
             Spell PowerWordStun = new Spell
             {
                 Name = "Power Word: Stun",
-                ManaCost = 35,
+                ManaCost = 55,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
                 MaxDice = 5,
@@ -231,7 +231,7 @@ namespace RPGFramework
             Spell PowerWordPain = new Spell
             {
                 Name = "Power Word: Pain",
-                ManaCost = 10,
+                ManaCost = 25,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
                 MaxDice = 4,
@@ -242,12 +242,12 @@ namespace RPGFramework
             Spell WrathOfNature = new Spell
             {
                 Name = "Wrath of Nature",
-                ManaCost = 80,
+                ManaCost = 105,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
-                MaxDice = 7,
+                MaxDice = 8,
                 MaxDamage = 12,
-                Effects = new List<string> { "Poisoned", "Bleed", "Blinded", "Deafened", "Burn" }
+                Effects = new List<string> { "Poisoned", "Bleed", "Blinded", "Deafened", "Burn", "Grappled" }
             };
             GameState.Instance.SpellCatalog.Add(WrathOfNature.Name, WrathOfNature);
             Spell Disintegrate = new Spell
@@ -286,7 +286,7 @@ namespace RPGFramework
             Spell HoldMonster = new Spell
             {
                 Name = "Hold Monster",
-                ManaCost = 20,
+                ManaCost = 70,
                 HasSave = true,
                 SaveType = SavingThrowType.CON,
                 MaxDice = 5,
@@ -341,7 +341,51 @@ namespace RPGFramework
                 MaxDamage = 10,
                 Effects = new List<string> { "GreaterHeal" }
             };
-
+            GameState.Instance.SpellCatalog.Add(GreaterRestoration.Name, GreaterRestoration);
+            Spell SmiteOfDivinity = new Spell
+            {
+                Name = "Smite of Divinity",
+                ManaCost = 30,
+                HasSave = false,
+                SaveType = SavingThrowType.None,
+                MaxDice = 5,
+                MaxDamage = 8,
+                Effects = new List<string> { "Burn" }
+            };
+            GameState.Instance.SpellCatalog.Add(SmiteOfDivinity.Name, SmiteOfDivinity);
+            Spell BeamOfPurity = new Spell
+            {
+                Name = "Beam of Purity",
+                ManaCost = 45,
+                HasSave = true,
+                SaveType = SavingThrowType.DEX,
+                MaxDice = 8,
+                MaxDamage = 10,
+                Effects = new List<string> { "Burn", "Blinded" }
+            };
+            GameState.Instance.SpellCatalog.Add(BeamOfPurity.Name, BeamOfPurity);
+            Spell EternalRadiance = new Spell
+            {
+                Name = "Eternal Radiance",
+                ManaCost = 85,
+                HasSave = true,
+                SaveType = SavingThrowType.CON,
+                MaxDice = 12,
+                MaxDamage = 12,
+                Effects = new List<string> { "Burn", "Blinded", "Deafened", "Paralyzed" }
+            };
+            GameState.Instance.SpellCatalog.Add(EternalRadiance.Name, EternalRadiance);
+            Spell UnlimitedVoid = new Spell
+            {
+                Name = "Unlimited Void",
+                ManaCost = 100,
+                HasSave = true,
+                SaveType = SavingThrowType.CON,
+                MaxDice = 12,
+                MaxDamage = 12,
+                Effects = new List<string> { "Freightened", "Paralyzed", "Unconcious", "Blinded", "Deafened" }
+            };
+            GameState.Instance.SpellCatalog.Add(UnlimitedVoid.Name, UnlimitedVoid);
             /*Fire Bolt
             Power Word: Kill
             Chill Touch
