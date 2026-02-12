@@ -6,6 +6,7 @@ namespace RPGFramework
 {
     internal partial class Spell
     {
+        public string Name { get; set; } = "";
         public bool IsHeal { get; set; } = false;
         public int ManaCost { get; set; } = 5;
         public bool HasSave { get; set; } = false;
@@ -60,10 +61,12 @@ namespace RPGFramework
             {
                 finalDamage = s.RollDamageS(s.MaxDice, s.MaxDamage, 0.5);
                 s.HandleSpellEffects(e);
+                e.MostRecentSaveResult = "failed";
             }
             else
             {
                 finalDamage = s.RollDamageS(s.MaxDice, s.MaxDamage, 1);
+                e.MostRecentSaveResult = "succeeded";
             }
                 return 0;
         }
@@ -126,44 +129,44 @@ namespace RPGFramework
                 }
             }
         }
-        public int HealSpell(Character a, Spell s)
+        public int HealSpell(Character a, Spell s, Character e)
         {
             if (!CheckMana(s.ManaCost, a))
                 return 0;
             a.Mana -= s.ManaCost;
             int healAmount = s.RollDamageS(s.MaxDice, s.MaxDamage, 1);
-            a.Heal(healAmount);
+            e.Heal(healAmount);
             if (s.Effects.Contains("Cure"))
             {
                 ClearStatusConditions(a);
             }
             else if (s.Effects.Contains("GreaterHeal"))
             {
-                a.IsBurn = false;
-                a.IsBleed = false;
-                a.IsPoisoned = false;
-                a.IsBlind = false;
-                a.IsDeafened = false;
+                e.IsBurn = false;
+                e.IsBleed = false;
+                e.IsPoisoned = false;
+                e.IsBlind = false;
+                e.IsDeafened = false;
             }
             else if (s.Effects.Contains("LesserHeal"))
             {
-                a.IsBurn = false;
-                a.IsBleed = false;
+                e.IsBurn = false;
+                e.IsBleed = false;
                 Random rand = new Random();
                 int bonusHeal = rand.Next(1, 4);
                 if (bonusHeal == 1)
-                    a.IsBlind = false;
+                    e.IsBlind = false;
                 else if (bonusHeal == 2)
-                    a.IsDeafened = false;
+                    e.IsDeafened = false;
                 else if (bonusHeal == 3)
-                    a.IsPoisoned = false;
+                    e.IsPoisoned = false;
                 else if (bonusHeal == 4)
-                    a.Heal((int)Math.Ceiling((double)a.MaxHealth / 10));
+                    e.Heal((int)Math.Ceiling((double)e.MaxHealth / 10));
             }
             else if (s.Effects.Contains("Heal"))
             {
-                a.IsBleed = false;
-                a.IsBurn = false;
+                e.IsBleed = false;
+                e.IsBurn = false;
             }
             return healAmount;
         }

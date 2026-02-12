@@ -18,8 +18,20 @@ namespace RPGFramework
             }
             if (this.CountPoisoned < 3)
             {
-            this.TakeDamage(this.MaxHealth / 10);
-                this.CountPoisoned++;
+                if (CountPoisoned > 0 && !CONSavingThrow(15, this))
+                {
+                    int damage = (int)((double)MaxHealth / (10 * Math.Ceiling((double)Level / 2)));
+                    if (damage < MaxHealth / 50)
+                        damage = (int)((double)MaxHealth / 50);
+                    this.TakeDamage(damage);
+                    this.CountPoisoned++;
+                }
+                else
+                {
+                    this.IsPoisoned = false;
+                    this.CountPoisoned = 0;
+                    this.Disadvantage -= 5;
+                }
             }
             else
             {
@@ -34,7 +46,7 @@ namespace RPGFramework
                 this.HealPenalty += (int)Math.Ceiling((double)this.MaxHealth / 20);
             if (this.CountBleed < 3)
             {
-                this.TakeDamage((int)Math.Ceiling((double)this.MaxHealth / 100));
+                this.TakeDamage((int)Math.Ceiling((double)this.MaxHealth / (50 * Math.Ceiling((double)Level / 2))));
                 this.CountBleed++;
             }
             else
@@ -50,8 +62,16 @@ namespace RPGFramework
             {
                 if (this.CountStun < 3)
                 {
-                    this.CountStun++;
-                    c.EndTurn();
+                    if (CountStun > 0 && !CONSavingThrow(16, this))
+                    {
+                        this.CountStun++;
+                        c.EndTurn();
+                    }
+                    else
+                    {
+                        this.CountStun = 0;
+                        this.IsStun = false;
+                    }
                 }
                 else
                     this.IsStun = false;
@@ -66,7 +86,17 @@ namespace RPGFramework
             }
             if (this.CountFreightened < 3)
             {
-                this.CountFreightened++;
+                if (!WISSavingThrow(16, this))
+                {
+                    this.CountFreightened++;
+                }
+                else 
+                {                     
+                    this.HitPenalty -= 3;
+                    this.CountFreightened = 0;
+                    this.IsFreightened = false;
+                }
+
             }
             else
             {
@@ -100,14 +130,26 @@ namespace RPGFramework
         public void Petrified()
         {
             if (this.CountPetrified == 0)
+            {
                 this.Disadvantage += 5;
+                this.DamageResistance *= 2;
+            }
             if (this.CountPetrified < 3)
             {
+                if (!CONSavingThrow(18, this))
+                {
                 this.IsIncapacitated = true;
                 this.CountPetrified++;
-                this.DamageResistance = 2;
                 if (this.IsPoisoned == true)
                     this.IsPoisoned = false;
+                }
+                else
+                {
+                    this.DamageResistance /= 2;
+                    this.Disadvantage -= 5;
+                    this.CountPetrified = 0;
+                    this.IsPetrified = false;
+                }
             }
             else
             {
@@ -124,13 +166,12 @@ namespace RPGFramework
             if (this.CountBurn == 0)
             {
                 this.HealPenalty = (int)Math.Ceiling((double)this.MaxHealth / 20);
-                this.IsBleed = false;
                 this.CountBleed = 0;
         }
                 
             if (this.CountBurn < 3)
             {
-                this.TakeDamage(this.MaxHealth / 16);
+                this.TakeDamage((int)Math.Ceiling(this.MaxHealth / (16 * Math.Ceiling((double)Level / 4))));
                 this.CountBurn++;
             }
             else
@@ -148,7 +189,14 @@ namespace RPGFramework
             }
             if (this.CountBlind < 3)
             {
-                this.CountBlind++;
+                if (!CONSavingThrow(16, this))
+                    this.CountBlind++;
+                else
+                {
+                    this.CountBlind = 0;
+                    this.HitPenalty += 12;
+                    this.IsBlind = false;
+                }
             }
             else
             {
@@ -167,7 +215,15 @@ namespace RPGFramework
             }
             if (this.CountDeafened < 3)
             {
-                this.CountDeafened++;
+                if (!CONSavingThrow(16, this))
+                    this.CountDeafened++;
+                else
+                {
+                    this.CountDeafened = 0;
+                    this.Disadvantage -= 5;
+                    this.IsDeafened = false;
+
+                }
             }
             else
             {
@@ -185,8 +241,18 @@ namespace RPGFramework
             }
             if (this.CountGappled < 3)
             {
-                this.CountGappled++; 
-                this.IsIncapacitated = true;
+                if (!STRSavingThrow(18, this))
+                {
+                    this.CountGappled++;
+                    this.IsIncapacitated = true;
+                }
+                else
+                {
+                    this.CountGappled = 0;
+                    this.Disadvantage -= 5;
+                    this.IsGappled = false;
+                    this.IsIncapacitated = false;
+                }
             }
             else
             {
@@ -205,19 +271,30 @@ namespace RPGFramework
             if (this.CountParalyzed == 0)
             {
                 this.Disadvantage += 5;
-                this.DamageResistance = 0.5;
-        }
+                this.DamageResistance *= 0.5;
+            }
             if (this.CountParalyzed < 3)
             {
-                this.CountParalyzed++;
-                this.IsIncapacitated = true;
+                if (!CONSavingThrow(18, this))
+                {
+                    this.CountParalyzed++;
+                    this.IsIncapacitated = true;
+                }
+                else
+                {
+                    this.CountParalyzed = 0;
+                    this.Disadvantage -= 5;
+                    this.IsParalyzed = false;
+                    this.IsIncapacitated = false;
+                    this.DamageResistance /= 0.5;
+                }
             }
             else
             {
                 this.Disadvantage -= 5;
                 this.IsParalyzed = false;
                 this.CountParalyzed = 0;
-                this.DamageResistance = 1;
+                this.DamageResistance /= 0.5;
             }
         }
         
@@ -231,19 +308,30 @@ namespace RPGFramework
             {
                 // this.DropItem();
                 this.Disadvantage += 5;
-                this.DamageResistance = 0.5;
+                this.DamageResistance *= 0.5;
             }
             if (this.CountUnconcious < 3)
             {
-                this.CountUnconcious++;
-                this.IsIncapacitated = true;
-        }
+                if (!CONSavingThrow(17, this))
+                {
+                    this.CountUnconcious++;
+                    this.IsIncapacitated = true;
+                }
+                else
+                {
+                    this.CountUnconcious = 0;
+                    this.Disadvantage -= 5;
+                    this.IsUnconcious = false;
+                    this.IsIncapacitated = false;
+                    this.DamageResistance /= 0.5;
+                }
+            }
             else
             {
                 this.Disadvantage -= 5;
                 this.IsUnconcious = false;
                 this.CountUnconcious = 0;
-                this.DamageResistance = 1;
+                this.DamageResistance /= 0.5;
     }
 }
 
