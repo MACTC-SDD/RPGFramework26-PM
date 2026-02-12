@@ -429,7 +429,7 @@ public bool Execute(Character character, List<string> parameters)
                     content += $"{p.DisplayName()} ";
                 }
 
-                content += "\n\n[purple]Mobs Here:[/]\n";
+                content += "\n\n[mediumpurple2]Mobs Here:[/]\n";
                 foreach (Mob m in player.GetRoom().Mobs)
                 {
                     content += $"{m.Name} ";
