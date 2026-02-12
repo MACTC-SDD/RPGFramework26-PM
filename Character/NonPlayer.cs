@@ -53,38 +53,17 @@ namespace RPGFramework
         public static void TakeTurn(NonPlayer npc, CombatWorkflow combat)
         {
             // NPC turn logic to be implemented
-            int? action = null;
-            if (npc.HasElement == true)
+            foreach (Character c in combat.Combatants)
             {
-                Random rand = new();
-                action = rand.Next(0, 3);
-            }
-            else
-            {
-                Random rand = new();
-                action = rand.Next(0, 2);
-            }
-                switch (action)
+                if (c.CombatFaction != npc.CombatFaction)
                 {
-                case 0:
-                        // Attack
-                        Random rand = new Random();
-                        int targetIndex = rand.Next(0, combat.Combatants.Count-1);
-                        Character target = combat.Combatants[targetIndex];
-                        if (target is Player p)
-                        {
-                            p.WriteLine($"{npc.Name} attacks you for {npc.AttackPower} damage!");
-                        }
-                    target.TakeDamage(npc.AttackPower);
-                        break;
-                case 1:
-                    //elemental attack(s)
-                    //choose random from available elements
-                    //copy target selection from above
-                    //npc team fill this out with abilities(different element attacks, different basic attacks, other combat options)
-                    break;
-                default:
-                    break;
+                    // Example logic: NPC attacks the first enemy it finds\
+                    if (c is Player p)
+                        p.WriteLine($"{npc.Name} attacks {c.Name}!");
+                    c.TakeDamage(10);
+                    // Implement attack logic here, e.g., calculate damage, apply effects, etc.
+                    break; // End turn after attacking one enemy
+                }
             }
         }
     }
