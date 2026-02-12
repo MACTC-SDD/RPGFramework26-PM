@@ -51,10 +51,7 @@ namespace RPGFramework
         public Race? Race { get; set; } = new();
         public string MostRecentSaveResult { get; set; } = "failed";
         public List<Spell> Spellbook { get; set; } = [];
-        public List<Consumable> GetConsumables()
-        {
-            return [.. BackPack.Items.OfType<Consumable>()];
-        }
+
         #endregion
 
         #region --- Skill Attributes --- (0-20)

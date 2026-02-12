@@ -10,7 +10,6 @@ namespace RPGFramework
     internal partial class Spell
     {
         public int Damage { get; set; } = 0;
-        public string Name { get; set; } = "";
 
         // these methods need to stay for spells to roll damage and check mana
         public bool CheckMana(int amount, Player p)
