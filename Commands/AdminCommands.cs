@@ -16,6 +16,7 @@ namespace RPGFramework.Commands
         {
             return
             [
+                new AdminCommand(),
                 new AdminHealCommand(),
                 new AdminHelpCommand(),
                 new AnnounceCommand(),
@@ -77,11 +78,47 @@ namespace RPGFramework.Commands
     }
     #endregion
 
+    #region AddminCommand Class
+    internal class AdminCommand : ICommand
+    {
+        public string Name => "/admin";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Make someone an administrator\nUsage: admin <user>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+            //if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            //{
+            //    return false;
+            //}
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("You have to specify a player.");
+                return false;
+            }
+
+            string name = parameters[1];
+
+            if (!Player.TryFindPlayer(name, GameState.Instance.Players, out Player? target) || target == null)
+            {
+                player.WriteLine($"Player {name} not found.");
+                return false;
+            }
+
+            target.PlayerRole = PlayerRole.Admin;
+            target.Save();
+            return true;
+        }
+    }
+    #endregion
+
     #region AnnounceCommand Class
     internal class AnnounceCommand : ICommand
     {
         public string Name => "/announce";
-        public IEnumerable<string> Aliases => [ "/ann" ];
+        public IEnumerable<string> Aliases => ["/ann"];
         public string Help => "Make an annoucement to all connected players.";
 
         public bool Execute(Character character, List<string> parameters)
@@ -102,6 +139,10 @@ namespace RPGFramework.Commands
     }
     #endregion
 
+    // CODE REVIEW: Aidan
+    // This method was looking for the player at parameter 0 so always failing
+    // It also only set the area, not the location.
+    // I have fixed these issues and you can delete once you've read this.
     #region GoToCommand Class
     internal class GoToCommand : ICommand
     {
@@ -112,8 +153,7 @@ namespace RPGFramework.Commands
 
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is not Player player)
-                return false;
+            if (character is not Player player) return false;
 
             if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
             {
@@ -121,21 +161,32 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
 
-            if (target == null)
+            if (parameters.Count < 1)
+            {
+                player.WriteLine("Usage: /goto <player name>");
+                return false;
+            }
+
+            string targetName = parameters[1];
+
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)        
             {
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            // CODE REVIEW: Aidan - This looks incomplete, maybe you were just using summon?
-            // You should be able to use the example there to revise this command.
-            Player? playerc = GameState.Instance.GetPlayerByName(parameters[2]);                        
-            playerc.AreaId = target.AreaId;
 
-            player.WriteLine($"You have been teleported to {target.DisplayName()}.");
+            player.AreaId = target.AreaId;
+            player.LocationId = target.LocationId;
+            player.WriteLine($"You have been teleported to {target.Name}.");
             return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     #endregion
@@ -179,6 +230,8 @@ namespace RPGFramework.Commands
             return true;
         }
 
+
+
         public bool CreateHelp(Player player, List<string> parameters)
         {
             if (parameters.Count < 5)
@@ -191,8 +244,8 @@ namespace RPGFramework.Commands
             {
                 player.WriteLine("A help entry with that name already exists.");
                 return false;
-            }        
-            
+            }
+
             HelpEntry h = new()
             {
                 Topic = parameters[2],
@@ -210,6 +263,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+
     #endregion
 
     #region KickCommand Class
@@ -261,8 +315,8 @@ namespace RPGFramework.Commands
     }
     #endregion
 
-        #region ReloadSeedDataCommand Class
-        internal class ReloadSeedDataCommand : ICommand
+    #region ReloadSeedDataCommand Class
+    internal class ReloadSeedDataCommand : ICommand
     {
         public string Name => "/reloadseeddata";
         public IEnumerable<string> Aliases => [];
@@ -277,8 +331,8 @@ namespace RPGFramework.Commands
                 player.WriteLine("You do not have permission to use this command.");
                 return false;
             }
-            
-            player.CurrentWorkflow = new WorkflowReloadSeedData();
+
+            character.CurrentWorkflow = new WorkflowReloadSeedData();
             player.WriteLine("Watch out, you're about to overwrite your data with the default seed files. If that's what you want, type YES!");
             return true;
         }
@@ -314,7 +368,7 @@ namespace RPGFramework.Commands
             }
 
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            Character target = GameState.Instance.GetPlayerByName(parameters[1]);
             if (target == null)
             {
                 player.WriteLine("Player not found.");
@@ -326,13 +380,20 @@ namespace RPGFramework.Commands
                 player.WriteLine("That name is already taken.");
                 return false;
             }
+            if (target is Player p)
+            {
+                GameState.Instance.Players.Remove(p.Name);
+                target.Name = parameters[2];
+                GameState.Instance.Players.Add(target.Name, p);
 
-            GameState.Instance.Players.Remove(target.Name);
-            target.Name = parameters[2];
-            GameState.Instance.Players.Add(target.Name, target);
-
-            player.WriteLine($"You have changed their name to {target.Name}");
-            return true;
+                player.WriteLine($"You have changed their name to {p.Name}");
+                return true;
+            }
+            else
+            {
+                player.WriteLine("Your target was not a player");
+                return false;
+            }
         }
     }
     #endregion
@@ -361,7 +422,7 @@ namespace RPGFramework.Commands
             // We don't need null checking here
             if (parameters.Count < 3)
             {
-                player.WriteLine("Usage: role <playerName> <role>");
+                player.WriteLine("[underline bold]Usage:[/] role <playerName> <role>");
                 return false;
             }
 
@@ -376,7 +437,7 @@ namespace RPGFramework.Commands
                 return false;
             }*/
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            Character target = GameState.Instance.GetPlayerByName(parameters[1]);
             // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
             if (target == null)
             {
@@ -387,9 +448,17 @@ namespace RPGFramework.Commands
             // GameState.Instance.Players.Keys.Contains(parameters[1]);
             if (!Enum.TryParse(parameters[2], true, out PlayerRole pr))
             {
-                target.PlayerRole = pr;
-                player.WriteLine($"You have changed {target.Name}'s role to {target.PlayerRole}.");
-                return true;
+                if (target is Player p)
+                {
+                    p.PlayerRole = pr;
+                    player.WriteLine($"You have changed {target.Name}'s role to {p.PlayerRole}.");
+                    return true;
+                }
+                else
+                {
+                    player.WriteLine("Your target is not a player");
+                    return false;
+                }
             }
             else
             {
@@ -404,7 +473,7 @@ namespace RPGFramework.Commands
     internal class SaveAll : ICommand
     {
         public string Name => "/saveall";
-        public IEnumerable<string> Aliases => [  ];
+        public IEnumerable<string> Aliases => [];
         public string Help => "";
 
         public bool Execute(Character character, List<string> parameters)
@@ -445,14 +514,14 @@ namespace RPGFramework.Commands
 
             GameState.Instance.Stop();
             return true;
-        }        
+        }
     }
     #endregion
 
     #region SummonCommand Class
     internal class SummonCommand : ICommand
     {
-        public string Name => "/summon";        
+        public string Name => "/summon";
         public IEnumerable<string> Aliases => [];
         public string Help => "";
 
@@ -491,7 +560,7 @@ namespace RPGFramework.Commands
             // the player issuing the command. If a second argument is provided, it should move the target
             // to that player instead. I've adjusted the code accordingly.
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            Character? target = GameState.Instance.GetPlayerByName(parameters[1]);
             if (target == null)
             {
                 player.WriteLine("Target player not found.");
@@ -505,8 +574,9 @@ namespace RPGFramework.Commands
             target.AreaId = destPlayer.AreaId;
             target.LocationId = destPlayer.LocationId;
 
-            target.WriteLine($"You have been summoned to {destPlayer.DisplayName()}.");
-            player.WriteLine($"You have teleported {target.DisplayName()} to you.");
+            if (target is Player p)
+                p.WriteLine($"You have been summoned to {destPlayer.DisplayName()}.");
+            player.WriteLine($"You have teleported {target.Name} to you.");
             return true;
         }
     }
@@ -516,7 +586,7 @@ namespace RPGFramework.Commands
     internal class TeleportRoomCommand : ICommand
     {
         public string Name => "/teleportroom";
-        public IEnumerable<string> Aliases => [ "/tpr" ];
+        public IEnumerable<string> Aliases => ["/tpr"];
         public string Help => "Teleport to a specific room by ID. Usage: teleportroom <areaId>:<roomId> or teleportroom <roomId> (uses your current area)";
         public bool Execute(Character character, List<string> parameters)
         {
@@ -535,7 +605,7 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            if (!Room.TryParseId(parameters[1], player.AreaId, out int roomId, out int areaId))
+            if (!Room.TryParseId(parameters[1], character.AreaId, out int roomId, out int areaId))
             {
                 player.WriteLine("Invalid destination format. Use <roomId> or <areaId>:<roomId>.");
                 return false;
@@ -548,12 +618,12 @@ namespace RPGFramework.Commands
             }
 
             // move the player correctly (call Leave/Enter so room notifications work)
-            Room current = player.GetRoom();
-            current.LeaveRoom(player, destRoom);
-            destRoom.EnterRoom(player, current);
+            Room current = character.GetRoom();
+            current.LeaveRoom(character, destRoom);
+            destRoom.EnterRoom(character, current);
 
-            player.AreaId = areaId;
-            player.LocationId = roomId;
+            character.AreaId = areaId;
+            character.LocationId = roomId;
 
             player.WriteLine($"Teleported to Area {areaId} Room {roomId}.");
             return true;
@@ -564,19 +634,11 @@ namespace RPGFramework.Commands
     #region WhereCommand Class
     internal class WhereCommand : ICommand
     {
-        public string Name => "where";
-        // CODE REVIEW: Aidan - This method should use Utility.CheckPermission for consistency.
-        /*public static bool CheckPermission(PlayerRole role)
-        {
-            return PlayerRole.Player >= role;
-        }
-        */
+        public string Name => "/where";
 
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Show where a specific player is.\nUsage: where <target player>";
 
-        // CODE REVIEW: Aidan - Revised to use Utility.CheckPermission for consistency.
-        // Also un-nested the code for better readability by moving checks to the start and exiting early.
         public bool Execute(Character character, List<string> parameters)
         {
             if (character is not Player player)
@@ -588,17 +650,25 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
+            if (parameters.Count < 2)
+                return ShowHelp(player);
 
-            // CODE REVIEW: Aidan - Added null check for target to avoid potential null reference exception.
-            if (target == null)
-            {
+            string targetName = parameters[1];
+
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)
+            { 
                 player.WriteLine("Player not found.");
                 return false;
             }
 
-            player.WriteLine("That Player is in " + target.GetRoom());
+            player.WriteLine($"That Player is in {target.GetRoom().Name} ({target.GetArea().Name})");
             return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     #endregion
@@ -619,7 +689,7 @@ namespace RPGFramework.Commands
             int onlineCount = 0;
             foreach (Player playerc in GameState.Instance.GetPlayersOnline())
             {
-                string name = playerc.DisplayName();
+                string name = playerc.Name;
                 player.WriteLine(name + " is online.");
                 onlineCount++;
                 if (playerc.IsAFK == true)
@@ -652,8 +722,8 @@ namespace RPGFramework.Commands
                 player.WriteLine("You do not have permission to use this command.");
                 return false;
             }
-         
-          
+
+
             try
             {
                 GameState.CreateBackup();
@@ -670,7 +740,8 @@ namespace RPGFramework.Commands
 
     }
     #endregion
-    #region RestoreCommand
+    
+    #region RestoreCommand Class
     internal class RestoreCommand : ICommand
     {
         public string Name => "restore";
@@ -710,6 +781,8 @@ namespace RPGFramework.Commands
 
     }
     #endregion
+
+    #region MotdCommand Class
     internal class MotdCommand : ICommand
     {
         public string Name => "/motd";
@@ -739,7 +812,9 @@ namespace RPGFramework.Commands
             return true;
         }
     }
+    #endregion
 
+    #region LevelUpCommand Class
     internal class LevelUpCommand : ICommand
     {
         public string Name => "/levelup";
@@ -763,37 +838,61 @@ namespace RPGFramework.Commands
             return true;
         }
     }
+    #endregion
+
+    #region AdminHealCommand Class
+    // CODE REVIEW: Aidan/Rylan
+    // This didn't really find a target or check to see if a number was passed
+    // it just checked for null parameters, which actually would have crashed :)
+    // It is fixed now, so this is just for reference. You can delete this comment once you review.
+    // It also tried to set Health directly rather than using the Heal command.
     internal class AdminHealCommand : ICommand
     {
         public string Name => "/heal";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "/heal <target player> <heal amount>";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                if (parameters[1] == null)
-                {
-                    player.WriteLine("Player not found.");
-                    return false;
-                }
-                if (parameters[2] == null)
-                {
-                    player.WriteLine("No health amount stated.");
-                    return false;
-                }
-                Player? target = GameState.Instance.GetPlayerByName(parameters[1]);
-                target.Health += int.Parse(parameters[2]);
-                player.WriteLine($"you have healed {target} by {parameters[1]}");
-                return true;
-            }
-            return false;
+            if (character is not Player player)
+                return false;
 
+
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to run this command");
+                return false;
+            }
+
+            if (parameters.Count < 3)
+                return ShowHelp(player);
+
+            string targetName = parameters[1];
+
+            Player? target = Player.FindPlayer(targetName, GameState.Instance.Players);
+
+            if (target == null)
+            {
+                player.WriteLine("Player not found.");
+                return false;
+            }
+
+            if (!int.TryParse(parameters[2], out int healAmount))
+            {
+                player.WriteLine("Heal amount needs to be a number!");
+                return false;
+            }
+
+            target.Heal(healAmount);
+
+            player.WriteLine($"You have [green]healed[/] {target.Name} by {healAmount}!");
+            return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
+    #endregion
 }

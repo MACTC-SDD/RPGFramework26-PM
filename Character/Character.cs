@@ -29,14 +29,14 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; set; } = 100;
+        public int Health { get; set; } = 30;
         public bool IsEngaged { get; protected set; } = false;
         [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
         [JsonInclude] public int Level { get; protected set; } = 1;
         public int LocationId { get; set; } = 0;
         [JsonInclude] public int MaxHealth { get; set; } = 100;
         public string Name { get; set; } = "";
-        [JsonInclude] public int XP { get; protected set; } = 0;
+        [JsonInclude] public int XP { get; set; } = 0;
         public Armor? EquippedArmor { get; set; }
         public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }
@@ -46,9 +46,11 @@ namespace RPGFramework
         public string Title { get; set; } = "";
         public bool InCombat { get; set; } = false;
         public double MaxCarryWeight { get; private set; } = 150;
-        public int MaxMana { get; set; } = 100;
-        public int Mana { get; set; } = 100;
+        public int MaxMana { get; set; } = 35;
+        public int Mana { get; set; } = 35;
         public Race? Race { get; set; } = new();
+        public string MostRecentSaveResult { get; set; } = "failed";
+        public List<Spell> Spellbook { get; set; } = [];
 
         #endregion
 
@@ -174,10 +176,9 @@ namespace RPGFramework
         }
 
         // Add some amount to health
-        public void Heal(int heal, int manacost=0)
+        public void Heal(int heal)
         {
             SetHealth(Health + heal - HealPenalty);
-            Mana-=manacost;
         }
         public void SetCarryCapacity()
         {
@@ -194,6 +195,11 @@ namespace RPGFramework
             return BackPack.Items.Find(x => x.Id == itemId);
         }
 
+        /// <summary>
+        /// Returns the first consummable found, or null if no consumable with the given name exists in the backpack. Search is case-insensitive.
+        /// </summary>
+        /// <param name="consumableName"></param>
+        /// <returns></returns>
         public Consumable? FindConsumable(string consumableName)
         {
             return BackPack.Items.OfType<Consumable>()
@@ -208,14 +214,24 @@ namespace RPGFramework
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// Retrieves a list of all consumable items currently stored in the backpack.
+        /// </summary>
+        public List<Consumable> GetConsumables()
+        {
+            return [.. BackPack.Items.OfType<Consumable>()];
+        }
+
         public IRenderable ShowSummary()
-        { var table = new Table();
+        { 
+            Room r = GetRoom();
+            var table = new Table();
             table.AddColumn("Background");
             table.AddColumn("info");
             table.AddRow($"Name: {Name}", $"Gold: {Gold}");
             table.AddRow($"Class: {Class?.Name ?? "None"}", $"Weapon: {PrimaryWeapon.Name}");
             table.AddRow($"Health: {Health}", $"XP: {XP}");
-            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+            table.AddRow($"level: {Level}", $"Location: {r.Name}");
 
             string title = "Character Info";
 

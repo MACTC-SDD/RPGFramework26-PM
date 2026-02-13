@@ -26,7 +26,7 @@ namespace RPGFramework.Workflows
                 Character? chosenTarget = null;
                 foreach (Character target in this.Combatants)
                 {
-                    if (target.Name.ToLower() == targetName && target != player)
+                    if (target.Name.ToLower() == targetName)
                     {
                         chosenTarget = target;
                         break;
@@ -35,10 +35,26 @@ namespace RPGFramework.Workflows
                 if (chosenTarget != null)
                 {
                     player.WriteLine($"You target {chosenTarget.Name}!");
-                    if (selectedSpell != null)
-                        //Player.RollToHitS(player, chosenTarget);
+                    // Here you would add logic to apply the attack or spell effects to the chosen target
+                    // TODO Player.RollToHitS(player, selectedSpell, chosenTarget);
 
-
+                    if (selectedSpell.HasSave == true)
+                    {
+                        int damage = selectedSpell.SaveSpell(player, selectedSpell, chosenTarget);
+                        player.WriteLine($"{chosenTarget.Name} {chosenTarget.MostRecentSaveResult} their save and took {damage} damage!");
+                        if (chosenTarget is Player p)
+                            p.WriteLine($"You took {damage} damage due to {player.Name}'s spell: {selectedSpell.Name}");
+                    }
+                    else if (selectedSpell.IsHeal == true)
+                    {
+                        int healAmount = selectedSpell.HealSpell(player, selectedSpell, chosenTarget);
+                        player.WriteLine($"{chosenTarget} was healed for {healAmount}");
+                    }
+                    else
+                    {
+                        // Won't compile until there is a three param method 
+                        //Character.RollToHitS(player, selectedSpell, chosenTarget);
+                    }
 
                     CurrentStep = 0;
                     EndTurn();

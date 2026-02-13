@@ -9,9 +9,9 @@ namespace RPGFramework
         STR,
         DEX,
         CON,
+        INT,
         WIS,
         CHA,
-        INT,
-        None,
+        None
     }
 }

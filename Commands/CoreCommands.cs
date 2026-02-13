@@ -53,6 +53,7 @@ namespace RPGFramework.Commands
                 new UseCommand(),
                 new ManaCommand(),
                 new HealSpellCommand(),
+                new HelloCommand(),
                 // Add other core commands here as they are implemented
             ];
         }
@@ -233,8 +234,9 @@ namespace RPGFramework.Commands
                 player.WriteLine("Backpackitems");
                 foreach (Item i in player.BackPack.Items)
                 {
+                    if (i == null) continue;
+                    
                     player.WriteLine(i.Name);
-                    return false;
                 }
             }
             else
@@ -337,7 +339,16 @@ public bool Execute(Character character, List<string> parameters)
                 if (i.UsesLeft > 0)
                 {
                    i.UsesLeft--;
-                    player.WriteLine($"Used {i}");
+                    if (c is Food f)
+                    {
+                        f.Use(character);
+                        player.WriteLine($"Used {c.Name}");
+                    }
+                    if (c is Potion p)
+                    {
+                        p.Use(character);
+                        player.WriteLine($"Used {c.Name}");
+                    }
                 }
                 
                 if (i.UsesLeft < 1)
@@ -412,8 +423,18 @@ public bool Execute(Character character, List<string> parameters)
                     else
                         content += $"{exit.Description} to the {exit.ExitDirection}\n";
                 }
-                content += "[Green]Players Here:[/]\n";
-                content += $"{player.DisplayName()}";
+                content += "\n\n[green]Players Here:[/]\n";
+                foreach (Player p in Room.GetPlayersInRoom(player.GetRoom()))
+                {
+                    content += $"{p.DisplayName()} ";
+                }
+
+                content += "\n\n[mediumpurple2]Mobs Here:[/]\n";
+                foreach (Mob m in player.GetRoom().Mobs)
+                {
+                    content += $"{m.Name} ";
+                }
+
                 Panel panel = RPGPanel.GetPanel(content, player.GetRoom().Name);
                 player.Write(panel);
 
@@ -691,60 +712,107 @@ public bool Execute(Character character, List<string> parameters)
 
         }
     }
+
+    #region GoldCommand Class
+    // CODE REVIEW: Aidan - This probably belongs in AdminCommands, just for organization
+    // Note: You had a variable named PlayerT, we want to always start internal vars with a lowercase
+    // Note: This attempted a parse, but didn't  actually fail if it was legitimate, or see if there
+    //       were enough paramters provided.
+    // I fixed and added help. You can delete this once you've read it.
     internal class GoldCommand : ICommand
     {
-        public string Name => "gold";
+        public string Name => "/gold";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Give a player gold.\nUsage: /gold <target> <amount>";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                player.Gold += int.Parse(parameters[2]);
-                player.WriteLine($"you have added {parameters[2]} to {parameters[1]}");
-                return true;
-            }
-            return false;
+            if (character is not Player player)
+                return false;
 
+            if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            {
+                player.WriteLine("You do not have permission to run this command");
+                return false;
+            }
+
+            if (parameters.Count < 3)
+                return ShowHelp(player);
+
+            string targetName = parameters[1];
+
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target == null)
+            {
+                player.WriteLine($"I couldn't find the target player ({targetName})"); 
+                return false;
+            }
+
+            if (!int.TryParse(parameters[2], out int goldAmount))
+            {
+                player.WriteLine("Amount of gold has to be a number!");
+                return false;
+            }
+
+            target.Gold += goldAmount;
+            player.WriteLine($"you have added {goldAmount} to {targetName}");
+            return true;
+        }
+
+        public bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
-    
+    #endregion
+
+    // CODE REVIEW: Aidan
+    // Added / because this is an Admin command and it should probably be moved there.
+    // NOTE: This checked if paramter was null which would still throw an index out of bounds error.
+    // I have fixed these issues and you can delete this when you read it.
+    // This parsed, but didn't do anything if the parameter wasn't actually a number
+    // This set Health directly instead of using the TakeDamage method.
     internal class DamageCommand : ICommand
     {
-        public string Name => "damage";
+        public string Name => "/damage";
         public IEnumerable<string> Aliases => [];
-        public string Help => "";
+        public string Help => "Deal damage to a player.\nUsage: /damage <target> <amount>";
         public bool Execute(Character character, List<string> parameters)
         {
-            if (character is Player player)
-            {
-                if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
-                {
-                    player.WriteLine("You do not have permission to run this command");
-                    return false;
-                }
-                if (parameters[1] == null)
-                {
-                    player.WriteLine("Player not found.");
-                    return false;
-                }
-                if (parameters[2] == null)
-                {
-                    player.WriteLine("No Damage amount stated.");
-                    return false;
-                }
-                    Player Target = GameState.Instance.GetPlayerByName(parameters[1]);
-                    Target.Health -= int.Parse(parameters[2]);
-                    player.WriteLine($"you have damaged {Target} by {parameters[1]}");
-                    return true;
-            }
-            return false;
 
+            if (character is not Player player)
+                return false;
+
+            if (!Utility.CheckPermission(player, PlayerRole.Admin))
+            {
+                player.WriteLine("You do not have permission to run this command");
+                return false;
+            }
+
+            if (parameters.Count < 3)
+                return ShowHelp(player);    
+
+            string targetName = parameters[1];
+            if (!Player.TryFindPlayer(targetName, GameState.Instance.Players, out Player? target) || target ==  null)
+            {
+                player.WriteLine("Target player not found.");
+                return false;
+            }
+
+            if (!int.TryParse(parameters[2], out int damageAmount))
+            {
+                player.WriteLine("Damage amount has to be a number!");
+                return false;
+            }
+
+            target.TakeDamage(damageAmount);
+            player.WriteLine($"you have damaged {target.Name} by {damageAmount}");
+            return true;
+        }
+
+        private bool ShowHelp(Player player)
+        {
+            player.WriteLine(Help);
+            return false;
         }
     }
     internal class PurgeRoomCommand : ICommand
@@ -862,9 +930,9 @@ public bool Execute(Character character, List<string> parameters)
         {
             if (character is Player player)
             {
-                player.WriteLine($"You are level {player.Level} you will gain an additional "
-                    + $"{Player.Levels[player.Level].Health} health along with {Player.Levels[player.Level].Mana} Mana and you will have " + 
-                    $"{Player.Levels[player.Level].StatPoints} points upon level up.");
+                player.WriteLine($"You are level [yellow]{player.Level}[/] you will gain an additional "
+                    + $"[red]{Player.Levels[player.Level].Health}[/] health along with [cornflowerblue]{Player.Levels[player.Level].Mana}[/] Mana and you will have " + 
+                    $"[green3]{Player.Levels[player.Level].StatPoints}[/] points upon level up.");
                 return true;
             }
             return false;
@@ -1061,8 +1129,22 @@ public bool Execute(Character character, List<string> parameters)
                 player.WriteLine("you already have full health");
                 return false;
             }
-            character.Heal(player.MaxHealth, 20);
+            character.Heal(20);
             player.WriteLine("you healed up to full health!");
+            return true;
+        }
+    }
+
+    internal class HelloCommand : ICommand
+    {
+        public string Name => "hello";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "say hi to the server";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {  return false; }
+            player.WriteLine($"Hello {player.Name}!");
             return true;
         }
     }

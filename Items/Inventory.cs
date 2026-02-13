@@ -13,6 +13,9 @@ namespace RPGFramework.Items
             name = name.ToLower();
             foreach (Item item in Items)
             {
+                // It doesn't seem like inventory should have any null items
+                // but let's check anyway
+                if (item == null) continue;
                 if (item.Name.ToLower() == name)
                     return item;
             }

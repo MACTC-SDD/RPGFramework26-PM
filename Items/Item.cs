@@ -17,10 +17,9 @@ namespace RPGFramework
 
         public int Level { get; set; } = 0;
         public string Name { get; set; } = "";
-        public double SpawnChance { get; set; } = 0;
         public List<string> Tags { get; set; } = [];
         public double UseSpeed { get; set; } = 1;
-        public double Value { get; set; } = 0;
+        public int Value { get; set; } = 0;
         public double Weight { get; set; } = 0;
       
     }
