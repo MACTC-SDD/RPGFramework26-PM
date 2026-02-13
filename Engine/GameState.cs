@@ -635,17 +635,18 @@ namespace RPGFramework
                     { 
                         lastLog = DateTime.Now;                        
                     }
-
-                    foreach (CombatWorkflow combat in Combats)
+                    Console.WriteLine($"Processing {Combats.Count} combats...");
+                    for (int i = 0; i < Combats.Count; i++)
                     {
-                        combat.Process();
+                        Combats[i].Process();
                     }         
-                    
+                    Console.WriteLine($"Combats : {Combats.Count}");
                     for (int i = Combats.Count - 1; i >= 0; i--)
                     {
                         if (Combats[i].Ended)
                             Combats.RemoveAt(i);
                     }
+                    Console.WriteLine($"Combats : {Combats.Count}");
                 }
                 catch (Exception ex)
                 {

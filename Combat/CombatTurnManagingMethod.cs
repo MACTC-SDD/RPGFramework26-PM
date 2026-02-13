@@ -15,11 +15,18 @@ namespace RPGFramework.Workflows
         /// <returns>true if the battle is still ongoing, otherwise, false</returns>
         public bool Process()
         {
+            Console.WriteLine($"Turn Time: {TurnTimer}");
             if (ActiveCombatant == Combatants[0])
                 RoundCounter++;
+            for (int i = 0; i < Combatants.Count; i++)
+                Console.WriteLine(Combatants[i].Name);
             BringOutYourDead();
+            for (int i = 0; i < Combatants.Count; i++)
+                Console.WriteLine(Combatants[i].Name);
             ActiveFactions = CountActiveFactions();
-
+            Console.WriteLine(ActiveFactions + " " + Combatants.Count);
+            if (ActiveFactions < 2)
+                ActiveFactions = 2;
             if (IsCombatOver())
             {
                 EndCombat();
@@ -47,14 +54,22 @@ namespace RPGFramework.Workflows
             ActiveCombatant ??= Combatants[0];
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
             Console.WriteLine($"Active combatant is {ActiveCombatant.Name}");
+            if (ActiveCombatant == null)
+                ActiveCombatant ??= Combatants[0];
             if (ActiveCombatant is NonPlayer npc)
             {
                 npc.ProcessStatusEffects();
                 NonPlayer.TakeTurn(npc, this);
+                int indexOfNextCombatant = Combatants.IndexOf(ActiveCombatant) + 1;
+                if (indexOfNextCombatant > Combatants.Count - 1)
+                    indexOfNextCombatant = 0;
+                ActiveCombatant = Combatants[indexOfNextCombatant];
                 TurnTimer++;
             }
             else
             {
+                if (PreviousActingCharacter == null)
+                    PreviousActingCharacter = ActiveCombatant;
                 if (PreviousActingCharacter != null)
                 {
 
@@ -71,13 +86,14 @@ namespace RPGFramework.Workflows
                             if (indexOfNextCombatant > Combatants.Count - 1)
                                 indexOfNextCombatant = 0;
                             ActiveCombatant = Combatants[indexOfNextCombatant];
+                            TurnTimer = 0;
                         }
-                        else if (PreviousActingCharacter != ActiveCombatant)
-                        {
-                            // update so that new player gets full turn time
-                            PreviousActingCharacter = ActiveCombatant;
-                            TurnTimer = 1;
-                        }
+                    }
+                    else if (PreviousActingCharacter != ActiveCombatant)
+                    {
+                        // update so that new player gets full turn time
+                        PreviousActingCharacter = ActiveCombatant;
+                        TurnTimer = 1;
                     }
 
                 }
@@ -106,7 +122,11 @@ namespace RPGFramework.Workflows
             for (int i = Combatants.Count - 1; i >= 0; i--)
             {
                 if (!Combatants[i].Alive)
+                {
+                    Combatants[i].CurrentWorkflow = null;
                     Combatants.RemoveAt(i);
+                    Console.WriteLine($"Removed: {Combatants[i]}");
+                }
             }
         }
 
