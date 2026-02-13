@@ -3,7 +3,7 @@ using RPGFramework.Enums;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RPGFramework.Items
+namespace RPGFramework
 {
     internal class Food : Consumable
     {
