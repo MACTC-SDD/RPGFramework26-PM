@@ -283,17 +283,17 @@ namespace RPGFramework
                 switch (Class?.Name)
                 {
                     case "Mage":
-                       // this.magelevelupspells();
+                         this.magelevelupspells();
 
                         break;
                     case "Paladin":
-                        // this.paladinlevelupspells();
+                         this.paladinlevelupspells();
                         break;
                     case "Bard":
-                        // this.bardlevelupspells();
+                         this.bardlevelupspells();
                         break;
                     case "Druid":
-                        // this.druidlevelupspells();
+                         this.druidlevelupspells();
                         break;
                 }
             }
