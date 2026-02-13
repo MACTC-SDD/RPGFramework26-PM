@@ -79,6 +79,7 @@ namespace RPGFramework.Commands
             else
             {
                 GameState.Instance.ItemCatalog.Add(a.Name, a);
+                player.WriteLine($"Created {a.Name}");
             }
         }
     }

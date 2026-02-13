@@ -8,7 +8,7 @@ namespace RPGFramework.Commands
 
     internal class FoodBuilderCommand : ICommand
     {
-        public string Name => "/Food";
+        public string Name => "/food";
 
         public IEnumerable<string> Aliases => [];
         public string Help => "";
@@ -71,6 +71,7 @@ namespace RPGFramework.Commands
             else
             {
                 GameState.Instance.ItemCatalog.Add(f.Name, f);
+                player.WriteLine("It worked");
             }
         }
 
