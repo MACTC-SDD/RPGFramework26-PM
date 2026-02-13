@@ -12,7 +12,8 @@ namespace RPGFramework.Commands
             [
                 new ItemBuilderCommand(),
                 new WeaponBuilderCommand(),
-            
+                new FoodBuilderCommand(),
+                new ArmorBuilderCommand()
                 // Add more builder commands here as needed
             ];
         }
@@ -255,6 +256,117 @@ namespace RPGFramework.Commands
         {
             player.WriteLine(Help);
             return false;
+        }
+    }
+    #endregion
+
+    #region --- Weapon Code ---
+    /// <summary>
+    /// /room command for building and editing rooms.
+    /// </summary>
+    internal class WeaponBuilderCommand : ICommand
+    {
+        public string Name => "/weapon";
+
+        public IEnumerable<string> Aliases => [];
+        public string Help => "";
+
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+            {
+                return false;
+            }
+
+            if (parameters.Count < 2)
+            {
+                WriteUsage(player);
+                return false;
+            }
+
+            // Decide what to do based on the second parameter
+            switch (parameters[1].ToLower())
+            {
+                case "create":
+                    WeaponCreate(player, parameters);
+                    break;
+                case "set":
+                    // We'll move setting name and description into this
+                    //RoomSet(player, parameters);
+                    break;
+                default:
+                    WriteUsage(player);
+                    break;
+            }
+
+            return true;
+        }
+        private void WriteUsage(Player player)
+        {
+            player.WriteLine("help message");
+        }
+
+        private bool WeaponCreate(Player player, List<string> parameters)
+        {
+            Weapon newWeapon;
+
+            if (parameters.Count < 6)
+            {
+                WriteUsage(player);
+                return false;
+            }
+
+            // Shorthand method for making item
+            if (parameters.Count < 8)
+            {
+                newWeapon = new()
+                {
+                    Name = parameters[2],
+                    Description = parameters[3],
+                    Durability = int.Parse(parameters[4]),
+                    Value = int.Parse(parameters[5]),
+                };
+
+
+            }
+            else
+            {
+                // Every parse needs to be checked
+
+                GameState.Log(Enums.DebugLevel.Debug, $"{parameters[4]} {parameters[5]} {parameters[6]} {parameters[7]}");
+                newWeapon = new()
+                {
+                    // CODE REVIEW: Brayden, Tyler
+                    // The boolean and double conversions here could throw exceptions if the input is invalid.
+                    // I'm not sure what element 9 is supposed to be since Name is already at 2.
+                    Name = parameters[2],
+                    Description = parameters[3],
+                    Durability = int.Parse(parameters[4]),
+                    Value = Convert.ToDouble(parameters[5]),
+                    MaxDamage = Convert.ToInt32(parameters[6]),
+                    Range = bool.Parse(parameters[7].Trim()),
+
+                };
+
+                // These should all use TryParse
+                //int = Convert.ToInt32(parameters[+]);
+                //bool = Convert.ToBoolean(parameters[+]);
+                //double =  Convert.ToDouble(parameters[+]);
+
+                if (GameState.Instance.WeaponCatalog.ContainsKey(newWeapon.Name))
+                {
+                    player.WriteLine($"There is already an object named {newWeapon.Name}");
+                    return false;
+                }
+
+            }
+
+            // If we get here we're good
+            GameState.Instance.WeaponCatalog.Add(newWeapon.Name, newWeapon);
+            player.WriteLine($"Item ({newWeapon.Name} added successfully.");
+
+            return true;
+
         }
     }
     #endregion

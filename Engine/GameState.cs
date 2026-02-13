@@ -109,6 +109,7 @@ namespace RPGFramework
         [JsonIgnore] public Catalog<string, Item> ItemCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Weapon> WeaponCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Armor> ArmorCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, Food> FoodCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Mob> MobCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, NonPlayer> NPCCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, CharacterClass> CCCatalog { get; set; } = [];
