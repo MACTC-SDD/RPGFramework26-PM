@@ -258,6 +258,7 @@ namespace RPGFramework.Commands
             return false;
         }
     }
+    #endregion
 
     #region --- Weapon Code ---
     /// <summary>
@@ -343,7 +344,7 @@ namespace RPGFramework.Commands
                     Durability = int.Parse(parameters[4]),
                     Value = Convert.ToDouble(parameters[5]),
                     MaxDamage = Convert.ToInt32(parameters[6]),
-                    range = bool.Parse(parameters[7].Trim()),
+                    Range = bool.Parse(parameters[7].Trim()),
 
                 };
 
