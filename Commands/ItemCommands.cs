@@ -12,7 +12,7 @@ namespace RPGFramework.Commands
             [
                 new ItemBuilderCommand(),
                 new WeaponBuilderCommand(),
-            
+            /we
                 // Add more builder commands here as needed
             ];
         }
@@ -198,8 +198,8 @@ namespace RPGFramework.Commands
                     {
                         Name = parameters[2],
                         Description = parameters[3],
-                        Durability = int.Parse(parameters[5]),
-                        Value = int.Parse(parameters[6]),
+                        Durability = int.Parse(parameters[4]),
+                        Value = int.Parse(parameters[5]),
                     };
 
 
@@ -225,7 +225,7 @@ namespace RPGFramework.Commands
                         Value = Convert.ToDouble(parameters[6]),
                         MaxDamage = Convert.ToInt32(parameters[7]),
                         range = Convert.ToBoolean(parameters[8]),
-
+                        
                     };
 
                     // These should all use TryParse
