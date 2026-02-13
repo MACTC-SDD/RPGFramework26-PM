@@ -36,7 +36,7 @@ namespace RPGFramework
         public int LocationId { get; set; } = 0;
         [JsonInclude] public int MaxHealth { get; set; } = 100;
         public string Name { get; set; } = "";
-        [JsonInclude] public int XP { get; protected set; } = 0;
+        [JsonInclude] public int XP { get; set; } = 0;
         public Armor? EquippedArmor { get; set; }
         public CharacterClass? Class { get; set; } = new();
         public Weapon PrimaryWeapon { get; set; }

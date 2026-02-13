@@ -1,8 +1,12 @@
 ﻿
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using RPGFramework.Commands;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
+using Spectre.Console;
 
 namespace RPGFramework
 {
@@ -17,7 +21,6 @@ namespace RPGFramework
         // like spells/element attacks, item usage, fleeing, basic attack options, etc.
         // contact combat team for help if needed, we know the combat system structure
         public List<string> Dialog = [];
-        public bool IsAlive { get; set; } = false;
         public bool IsMagic { get; set; } = false;
         public bool IsMelee { get; set; } = false;
         public bool IsRanged { get; set; } = false;
@@ -60,7 +63,6 @@ namespace RPGFramework
             //int action;
 
             //action = _instance.Random.Next(0, 2);
-
             // Attack
             Character? target = null;
 
@@ -71,6 +73,7 @@ namespace RPGFramework
             } while (target == null);
 
             int damage = npc.CalculateDamage();
+          
             target.TakeDamage(damage);
 
             Comm.SendToIfPlayer(target, $"{npc.Name} attacks you for {damage} damage!");               

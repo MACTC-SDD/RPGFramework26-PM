@@ -106,7 +106,17 @@ namespace RPGFramework.Workflows
             for (int i = Combatants.Count - 1; i >= 0; i--)
             {
                 if (!Combatants[i].Alive)
-                    Combatants.RemoveAt(i);
+                {
+                    if (i is NonPlayer npc)
+                    {
+                        foreach (Player p in Combatants.OfType<Player>))
+                        {
+                            p.XP += npc.XPgive;
+
+                        }
+                    }
+                Combatants.RemoveAt(i);
+                }
             }
         }
 

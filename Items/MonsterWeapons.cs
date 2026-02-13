@@ -63,7 +63,73 @@ namespace RPGFramework
                     MaxDice = 2;
                     break;
             }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterFang:
+                    MaxDamage = 12;
+                    MaxDice = 3;
+                    range = true;
+                    break;
             }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterClaw:
+                    MaxDamage = 12;
+                    MaxDice = 3;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterVenom:
+                    MaxDamage = 12;
+                    MaxDice = 4;
+                    range = true;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterSword:
+                    MaxDamage = 8;
+                    MaxDice = 4;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterDagger:
+                    MaxDamage = 12;
+                    MaxDice = 3;
+                    range = true;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BetterBite:
+                    MaxDamage = 8;
+                    MaxDice = 4;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BossLongSword:
+                    MaxDamage = 12;
+                    MaxDice = 8;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.BossFang:
+                    MaxDamage = 8;
+                    MaxDice = 6;
+                    break;
+            }
+            switch (MonsterWeapon)
+            {
+                case MonsterWeapon.GClaw:
+                    MaxDamage = 6;
+                    MaxDice = 3;
+                    break;
+            }
+        }
         public int RollDamageMW()
         {
             int totalDamage = 0;

@@ -12,6 +12,14 @@ namespace RPGFramework.Enums
         Sword,
         Dagger,
         Bite,
-
+        BetterFang,
+        BetterClaw,
+        BetterVenom,
+        BetterSword,
+        BetterDagger,
+        BetterBite,
+        BossLongSword,
+        BossFang,
+        GClaw,
     }
 }
