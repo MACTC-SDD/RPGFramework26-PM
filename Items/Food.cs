@@ -36,15 +36,15 @@ namespace RPGFramework
                     Value = 30;
                     break;
 
-                case FoodType.Chicken_Leg:
+                case FoodType.ChickenLeg:
                     Value = 10;
                     break;
 
-                case FoodType.Wolf_Meat:
+                case FoodType.WolfMeat:
                     Value = 15;
                     break;
 
-                case FoodType.Boar_Meat:
+                case FoodType.BoarMeat:
                     Value = 15;
                     break;
 
@@ -56,11 +56,11 @@ namespace RPGFramework
                     Value = 2;
                     break;
 
-                case FoodType.Water_Bottle:
+                case FoodType.WaterBottle:
                     Value = 3;
                     break;
 
-                case FoodType.Milk_Bottle:
+                case FoodType.MilkBottle:
                     Value = 5;
                     break;
 
@@ -91,15 +91,15 @@ namespace RPGFramework
                     HealAmount = 50;
                     break;
 
-                case FoodType.Chicken_Leg:
+                case FoodType.ChickenLeg:
                     HealAmount = 25;
                     break;
 
-                case FoodType.Wolf_Meat:
+                case FoodType.WolfMeat:
                     HealAmount = 25;
                     break;
 
-                case FoodType.Boar_Meat:
+                case FoodType.BoarMeat:
                     HealAmount = 25;
                     break;
 
@@ -111,11 +111,11 @@ namespace RPGFramework
                     HealAmount = 5;
                     break;
 
-                case FoodType.Water_Bottle:
+                case FoodType.WaterBottle:
                     HealAmount = 15;
                     break;
 
-                case FoodType.Milk_Bottle:
+                case FoodType.MilkBottle:
                     HealAmount = 15;
                     break;
 
@@ -145,15 +145,15 @@ namespace RPGFramework
                     StackAmount = 1;
                     break;
 
-                case FoodType.Chicken_Leg:
+                case FoodType.ChickenLeg:
                     StackAmount = 10;
                     break;
 
-                case FoodType.Wolf_Meat:
+                case FoodType.WolfMeat:
                     StackAmount = 10;
                     break;
 
-                case FoodType.Boar_Meat:
+                case FoodType.BoarMeat:
                     StackAmount = 10;
                     break;
 
@@ -165,11 +165,11 @@ namespace RPGFramework
                     StackAmount = 100;
                     break;
 
-                case FoodType.Water_Bottle:
+                case FoodType.WaterBottle:
                     StackAmount = 5;
                     break;
 
-                case FoodType.Milk_Bottle:
+                case FoodType.MilkBottle:
                     StackAmount = 5;
                     break;
 
