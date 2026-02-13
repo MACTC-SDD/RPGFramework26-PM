@@ -132,7 +132,7 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            Comm.Broadcast(Messaging.CreateAnnouncementMessage(string.Join(' ', parameters.Skip(1))));
+            Comm.Broadcast(Messaging.CreateAnnouncementMessage( string.Join(' ', parameters.Skip(1)), player));
 
             return true;
         }

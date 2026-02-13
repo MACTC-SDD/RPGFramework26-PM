@@ -3,10 +3,12 @@ namespace RPGFramework.Display
 {
     internal class Messaging
     {
-        public static string CreateAnnouncementMessage(string message)
+        public static string CreateAnnouncementMessage(string message, Player? player=null)
         {
-            return $"\n{DisplaySettings.AnnouncementColor}[[Announcement]]: [/][white] {message}[/]";
+            string sender = player?.DisplayName() ?? "ANON";
+            return $"\n{DisplaySettings.AnnouncementColor}[[Announcement({sender})]]: [/][white] {message}[/]";
         }
+
         public static string CreateTellMessage(string senderName, string message)
             {
             return $"\n{DisplaySettings.TellColor}[[Tell from [cornflowerblue]{senderName}[/]]]: [/][lightgoldenrod2_1] {message}[/]";
