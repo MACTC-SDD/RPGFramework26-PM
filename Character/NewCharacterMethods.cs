@@ -23,6 +23,7 @@ namespace RPGFramework
                 character.CurrentWorkflow = null;
                 if (character is Player player)
                     player.WriteLine("[green3] You successfully fled the combat! [/]");
+                combat.ActiveCombatant = null;
                 return true;
             }
             else

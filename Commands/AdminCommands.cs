@@ -6,6 +6,7 @@ using RPGFramework.Workflows;
 using RPGFramework.Geography;
 using System.IO.Compression;
 using System.Numerics;
+using Spectre.Console;
 
 
 namespace RPGFramework.Commands
@@ -36,7 +37,36 @@ namespace RPGFramework.Commands
                 new WhoCommand(),
                 new TeleportRoomCommand(), // added teleport by room id
                 new RestoreCommand(),
+                new WorkflowCheckCommand()
             ];
+        }
+    }
+
+    internal class WorkflowCheckCommand : ICommand
+    {
+        public string Name => "/workflow";
+        public IEnumerable<string> Aliases => ["/wf"];
+        public string Help => "";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is Player p)
+            {
+                switch (parameters.Count)
+                {
+                    case 1:
+                        {
+                            if (p.CurrentWorkflow != null)
+                                p.WriteLine($"Your current workflow is {p.CurrentWorkflow.Name}");
+                            else
+                                p.WriteLine("Not in workflow");
+                                break;
+                        }
+                    default:
+
+                        break;
+                }
+            }
+            return true;
         }
     }
 

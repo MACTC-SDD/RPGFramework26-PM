@@ -1,6 +1,7 @@
-﻿using RPGFramework.Commands;
-using RPGFramework.Geography;
+﻿using System.Linq;
 using RPGFramework;
+using RPGFramework.Commands;
+using RPGFramework.Geography;
 
 namespace RPGFramework.Workflows
 {
@@ -40,7 +41,8 @@ namespace RPGFramework.Workflows
                 new UXTreeCommand(),
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
-                new CombatAdminControlsCommand()
+                new CombatAdminControlsCommand(),
+                new WorkflowCheckCommand()
             ];
         public List<ICommand> PostProcessCommands { get; private set; } =
         [
@@ -70,7 +72,8 @@ namespace RPGFramework.Workflows
                 new UXTreeCommand(),
                 new UXBarChartCommand(),
                 new UXCanvasCommand(),
-                new CombatAdminControlsCommand()
+                new CombatAdminControlsCommand(),
+                new WorkflowCheckCommand()
         ];
 
         public Dictionary<string, object> WorkflowData { get; set; } = [];
@@ -85,14 +88,18 @@ namespace RPGFramework.Workflows
         {
             Combatants.Add(attacker);
             Combatants.Add(enemy);
-            foreach (NonPlayer npc in attacker.GetRoom().NonPlayers)
+            for (int i = 0; i < attacker.GetRoom().NonPlayers.Count; i++)
             {
-                if (npc.IsHostile == true && !Combatants.Contains(npc))
+                if (attacker.GetRoom().NonPlayers[i].IsHostile == true && !Combatants.Contains(attacker.GetRoom().NonPlayers[i]))
                 {
-                    Combatants.Add(npc);
+                    Combatants.Add(attacker.GetRoom().NonPlayers[i]);
                 }
             }
             foreach (Character c in Combatants)
+            {
+                Console.WriteLine(c.Name);
+            }
+                foreach (Character c in Combatants)
             {
                 Random rand = new();
                 int initiativeRoll = rand.Next(1, 20);
