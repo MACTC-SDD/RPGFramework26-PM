@@ -107,7 +107,7 @@ namespace RPGFramework.Commands
                 return false;
             }
 
-            target.Role = PlayerRole.Admin;
+            target.PlayerRole = PlayerRole.Admin;
             target.Save();
             return true;
         }
