@@ -107,9 +107,9 @@ namespace RPGFramework.Workflows
             {
                 if (!Combatants[i].Alive)
                 {
-                    if (i is NonPlayer npc)
+                    if (Combatants[i] is NonPlayer npc)
                     {
-                        foreach (Player p in Combatants.OfType<Player>))
+                        foreach (Player p in Combatants.OfType<Player>())
                         {
                             p.XP += npc.XPgive;
 
