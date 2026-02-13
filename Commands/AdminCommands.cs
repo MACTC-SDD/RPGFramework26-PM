@@ -16,6 +16,7 @@ namespace RPGFramework.Commands
         {
             return
             [
+                new AdminCommand(),
                 new AdminHealCommand(),
                 new AdminHelpCommand(),
                 new AnnounceCommand(),
@@ -72,6 +73,42 @@ namespace RPGFramework.Commands
             player.WriteLine("where <playerName>                        - Show location for a player");
             player.WriteLine("who                                       - List online players");
             player.WriteLine("teleportroom <areaId>:<roomId> OR <roomId> - Teleport to a specific room (area optional)");
+            return true;
+        }
+    }
+    #endregion
+
+    #region AddminCommand Class
+    internal class AdminCommand : ICommand
+    {
+        public string Name => "/admin";
+        public IEnumerable<string> Aliases => [];
+        public string Help => "Make someone an administrator\nUsage: admin <user>";
+        public bool Execute(Character character, List<string> parameters)
+        {
+            if (character is not Player player)
+                return false;
+            //if (Utility.CheckPermission(player, PlayerRole.Admin) == false)
+            //{
+            //    return false;
+            //}
+
+            if (parameters.Count < 2)
+            {
+                player.WriteLine("You have to specify a player.");
+                return false;
+            }
+
+            string name = parameters[1];
+
+            if (!Player.TryFindPlayer(name, GameState.Instance.Players, out Player? target) || target == null)
+            {
+                player.WriteLine($"Player {name} not found.");
+                return false;
+            }
+
+            target.Role = PlayerRole.Admin;
+            target.Save();
             return true;
         }
     }
