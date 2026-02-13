@@ -117,6 +117,7 @@ namespace RPGFramework
 
         [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Spell> SpellCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, ShopKeeper> ShopKeeperCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
@@ -132,6 +133,7 @@ namespace RPGFramework
             Catalogs.Add(ItemCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(MessageCatalog);
+            Catalogs.Add(ShopKeeperCatalog);
             Catalogs.Add(SpellCatalog);
             Catalogs.Add(NPCCatalog);
             Catalogs.Add(RaceCatalog);

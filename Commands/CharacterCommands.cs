@@ -37,7 +37,10 @@ namespace RPGFramework.Commands
                 player.WriteLine("You have not selected a character class yet.");
                 return true;
             }
+            player.WriteLine("┏▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬┓");
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
+            player.WriteLine("▌✮        Player          ✮▐");
+            player.WriteLine($"════════════════════════════");
             player.WriteLine($"✦Your Character Class Is: {character.Class.Name}✦");
             player.WriteLine($"Class Description: {character.Class.Description}");
             player.WriteLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -46,7 +49,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"════════════════════════════");
             player.WriteLine($"°。°。°。°。°。°。°。°。°。°。");
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
-            player.WriteLine("        Base Stats ");
+            player.WriteLine(" ▌✮       Base Stats      ✮▐");
             player.WriteLine($"════════════════════════════");
             player.WriteLine($"       Strength: {player.Strength}");
             player.WriteLine($"       Dexterity: {player.Dexterity}");
@@ -57,7 +60,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"════════════════════════════");
             player.WriteLine($"°。°。°。°。°。°。°。°。°。°。");
             player.WriteLine($"══════════ ⋆★⋆ ═════════════");
-            player.WriteLine("        Modifiers ");
+            player.WriteLine(" ▌✮       Modifiers       ✮▐");
             player.WriteLine($"════════════════════════════");
             player.WriteLine($"   Strength Modifier:{character.Class.StrengthMod}");
             player.WriteLine($"   Dexterity Modifier:{character.Class.DexterityMod}");
@@ -66,6 +69,7 @@ namespace RPGFramework.Commands
             player.WriteLine($"   Wisdom Modifier:{character.Class.WisdomMod}");
             player.WriteLine($"   Charisma Modifier:{character.Class.CharismaMod}");
             player.WriteLine($"════════════════════════════");
+            player.WriteLine("┗▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬┛");
             return true;
         }
     }

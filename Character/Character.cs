@@ -29,7 +29,7 @@ namespace RPGFramework
         public string Description { get; set; } = "";
         public string Element { get; set; } = string.Empty;
         public int Gold { get; set; } = 0;
-        public int Health { get; set; } = 100;
+        public int Health { get; set; } = 30;
         public bool IsEngaged { get; protected set; } = false;
         [JsonInclude] public Inventory BackPack { get; protected set; } = new Inventory();
         [JsonInclude] public int Level { get; protected set; } = 1;
@@ -49,6 +49,8 @@ namespace RPGFramework
         public int MaxMana { get; set; } = 35;
         public int Mana { get; set; } = 35;
         public Race? Race { get; set; } = new();
+        public string MostRecentSaveResult { get; set; } = "failed";
+        public List<Spell> Spellbook { get; set; } = [];
 
         #endregion
 
@@ -221,13 +223,15 @@ namespace RPGFramework
         }
 
         public IRenderable ShowSummary()
-        { var table = new Table();
+        { 
+            Room r = GetRoom();
+            var table = new Table();
             table.AddColumn("Background");
             table.AddColumn("info");
             table.AddRow($"Name: {Name}", $"Gold: {Gold}");
             table.AddRow($"Class: {Class?.Name ?? "None"}", $"Weapon: {PrimaryWeapon.Name}");
             table.AddRow($"Health: {Health}", $"XP: {XP}");
-            table.AddRow($"level: {Level}", $"Location: {LocationId}");
+            table.AddRow($"level: {Level}", $"Location: {r.Name}");
 
             string title = "Character Info";
 

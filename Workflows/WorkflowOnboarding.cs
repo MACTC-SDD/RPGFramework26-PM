@@ -99,7 +99,7 @@ namespace RPGFramework.Workflows
                     else 
                     {
                         player.WriteLine("Re-rolling stats...");
-                        CurrentStep++;
+                        CurrentStep--;
                         // Stay on this step to re-roll
                     }
                     break;

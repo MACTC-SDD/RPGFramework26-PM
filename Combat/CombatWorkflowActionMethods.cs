@@ -26,7 +26,7 @@ namespace RPGFramework.Workflows
                 Character? chosenTarget = null;
                 foreach (Character target in this.Combatants)
                 {
-                    if (target.Name.ToLower() == targetName && target != player)
+                    if (target.Name.ToLower() == targetName)
                     {
                         chosenTarget = target;
                         break;
@@ -40,11 +40,15 @@ namespace RPGFramework.Workflows
 
                     if (selectedSpell.HasSave == true)
                     {
-                        selectedSpell.SaveSpell(player, selectedSpell, chosenTarget);
+                        int damage = selectedSpell.SaveSpell(player, selectedSpell, chosenTarget);
+                        player.WriteLine($"{chosenTarget.Name} {chosenTarget.MostRecentSaveResult} their save and took {damage} damage!");
+                        if (chosenTarget is Player p)
+                            p.WriteLine($"You took {damage} damage due to {player.Name}'s spell: {selectedSpell.Name}");
                     }
                     else if (selectedSpell.IsHeal == true)
                     {
-                        selectedSpell.HealSpell(player, selectedSpell);
+                        int healAmount = selectedSpell.HealSpell(player, selectedSpell, chosenTarget);
+                        player.WriteLine($"{chosenTarget} was healed for {healAmount}");
                     }
                     else
                     {

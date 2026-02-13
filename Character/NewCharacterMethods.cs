@@ -34,7 +34,7 @@ namespace RPGFramework
             }
         }
 
-        public bool RollToHitS(Character attacker, Character target)
+        public bool RollToHitS(Character attacker, Spell weapon, Character target)
         {
             Random rand = new Random();
             int attackRoll = rand.Next(1, 20);
@@ -51,11 +51,18 @@ namespace RPGFramework
                     {
                         targetAC += (target.Dexterity - 10) / 2;
                     }
-                }  
+                }
+            int damageModifier = (attacker.Intelligence - 10) / 2;
+            int totalDamage = weapon.RollDamageS(weapon.MaxDice, weapon.MaxDamage, 1);
+            if (attackRoll == 20)
+            {
+                target.TakeDamage(totalDamage * 2);
+                target.ReduceDurabilityArmor(target.EquippedArmor, (target.EquippedArmor.Durability / 16));
+            }
             if (attackRoll == 1)
             {
                 if (attacker is Player player)
-                    player.WriteLine($"[underline][red]You missed[/] [CornflowerBlue]{target.Name}![/]");
+                player.WriteLine($"[underline][red]You missed[/] [CornflowerBlue]{target.Name}![/]");
                 totalAttack = 0;
                 attacker.TakeDamage(1);
                 return false;

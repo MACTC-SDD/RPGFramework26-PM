@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.CompilerServices;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
 using RPGFramework.Workflows;
@@ -30,6 +31,7 @@ namespace RPGFramework
         #endregion
         public bool IsHostile { get; set; } = false;
         public string NpcClasification { get; set; } = "";
+        public int XPgive { get; set; } = 10;
       
 
         // CODE REVIEW: Rylan (PR #16)
@@ -52,19 +54,31 @@ namespace RPGFramework
         }
         public static void TakeTurn(NonPlayer npc, CombatWorkflow combat)
         {
+            GameState _instance = GameState.Instance;
+
             // NPC turn logic to be implemented
-            foreach (Character c in combat.Combatants)
+            //int action;
+
+            //action = _instance.Random.Next(0, 2);
+
+            // Attack
+            Character? target = null;
+
+            do
             {
-                if (c.CombatFaction != npc.CombatFaction)
-                {
-                    // Example logic: NPC attacks the first enemy it finds\
-                    if (c is Player p)
-                        p.WriteLine($"{npc.Name} attacks {c.Name}!");
-                    c.TakeDamage(10);
-                    // Implement attack logic here, e.g., calculate damage, apply effects, etc.
-                    break; // End turn after attacking one enemy
-                }
-            }
+                int targetIndex = _instance.Random.Next(0, combat.Combatants.Count - 1);
+                if (combat.Combatants[targetIndex] == npc) target = null;
+            } while (target == null);
+
+            int damage = npc.CalculateDamage();
+            target.TakeDamage(damage);
+
+            Comm.SendToIfPlayer(target, $"{npc.Name} attacks you for {damage} damage!");               
+        }
+
+        public int CalculateDamage()
+        {
+            return PrimaryWeapon.RollDamage() + Strength;
         }
     }
 }
