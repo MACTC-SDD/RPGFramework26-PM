@@ -10,13 +10,13 @@ namespace RPGFramework.Enums
         Bread,
         Cheesewheel,
         Stew,
-        Chicken_Leg,
-        Wolf_Meat,
-        Boar_Meat,
+        ChickenLeg,
+        WolfMeat,
+        BoarMeat,
         Pie,
         Berries,
-        Water_Bottle,
-        Milk_Bottle,
+        WaterBottle,
+        MilkBottle,
         Wine
     }
 }
