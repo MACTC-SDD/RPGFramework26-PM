@@ -221,14 +221,11 @@ namespace RPGFramework.Commands
                         Name = parameters[2],
                         Id = Convert.ToInt32(parameters[3]),
                         Description = parameters[4],
-                        DisplayText = parameters[5],
-                        IsDroppable = Convert.ToBoolean(parameters[6]),
-                        IsGettable = Convert.ToBoolean(parameters[7]),
-                        Level = Convert.ToInt32(parameters[8]),
-                        Tags = [.. parameters[10].Split(",")],
-                        Value = Convert.ToDouble(parameters[12]),
-                        Weight = Convert.ToDouble(parameters[13]),
-                        UseSpeed = Convert.ToDouble(parameters[14])
+                        Durability = int.Parse(parameters[5]),
+                        Value = Convert.ToDouble(parameters[6]),
+                        MaxDamage = Convert.ToInt32(parameters[7]),
+                        range = Convert.ToBoolean(parameters[8]),
+
                     };
 
                     // These should all use TryParse
@@ -324,9 +321,9 @@ namespace RPGFramework.Commands
                 else
                 {
                     // Every parse needs to be checked
-                    if (parameters.Count < 15)
+                    if (parameters.Count < 7)
                     {
-                        player.WriteLine("The full create requires 16 parameters");
+                        player.WriteLine("The full create requires 7 parameters");
                         return false;
                     }
 
@@ -338,14 +335,8 @@ namespace RPGFramework.Commands
                         Name = parameters[2],
                         Id = Convert.ToInt32(parameters[3]),
                         Description = parameters[4],
-                        DisplayText = parameters[5],
-                        IsDroppable = Convert.ToBoolean(parameters[6]),
-                        IsGettable = Convert.ToBoolean(parameters[7]),
-                        Level = Convert.ToInt32(parameters[8]),
-                        Tags = [.. parameters[10].Split(",")],
-                        Value = Convert.ToDouble(parameters[12]),
-                        Weight = Convert.ToDouble(parameters[13]),
-                        UseSpeed = Convert.ToDouble(parameters[14])
+                        Value = Convert.ToDouble(parameters[5]),
+                        HealAmount = Convert.ToInt32(parameters[6])
                     };
 
                     // These should all use TryParse
