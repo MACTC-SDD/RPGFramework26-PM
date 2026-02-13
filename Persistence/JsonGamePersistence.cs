@@ -92,11 +92,14 @@ namespace RPGFramework.Persistence
                 bool hasAnyAreaFile = Directory.EnumerateFiles(runtimeAreasDir, "*.json", SearchOption.TopDirectoryOnly).Any();
                 if (!hasAnyAreaFile)
                 {
+                    GameState.Log(Enums.DebugLevel.Alert, "Created new starter area, I wonder why there wasn't one in data_seed?");
                     CreateStarterArea();
                 }
             }
 
+            // Isn't this just duplicating what was done above?
             // If CopyFilesFromDataSeed was set, copy all files from seed directories to runtime directories.
+            /*
             if (options.CopyFilesFromDataSeedToRuntimeData)
             {
                 if (!string.IsNullOrWhiteSpace(options.SeedDataRelativePath))
@@ -110,6 +113,7 @@ namespace RPGFramework.Persistence
                     }
                 }
             }
+            */
 
             return Task.CompletedTask;
         }

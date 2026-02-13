@@ -108,7 +108,7 @@ namespace RPGFramework.Commands
                     Description = "This is item number " + i,
                     DisplayText = "You see item number " + i,
                     Level = i % 10,
-                    Value = (i % 100) * 1.5,
+                    Value = (int)((i % 100) * 1.5),
                     Weight = (i % 50) * 0.75,
                     IsDroppable = true,
                     IsGettable = true,

@@ -1,4 +1,5 @@
 ﻿
+using RPGFramework.Commands;
 using RPGFramework.Core;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
@@ -117,6 +118,7 @@ namespace RPGFramework
 
         [JsonIgnore] public Catalog<string, string> MessageCatalog { get; set; } = [];
         [JsonIgnore] public Catalog<string, Spell> SpellCatalog { get; set; } = [];
+        [JsonIgnore] public Catalog<string, ShopKeeper> ShopKeeperCatalog { get; set; } = [];
 
         #endregion --- Catalogs ---
 
@@ -132,6 +134,7 @@ namespace RPGFramework
             Catalogs.Add(ItemCatalog);
             Catalogs.Add(MobCatalog);
             Catalogs.Add(MessageCatalog);
+            Catalogs.Add(ShopKeeperCatalog);
             Catalogs.Add(SpellCatalog);
             Catalogs.Add(NPCCatalog);
             Catalogs.Add(RaceCatalog);
@@ -639,11 +642,17 @@ namespace RPGFramework
                     foreach (CombatWorkflow combat in Combats)
                     {
                         combat.Process();
-                    }                                                                  
+                    }         
+                    
+                    for (int i = Combats.Count - 1; i >= 0; i--)
+                    {
+                        if (Combats[i].Ended)
+                            Combats.RemoveAt(i);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message}");
+                    GameState.Log(DebugLevel.Error, $"Error during combat management: {ex.Message} \n {ex.StackTrace}");
                 }
                 await Task.Delay(interval, ct);
             }

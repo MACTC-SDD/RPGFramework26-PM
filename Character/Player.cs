@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 using RPGFramework.Enums;
 using RPGFramework.Geography;
+using RPGFramework.Workflows;
 using Spectre.Console;
 using Spectre.Console.Rendering;
-using RPGFramework.Workflows;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -41,20 +42,13 @@ namespace RPGFramework
             new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 500, StatPoints = 1, Health = 25, Mana=15},
-            new() {RequiredXp = 1000, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 1500, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 2000, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 2500, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 3000, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 3500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 4000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 4500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 5000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 5500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 6000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 6500, StatPoints = 1, Health = 25, Mana = 15},
-            new() {RequiredXp = 7000, StatPoints = 1, Health = 25, Mana=15},
+            new() {RequiredXp = 7000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 7500, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 8000, StatPoints = 1, Health = 25, Mana = 15},
             new() {RequiredXp = 8500, StatPoints = 1, Health = 25, Mana = 15},
@@ -152,6 +146,9 @@ namespace RPGFramework
         /// </summary>
         public void Logout()
         {
+            if (!IsOnline)
+                return; 
+
             TimeSpan duration = DateTime.Now - LastLogin;
             PlayTime += duration;
             IsOnline = false;            
@@ -189,18 +186,36 @@ namespace RPGFramework
 
         public void Write(string message)
         {
-            WriteNewLineIfNeeded();
-            Console?.Write(message);
-            var line = Network?.TelnetConnection?.CurrentLineText;
-            Console?.Write(line ?? String.Empty); // Re-write current input line
+            try
+            {
+                WriteNewLineIfNeeded();
+                Console?.Write(message);
+                var line = Network?.TelnetConnection?.CurrentLineText;
+                Console?.Write(line ?? String.Empty); // Re-write current input line
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                GameState.Log(Enums.DebugLevel.Error, $"Error sending message to player {Name}: {ex.Message}");
+                Logout(); // Log the player out if we can't send messages to them, as this likely means their connection is lost
+            }
         }
 
         public void Write(IRenderable renderable)
         {
-            WriteNewLineIfNeeded();
-            Console?.Write(renderable);
-            var line = Network?.TelnetConnection?.CurrentLineText;
-            Console?.Write(line ?? String.Empty); // Re-write current input line
+            try
+            {
+                WriteNewLineIfNeeded();
+                Console?.Write(renderable);
+                var line = Network?.TelnetConnection?.CurrentLineText;
+                Console?.Write(line ?? String.Empty); // Re-write current input line
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                GameState.Log(Enums.DebugLevel.Error, $"Error sending message to player {Name}: {ex.Message}");
+                Logout(); // Log the player out if we can't send messages to them, as this likely means their connection is lost
+            }
         }
         
         /// <summary>
@@ -210,21 +225,39 @@ namespace RPGFramework
         /// p formatting supported by the output system.</param>
         public void WriteLine(string message)
         {
-            WriteNewLineIfNeeded();
-            Console?.MarkupLine(message);
-            var line = Network?.TelnetConnection?.CurrentLineText;
-            Console?.Write(line ?? String.Empty); // Re-write current input line
+            try
+            {
+                WriteNewLineIfNeeded();
+                Console?.MarkupLine(message);
+                var line = Network?.TelnetConnection?.CurrentLineText;
+                Console?.Write(line ?? String.Empty); // Re-write current input line
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                GameState.Log(Enums.DebugLevel.Error, $"Error sending message to player {Name}: {ex.Message}");
+                Logout(); // Log the player out if we can't send messages to them, as this likely means their connection is lost
+            }
         }
 
         private void WriteNewLineIfNeeded()
         {
-            if (Network == null)
-                return;
-            if (Network.TelnetConnection == null)
-                return;
-            if (Network.NeedsOutputNewline)
+            try
             {
-                Console?.Write("\r\n");
+                if (Network == null)
+                    return;
+                if (Network.TelnetConnection == null)
+                    return;
+                if (Network.NeedsOutputNewline)
+                {
+                    Console?.Write("\r\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                GameState.Log(Enums.DebugLevel.Error, $"Error sending message to player {Name}: {ex.Message}");
+                Logout(); // Log the player out if we can't send messages to them, as this likely means their connection is lost
             }
         }
 
@@ -247,7 +280,22 @@ namespace RPGFramework
                 StatPoints += _levels[Level].StatPoints;
                 MaxMana += _levels[Level].Mana;
                 Level++;
-                
+                switch (Class?.Name)
+                {
+                    case "Mage":
+                         this.magelevelupspells();
+
+                        break;
+                    case "Paladin":
+                         this.paladinlevelupspells();
+                        break;
+                    case "Bard":
+                         this.bardlevelupspells();
+                        break;
+                    case "Druid":
+                         this.druidlevelupspells();
+                        break;
+                }
             }
         }
         public void TriggerAgro(Room room)
@@ -280,7 +328,184 @@ namespace RPGFramework
                 }
             }
         }
+        public void magelevelupspells()
+        {
+            switch (Level)
+            {
+                case 0:
+                   Spell? s = FindSpellInCatalog("Magic Missle");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Eldritch Blast");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Cure Wounds");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 2:
+                    s = FindSpellInCatalog("Fire Bolt");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Chill Touch");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                break;
+                case 5:
+                    s = FindSpellInCatalog("Fireball");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Witch Bolt");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Time Ravage");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                break;
+                case 15:
+                    s = FindSpellInCatalog("Power Word: Kill");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Disintegrate");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Unlimited Void");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                break;
+            }
+        }
+        public void paladinlevelupspells()
+        {
+            switch (Level)
+            {
+                case 0:
+                    Spell?  s = FindSpellInCatalog("Cure Wounds");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Magic Missle");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 3:
+                  s = FindSpellInCatalog("Cause Fear");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                break;
+                case 6:
+                    s = FindSpellInCatalog("Smite of Divinity");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Illusionary Dragon");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Shocking Grasp");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 16:
+                    s = FindSpellInCatalog("Eternal Radiance");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Hold Monster");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
 
+            }
+        }
+        public void bardlevelupspells()
+        {
+            switch (Level)
+            {
+                case 0:
+                   Spell? s = FindSpellInCatalog("Cure Wounds");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Magic Missle");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 3:
+                    s = FindSpellInCatalog("Sleep");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Inflict Wounds");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Contagion");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Darkness");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Blindness/Deafness");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 10:
+                    s = FindSpellInCatalog("Power Word: Pain");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Power Word: Stun");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Beam of Purity");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Ray of Sickness");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+            }
+        }
+        public void druidlevelupspells()
+        {
+            switch (Level)
+            {
+                case 0:
+                   Spell? s = FindSpellInCatalog("Cure Wounds");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Entangle");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 6:
+                    s = FindSpellInCatalog("Lesser Restoration");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Flesh to Stone");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 10:
+                    s = FindSpellInCatalog("Greater Restoration");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+                case 15:
+                    s = FindSpellInCatalog("Wrath of Nature");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    s = FindSpellInCatalog("Power Word: Heal");
+                    if (s != null)
+                        Spellbook.Add(Utility.Clone(s));
+                    break;
+            }
+        }
+
+        public static Spell? FindSpellInCatalog(string name)
+        {
+            foreach (Spell s in GameState.Instance.SpellCatalog.Values)
+            {
+                if (s.Name == name)
+                    return s;
+                else
+                    return null;
+            }
+            return null;
+        }
     }
 
 

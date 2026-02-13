@@ -8,7 +8,7 @@ namespace RPGFramework.Workflows
     internal partial class CombatWorkflow : IWorkflow
     {
         public int ActiveFactions { get; private set; } = 0;
-
+        public bool Ended { get; private set; } = false;
         /// <summary>
         /// Process a combat turn, removing dead combatants and counting active factions
         /// </summary>
@@ -46,6 +46,7 @@ namespace RPGFramework.Workflows
             // at the start of combat assign first active combatant based on initiative order
             ActiveCombatant ??= Combatants[0];
             // run npc turn if npc, otherwise wait for 30 seconds to pass for player turns
+            Console.WriteLine($"Active combatant is {ActiveCombatant.Name}");
             if (ActiveCombatant is NonPlayer npc)
             {
                 npc.ProcessStatusEffects();
@@ -91,22 +92,30 @@ namespace RPGFramework.Workflows
 
         public void EndCombat()
         {
-            foreach (Character c in Combatants)
+            for (int i = Combatants.Count - 1; i >= 0; i--)
             {
-                c.CurrentWorkflow = null;
-                Combatants.Remove(c);
+                Combatants[i].CurrentWorkflow = null;
+                Combatants.Remove(Combatants[i]);
             }
-
-            GameState.Instance.Combats.Remove(this);
+            Ended = true;
+            // GameState.Instance.Combats.Remove(this);
         }
 
         private void BringOutYourDead()
         {
-            foreach (Character c in Combatants)
+            for (int i = Combatants.Count - 1; i >= 0; i--)
             {
-                if (!c.Alive)
+                if (!Combatants[i].Alive)
                 {
-                    Combatants.Remove(c);
+                    if (Combatants[i] is NonPlayer npc)
+                    {
+                        foreach (Player p in Combatants.OfType<Player>())
+                        {
+                            p.XP += npc.XPgive;
+
+                        }
+                    }
+                Combatants.RemoveAt(i);
                 }
             }
         }
